@@ -24,7 +24,7 @@ def simpleNamespace_forlabels(self):
 def create_names_labels(self):
 
         self.labels.home_team.name = tk.Label(self.root, text=self.home_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
-        self.labels.home_team.grid(row=1, column=0, padx=20)
+        self.labels.home_team.name.grid(row=1, column=0, padx=20)
 
         self.labels.away_team.name = tk.Label(self.root, text=self.away_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
         self.labels.away_team.name.grid(row=1, column=2, padx=20)
@@ -53,7 +53,7 @@ def create_possession_labels(self):
         self.labels.match.possession.grid(row=2, column=1)
 
         self.labels.match.poseesion_text = tk.Label(self.root, text="POSESIÓN", font=("Arial", 30), fg="white", bg="black")
-        self.labels.match.poseesion_texto.grid(row=3, column=1)
+        self.labels.match.poseesion_text.grid(row=3, column=1)
 # Updates labels functions
 def update_points_labels(self):
     self.labels.home_team.points.config(text=str(self.home_team.points))
