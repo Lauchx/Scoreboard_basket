@@ -2,6 +2,11 @@ import tkinter as tk
 from types import SimpleNamespace
 class Gui_scoreboard:
     def __init__(self, root, home_team, away_team):
+        """
+        Args:
+            home_team (Team): Objeto Team compartido con Gui_control_panel.
+            away_team (Team): Objeto Team compartido con Gui_contorl_panel.
+        """
         self.root = root
         self.root.title("Scoreboard")
         self.root.configure(bg="black")
