@@ -1,49 +1,69 @@
 import tkinter as tk
-
+from types import SimpleNamespace
 class Gui_scoreboard:
     def __init__(self, root, home_team, away_team):
         self.root = root
         self.root.title("Scoreboard")
         self.root.configure(bg="black")
-    # Elementos visuales del marcador
-        self.logo1_label = tk.Label(self.root, bg="black")
-        self.logo1_label.grid(row=0, column=0, padx=10, pady=5)
+        self.home_team = home_team
+        self.away_team = away_team
+        simpleNamespace_forlabels(self)
+        create_logos_labels(self)
+        create_names_labels(self)
+        create_time_labels(self)
+        create_points_labels(self)
+        create_quarter_labels(self)
+        create_possession_labels(self)
 
-        self.home_team_label = tk.Label(self.root, text="Equipo 1", font=("Arial", 40, "bold"), fg="white", bg="black")
-        self.home_team_label.grid(row=1, column=0, padx=20)
+def simpleNamespace_forlabels(self):
+        self.labels = SimpleNamespace()
+        self.labels.home_team = SimpleNamespace()
+        self.labels.away_team = SimpleNamespace()
+        self.labels.match = SimpleNamespace()
+# Create functions labels
+def create_names_labels(self):
 
-        self.time_label = tk.Label(self.root, text="15:00", font=("Arial", 60), fg="white", bg="black")
-        self.time_label.grid(row=0, column=1)
+        self.labels.home_team.name = tk.Label(self.root, text=self.home_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
+        self.labels.home_team.grid(row=1, column=0, padx=20)
 
-        self.logo2_label = tk.Label(self.root, bg="black")
-        self.logo2_label.grid(row=0, column=2, padx=10, pady=5)
+        self.labels.away_team.name = tk.Label(self.root, text=self.away_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
+        self.labels.away_team.name.grid(row=1, column=2, padx=20)
+def create_logos_labels(self):
+        self.labels.home_team.logo = tk.Label(self.root, bg="black")
+        self.labels.home_team.logo.grid(row=0, column=0, padx=10, pady=5)
 
-        self.away_team_label = tk.Label(self.root, text="Equipo 2", font=("Arial", 40, "bold"), fg="white", bg="black")
-        self.away_team_label.grid(row=1, column=2, padx=20)
+        self.labels.away_team.logo = tk.Label(self.root, bg="black")
+        self.labels.away_team.logo.grid(row=0, column=2, padx=10, pady=5)
+def create_time_labels(self):
+        self.labels.match.time = tk.Label(self.root, text="15:00", font=("Arial", 60), fg="white", bg="black")
+        self.labels.match.time.grid(row=0, column=1)
+    
+def create_points_labels(self):
+        self.labels.home_team.points = tk.Label(self.root, text=self.home_team.points, font=("Arial", 80), fg="orange", bg="black")
+        self.labels.home_team.points.grid(row=2, column=0)
+        self.labels.away_team.points = tk.Label(self.root, text=self.away_team.points, font=("Arial", 80), fg="orange", bg="black")
+        self.labels.away_team.points.grid(row=2, column=2)
+    
+def create_quarter_labels(self):
+        self.labels.match.quarter = tk.Label(self.root, text="Cuarto: 1", font=("Arial", 30), fg="white", bg="black")
+        self.labels.match.quarter.grid(row=1, column=1)
 
-        # Sección de puntajes
-        self.puntaje1_label = tk.Label(self.root, text="0", font=("Arial", 80), fg="orange", bg="black")
-        self.puntaje1_label.grid(row=2, column=0)
+def create_possession_labels(self):
+        self.labels.match.possession = tk.Label(self.root, text="->", font=("Arial", 50), fg="red", bg="black")
+        self.labels.match.possession.grid(row=2, column=1)
 
-        self.quarter_label = tk.Label(self.root, text="Cuarto: 1", font=("Arial", 30), fg="white", bg="black")
-        self.quarter_label.grid(row=1, column=1)
-
-        self.puntaje2_label = tk.Label(self.root, text="0", font=("Arial", 80), fg="orange", bg="black")
-        self.puntaje2_label.grid(row=2, column=2)
-
-        self.poseesion_label = tk.Label(self.root, text="24", font=("Arial", 50), fg="red", bg="black")
-        self.poseesion_label.grid(row=2, column=1)
-
-        self.poseesion_texto = tk.Label(self.root, text="POSESIÓN", font=("Arial", 30), fg="white", bg="black")
-        self.poseesion_texto.grid(row=3, column=1)
-
-    def actualizar_marcador(self, home_team, away_team, tiempo, quarter, poseesion):
-        """Actualiza los valores visibles en la pantalla pública."""
-        self.puntaje1_label.config(text=str(home_team))
-        self.puntaje2_label.config(text=str(away_team))
-        self.tiempo_label.config(text=tiempo)
-        self.quarter_label.config(text=f"Cuarto: {quarter}")
-        self.poseesion_label.config(text=str(poseesion))
+        self.labels.match.poseesion_text = tk.Label(self.root, text="POSESIÓN", font=("Arial", 30), fg="white", bg="black")
+        self.labels.match.poseesion_texto.grid(row=3, column=1)
+# Updates labels functions
+def update_points_labels(self):
+    self.labels.home_team.points.config(text=str(self.home_team.points))
+    self.labels.away_team.points.config(text=str(self.home_team.points))
+def update_time_labels(self, time):
+    self.labels.match.time.config(text=time)
+def update_quarter_labels(self, quarter):
+      self.labels.match.quarter.config(text=f"Cuarto: {quarter}")
+def update_possession_labels(self, possession):
+      self.labels.match.possession.config(text=possession)
 
 if __name__ == "__main__":
     root = tk.Tk()
