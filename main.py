@@ -1,6 +1,6 @@
 import tkinter as tk
 from gui.control_panel.gui_control_panel import Gui_control_panel
-from team.model.entity.team import Team
+from team.controller.team import Team
 def main():
     main_window =tk.Tk()
     
@@ -8,5 +8,4 @@ def main():
     main_window.mainloop()
 
 if __name__ == "__main__":
-    print(Team(), "team")
     main()

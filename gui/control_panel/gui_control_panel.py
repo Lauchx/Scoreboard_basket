@@ -6,11 +6,12 @@ import os
 #                    reset_poseesion, sumar_cuarto, restar_cuarto, agregar_jugador, falta_jugador)
 from joystick import iniciar_joystick
 from gui.scoreboard.gui_scoreboard import Gui_scoreboard
-from team.model.entity.team import Team
+from team.controller.team import Team
+from types import SimpleNamespace
 
 
 class Gui_control_panel:
-    def __init__(self, root,):
+    def __init__(self, root):
         """
         Args:
             home_team (Team): Object Team share with Gui_scoreboard.
@@ -20,31 +21,37 @@ class Gui_control_panel:
         self.root.title("Consola de Control")
         self.root.configure(bg="gray")  
         # Guardar referencia a la pantalla pública
-        self.home_team = Team()
-        self.away_team = Team()
-
-        self.setup_ui()
+        self.home_team = Team("","Equipo Local",0,0,[],3)
+        self.away_team = Team("","Equipo Visitante",0,0,[],3)
+        initialize_gui_scoreboard(self)
+        setup_ui(self)
         # Inicializar joystick
         #iniciar_joystick(self)
-    def initialize_gui_scoreboard(self):
-        scoreboard_window = Gui_scoreboard(tk.Toplevel(self),self.home_team, self.away_team)      
+def initialize_gui_scoreboard(self):
+        self.scoreboard_window = Gui_scoreboard(tk.Toplevel(self),self.home_team, self.away_team)
+def simpleNamespace_forUi(self):
+        self.entry = SimpleNamespace()
+        self.entry.home_team = SimpleNamespace()
+        self.entry.away_team = SimpleNamespace()
 
-    def setup_ui(self):
+
+def setup_ui(self):
         """Configura la interfaz de control sin marcador."""
         self.frame = tk.Frame(self.root, bg="gray", relief=tk.RAISED)
         self.frame.pack(padx=20, pady=20)
         # Nombres de equipos
         tk.Label(self.frame, text="Nombre Equipo 1:", bg="gray").grid(row=0, column=0, sticky="ew")
-        self.nombre_equipo1 = tk.Entry(self.frame)
-        self.nombre_equipo1.grid(row=0, column=1)
+        self.entry.home_team.name = tk.Entry(self.frame)
+        self.home_team.name = self.entry.home_team.name.get()
+        self.entry.home_team.name.grid(row=0, column=1)
         tk.Button(self.frame, text="Cargar Logo", command=lambda: self.cargar_logo(1)).grid(row=0, column=2)
 
         tk.Label(self.frame, text="Nombre Equipo 2:").grid(row=1, column=0)
-        self.nombre_equipo2 = tk.Entry(self.frame)
+        self.away_team.name = tk.Entry(self.frame)
         self.nombre_equipo2.grid(row=1, column=1)
         tk.Button(self.frame, text="Cargar Logo", command=lambda: self.cargar_logo(2)).grid(row=1, column=2)
 
-        tk.Button(self.frame, text="Actualizar Nombres", command=lambda: actualizar_nombres(self)).grid(row=2, column=2)
+        tk.Button(self.frame, text="Actualizar Nombres", command=lambda: self.scoreboard_window.update_team_names_labels()).grid(row=2, column=2)
 
         # Botones de puntaje
         for i, puntos in enumerate([1, 2, 3]):
@@ -71,7 +78,7 @@ class Gui_control_panel:
 
         tk.Button(self.frame, text="Reset 24s", command=lambda: reset_poseesion(self)).grid(row=10, column=1)
 
-    def cargar_logo(self, equipo):
+def cargar_logo(self, equipo):
         """Carga el logo del equipo desde 'assets/'."""
         ruta = filedialog.askopenfilename(title="Seleccionar logo", filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg;*.gif")])
         if ruta:
