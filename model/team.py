@@ -4,5 +4,5 @@ class Team:
         self.name = name
         self.fouls = fouls
         self.points = points
-        self.players[12] = players
-        self.timeouts = timeouts
+        self.players = players
+        self.timeouts = timeouts 

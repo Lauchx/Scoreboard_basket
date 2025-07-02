@@ -1,6 +1,5 @@
 import tkinter as tk
 from gui.control_panel.gui_control_panel import Gui_control_panel
-from team.controller.team import Team
 def main():
     main_window =tk.Tk()
     
