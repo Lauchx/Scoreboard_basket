@@ -22,7 +22,7 @@ class Gui_scoreboard:
     # Updates labels functions
     def update_points_labels(self):
      self.labels.home_team.points.config(text=str(self.home_team.points))
-     self.labels.away_team.points.config(text=str(self.home_team.points))
+     self.labels.away_team.points.config(text=str(self.away_team.points))
     def update_time_labels(self, time):
      self.labels.match.time.config(text=str(time))
     def update_quarter_labels(self, quarter):
