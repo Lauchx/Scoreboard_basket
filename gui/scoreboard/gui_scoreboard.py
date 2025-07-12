@@ -1,7 +1,7 @@
 import tkinter as tk
 from types import SimpleNamespace
 class Gui_scoreboard:
-    def __init__(self, root, home_team, away_team ):
+    def __init__(self, root, match_state):
         """
         Args:
             home_team (Team): Objeto Team compartido con Gui_control_panel.
@@ -11,8 +11,7 @@ class Gui_scoreboard:
         self.root.title("Scoreboard")
         self.root.configure(bg="black")
         simpleNamespace_forUi(self)
-        self.home_team = home_team
-        self.away_team = away_team
+        self.match_state = match_state
         self.match.quarter = 1
         create_logos_labels(self)
         create_names_labels(self)
@@ -22,21 +21,21 @@ class Gui_scoreboard:
         create_possession_labels(self)
     # Updates labels functions
     def update_points_labels(self):
-        self.labels.home_team.points.config(text=str(self.home_team.points))
-        self.labels.away_team.points.config(text=str(self.away_team.points))
+        self.labels.home_team.points.config(text=str(self.match_state.home_team.points))
+        self.labels.away_team.points.config(text=str(self.match_state.away_team.points))
     def update_time_labels(self, time):
         self.labels.match.time.config(text=str(time))
     def update_possession_labels(self, possession):
         self.labels.match.possession.config(text=possession)    
     def update_team_names_labels(self):
-        self.labels.home_team.name.config(text=self.home_team.name)
-        self.labels.away_team.name.config(text=self.away_team.name)
+        self.labels.home_team.name.config(text=self.match_state.home_team.name)
+        self.labels.away_team.name.config(text=self.match_state.away_team.name)
     def update_quarter_labels(self, number):
         self.match.quarter += number
         self.labels.match.quarter.config(text=f"Cuarto: {self.match.quarter}")
     def update_possession_labels(self):
         current_possesion = self.labels.match.possession["text"]
-        new_possesion = "<-" if current_possesion == "->" else "->"
+        new_possesion = "<-" if current_possesion == "Away" else "->"
         self.labels.match.possession.config(text=str(new_possesion))
 def simpleNamespace_forUi(self):
         self.labels = SimpleNamespace()
@@ -48,10 +47,10 @@ def simpleNamespace_forUi(self):
 def get_time_match(self):
       return float(self.labels.match.time)
 def create_names_labels(self):
-        self.labels.home_team.name = tk.Label(self.root, text=self.home_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
+        self.labels.home_team.name = tk.Label(self.root, text=self.match_state.home_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
         self.labels.home_team.name.grid(row=1, column=0, padx=20)
 
-        self.labels.away_team.name = tk.Label(self.root, text=self.away_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
+        self.labels.away_team.name = tk.Label(self.root, text=self.match_state.away_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
         self.labels.away_team.name.grid(row=1, column=2, padx=20)
 def create_logos_labels(self):
         self.labels.home_team.logo = tk.Label(self.root, bg="black")
@@ -64,9 +63,9 @@ def create_time_labels(self):
         self.labels.match.time.grid(row=0, column=1)
     
 def create_points_labels(self):
-        self.labels.home_team.points = tk.Label(self.root, text=self.home_team.points, font=("Arial", 80), fg="orange", bg="black")
+        self.labels.home_team.points = tk.Label(self.root, text=self.match_state.home_team.points, font=("Arial", 80), fg="orange", bg="black")
         self.labels.home_team.points.grid(row=2, column=0)
-        self.labels.away_team.points = tk.Label(self.root, text=self.away_team.points, font=("Arial", 80), fg="orange", bg="black")
+        self.labels.away_team.points = tk.Label(self.root, text=self.match_state.away_team.points, font=("Arial", 80), fg="orange", bg="black")
         self.labels.away_team.points.grid(row=2, column=2)
     
 def create_quarter_labels(self):

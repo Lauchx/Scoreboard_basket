@@ -2,10 +2,12 @@ import tkinter as tk
 from tkinter import Image, filedialog, messagebox 
 # from PIL import Image, ImageTk
 import os
+from controller.match_state_controller import Match_state_controller
 from controller.team_controller import Team_controller
 from gui.scoreboard.gui_scoreboard import Gui_scoreboard
 from types import SimpleNamespace
 from model.team import Team
+##from model.time.match_time import Match_time
 
 
 class Gui_control_panel:
@@ -14,8 +16,12 @@ class Gui_control_panel:
         self.root.title("Consola de Control")
         self.root.configure(bg="gray")  
         simpleNamespace_forUi(self)
-        self.home_team_controller = Team_controller(Team("","Equipo Local",0,0,[],3))
-        self.away_team_controller = Team_controller(Team("","Equipo Visitante",0,0,[],3))
+        home_team_controller = Team_controller(Team("","Equipo Local",0,0,[],3))
+        away_team_controller = Team_controller(Team("","Equipo Visitante",0,0,[],3))
+        ###match_time = Match_time(15,0) # 15 minutos de tiempo de juego (No debe estar hardcodeado)
+       ### self.match_state = Match_state_controller(home_team_controller,away_team_controller,match_time,"Home")
+        self.match_state_controller = Match_state_controller(home_team_controller,away_team_controller,"Home")
+
         """
             home_team (Team): Object Team share with Gui_scoreboard.
             away_team (Team): Object Team share with Gui_scoreboard.
@@ -29,7 +35,7 @@ class Gui_control_panel:
         
 
 def initialize_gui_scoreboard(self):
-        self.scoreboard_window = Gui_scoreboard(tk.Toplevel(self.root),self.home_team_controller.team, self.away_team_controller.team)
+        self.scoreboard_window = Gui_scoreboard(tk.Toplevel(self.root),self.match_state_controller.match_state)
 def setup_ui(self):
         ##Configura la interfaz de control sin marcador.
     self.frame = tk.Frame(self.root, bg="gray", relief=tk.RAISED)
@@ -47,34 +53,40 @@ def simpleNamespace_forUi(self):
         self.entry.home_team = SimpleNamespace()
         self.entry.away_team = SimpleNamespace()
         self.match = SimpleNamespace()
+### team names functions 
 def update_team_names(self):
-    self.home_team_controller.team.name = self.entry.home_team.name.get() 
-    self.away_team_controller.team.name = self.entry.away_team.name.get()
+    new_home_team_name = self.entry.home_team.name.get()
+    self.match_state_controller.home_team_controller.change_name(new_home_team_name) 
+    new_away_team_name = self.entry.away_team.name.get() 
+    self.match_state_controller.away_team_controller.change_name(new_away_team_name)
     self.scoreboard_window.update_team_names_labels()
-    
+ ### logo functions    
 def buttons_logo(self):
     tk.Button(self.frame, text="Cargar Logo", command=lambda: self.cargar_logo(1)).grid(row=0, column=2)
     tk.Button(self.frame, text="Cargar Logo", command=lambda: self.cargar_logo(2)).grid(row=1, column=2)
-
+### points functions
 def buttons_points(self):
-    tk.Button(self.frame, text=f"Equipo 1 +1", command=lambda: add_point(self, self.home_team_controller)).grid(row=3, column=0)
-    tk.Button(self.frame, text=f"Equipo 2 +1", command=lambda: add_point(self, self.away_team_controller)).grid(row=3, column=1)
+    tk.Button(self.frame, text=f"Equipo 1 +1", command=lambda: add_point(self, self.match_state_controller.home_team_controller)).grid(row=3, column=0)
+    tk.Button(self.frame, text=f"Equipo 2 +1", command=lambda: add_point(self, self.match_state_controller.away_team_controller)).grid(row=3, column=1)
 
-def add_point(self, team):
-    team.add_point()
+def add_point(self, team_controller):
+    team_controller.add_point()
     self.scoreboard_window.update_points_labels()
+### quarter functions 
 def buttons_change_quarter(self):
     tk.Label(self.frame, text="Cuarto:", bg="gray").grid(row=7, column=0)
     tk.Button(self.frame, text="-", command=lambda: substract_quarter(self)).grid(row=7, column=1)
     tk.Button(self.frame, text="+", command=lambda: add_quarter(self)).grid(row=7, column=2)
-def buttons_change_possesion(self):
-    tk.Button(self.frame, text="Cambiar posesión", command=lambda: toggle_possession(self)).grid(row=9, column=1)
-def toggle_possession(self):
-    self.scoreboard_window.update_possession_labels()
 def add_quarter(self):
     self.scoreboard_window.update_quarter_labels(1)
 def substract_quarter(self):
     self.scoreboard_window.update_quarter_labels(-1)
+###  possesion functions 
+def buttons_change_possesion(self):
+    tk.Button(self.frame, text="Cambiar posesión", command=lambda: toggle_possession(self)).grid(row=9, column=1)
+def toggle_possession(self):
+    self.scoreboard_window.update_possession_labels()
+### time functions 
 def change_time(self):
     tk.Label(self.frame, text="Tiempo (mm:ss):", bg="gray").grid(row=2, column=0)
     self.tiempo_entry = tk.Entry(self.frame)
