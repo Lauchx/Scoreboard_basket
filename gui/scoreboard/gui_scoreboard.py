@@ -12,7 +12,6 @@ class Gui_scoreboard:
         self.root.configure(bg="black")
         simpleNamespace_forUi(self)
         self.match_state = match_state
-        self.match.quarter = 1
         create_logos_labels(self)
         create_names_labels(self)
         create_time_labels(self)
@@ -31,8 +30,8 @@ class Gui_scoreboard:
         self.labels.home_team.name.config(text=self.match_state.home_team.name)
         self.labels.away_team.name.config(text=self.match_state.away_team.name)
     def update_quarter_labels(self, number):
-        self.match.quarter += number
-        self.labels.match.quarter.config(text=f"Cuarto: {self.match.quarter}")
+        self.match_state.quarter += number
+        self.labels.match.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
     def update_possession_labels(self):
         current_possesion = self.labels.match.possession["text"]
         new_possesion = "<-" if current_possesion == "Away" else "->"
@@ -69,7 +68,7 @@ def create_points_labels(self):
         self.labels.away_team.points.grid(row=2, column=2)
     
 def create_quarter_labels(self):
-        self.labels.match.quarter = tk.Label(self.root, text=str(f"Cuarto: {self.match.quarter}"), font=("Arial", 30), fg="white", bg="black")
+        self.labels.match.quarter = tk.Label(self.root, text=str(f"Cuarto: {self.match_state.quarter}"), font=("Arial", 30), fg="white", bg="black")
         self.labels.match.quarter.grid(row=1, column=1)
 
 def create_possession_labels(self):
