@@ -1,5 +1,8 @@
 import tkinter as tk
 from types import SimpleNamespace
+from PIL import Image, ImageTk
+import os
+
 class Gui_scoreboard:
     def __init__(self, root, match_state):
         """
@@ -22,20 +25,34 @@ class Gui_scoreboard:
     def update_points_labels(self):
         self.labels.home_team.points.config(text=str(self.match_state.home_team.points))
         self.labels.away_team.points.config(text=str(self.match_state.away_team.points))
-    def update_time_labels(self, time):
-        self.labels.match.time.config(text=str(time))
+
+    def update_time_labels(self):
+        minutes = self.match_state.seconds_match_time // 60
+        seconds = self.match_state.seconds_match_time % 60
+        self.labels.match.time.config(text=f"{minutes:02}:{seconds:02}")
+
     def update_possession_labels(self, possession):
-        self.labels.match.possession.config(text=possession)    
+        self.labels.match.possession.config(text=possession)   
+
     def update_team_names_labels(self):
         self.labels.home_team.name.config(text=self.match_state.home_team.name)
         self.labels.away_team.name.config(text=self.match_state.away_team.name)
+
     def update_quarter_labels(self, number):
         self.match_state.quarter += number
         self.labels.match.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
+
     def update_possession_labels(self):
-        current_possesion = self.labels.match.possession["text"]
-        new_possesion = "<-" if current_possesion == "Away" else "->"
-        self.labels.match.possession.config(text=str(new_possesion))
+        current_possesion = self.match_state.possession
+        if current_possesion == "Away":
+            self.match_state.possession = "Home"
+            new_possesion = "⇦"  
+            self.labels.match.possession.config(text=str(new_possesion))
+        else:
+            self.match_state.possession = "Away"
+            new_possesion = "⇨" 
+            self.labels.match.possession.config(text=str(new_possesion))
+
 def simpleNamespace_forUi(self):
         self.labels = SimpleNamespace()
         self.labels.home_team = SimpleNamespace()
@@ -43,8 +60,6 @@ def simpleNamespace_forUi(self):
         self.labels.match = SimpleNamespace()
         self.match = SimpleNamespace()
 # Create functions labels
-def get_time_match(self):
-      return float(self.labels.match.time)
 def create_names_labels(self):
         self.labels.home_team.name = tk.Label(self.root, text=self.match_state.home_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
         self.labels.home_team.name.grid(row=1, column=0, padx=20)
@@ -58,7 +73,10 @@ def create_logos_labels(self):
         self.labels.away_team.logo = tk.Label(self.root, bg="black")
         self.labels.away_team.logo.grid(row=0, column=2, padx=10, pady=5)
 def create_time_labels(self):
-        self.labels.match.time = tk.Label(self.root, text="15:00", font=("Arial", 60), fg="white", bg="black")
+        minutes = self.match_state.seconds_match_time // 60
+        seconds = self.match_state.seconds_match_time % 60
+        self.labels.match.time = tk.Label(self.root, text=f"{minutes:02}:{seconds:02}", font=("Arial", 60), fg="white", bg="black")
+        ## {minutes:02}:{seconds:02} (:02) agrega dos digitos si el numero es menor a 10
         self.labels.match.time.grid(row=0, column=1)
     
 def create_points_labels(self):
@@ -72,14 +90,8 @@ def create_quarter_labels(self):
         self.labels.match.quarter.grid(row=1, column=1)
 
 def create_possession_labels(self):
-        self.labels.match.possession = tk.Label(self.root, text="->", font=("Arial", 50), fg="red", bg="black")
+        self.labels.match.possession = tk.Label(self.root, text="⇦", font=("Arial", 200), fg="red", bg="black")
         self.labels.match.possession.grid(row=2, column=1)
 
         self.labels.match.poseesion_text = tk.Label(self.root, text="POSESIÓN", font=("Arial", 30), fg="white", bg="black")
         self.labels.match.poseesion_text.grid(row=3, column=1)
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = Gui_scoreboard(root)
-    root.mainloop()
