@@ -22,6 +22,9 @@ class Gui_scoreboard:
         create_quarter_labels(self)
         create_possession_labels(self)
     # Updates labels functions
+    def update_team_logo_label(self):
+        self.labels.home_team.logo.config(image=self.match_state.home_team.logo)
+        self.labels.away_team.logo.config(image=self.match_state.away_team.logo)
     def update_points_labels(self):
         self.labels.home_team.points.config(text=str(self.match_state.home_team.points))
         self.labels.away_team.points.config(text=str(self.match_state.away_team.points))

@@ -4,5 +4,9 @@ class Team_controller:
     
     def add_point(self):
         self.team.points += 1
+    def substract_point(self):
+        self.team.points -= 1   
     def change_name(self, name):
         self.team.name = name
+    def change_logo(self, logo):
+        self.team.logo = logo
