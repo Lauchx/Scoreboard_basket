@@ -1,7 +1,9 @@
 import tkinter as tk
+from tkinter import ttk
 from types import SimpleNamespace
 from PIL import Image, ImageTk
 import os
+from gui.scoreboard.styles_scoreboard import apply_styles
 
 class Gui_scoreboard:
     def __init__(self, root, match_state):
@@ -11,6 +13,7 @@ class Gui_scoreboard:
             away_team (Team): Objeto Team compartido con Gui_control_panel.
         """
         self.root = root
+        apply_styles()
         self.root.title("Scoreboard")
         self.root.configure(bg="black")
         simpleNamespace_forUi(self)
@@ -64,11 +67,12 @@ def simpleNamespace_forUi(self):
         self.match = SimpleNamespace()
 # Create functions labels
 def create_names_labels(self):
-        self.labels.home_team.name = tk.Label(self.root, text=self.match_state.home_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
+        self.labels.home_team.name = ttk.Label(self.root, text=self.match_state.home_team.name, style="Teams_name.TLabel")
         self.labels.home_team.name.grid(row=1, column=0, padx=20)
 
-        self.labels.away_team.name = tk.Label(self.root, text=self.match_state.away_team.name, font=("Arial", 40, "bold"), fg="white", bg="black")
+        self.labels.away_team.name = ttk.Label(self.root, text=self.match_state.away_team.name, style="Teams_name.TLabel")
         self.labels.away_team.name.grid(row=1, column=2, padx=20)
+
 def create_logos_labels(self):
         self.labels.home_team.logo = tk.Label(self.root, bg="black")
         self.labels.home_team.logo.grid(row=0, column=0, padx=10, pady=5)

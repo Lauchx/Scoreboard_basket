@@ -1,0 +1,1 @@
+#Aqui va toda la logica de los teams 

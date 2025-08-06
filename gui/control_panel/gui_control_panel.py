@@ -1,12 +1,12 @@
 import tkinter as tk
-from tkinter import Image, filedialog, messagebox, ttk
-from PIL import Image, ImageTk
-import os
+from tkinter import ttk
 from controller.match_state_controller import Match_state_controller
 from controller.team_controller import Team_controller
 from gui.scoreboard.gui_scoreboard import Gui_scoreboard
 from types import SimpleNamespace
 from model.team import Team
+from gui.control_panel.ui_components.ui_teams import ui_teams
+from gui.control_panel.ui_components.ui_logo import buttons_logo 
 
 
 class Gui_control_panel():
@@ -24,10 +24,12 @@ class Gui_control_panel():
         """
         initialize_gui_scoreboard(self)
         setup_ui(self)
-        setup_ui_home_team(self)
-        setup_ui_away_team(self)
+        #ui_teams
+        self.ui_teams = ui_teams(self)
+        self.ui_teams.setup_ui_teams()
         setup_ui_control(self)
         buttons_points(self)
+        #ui_logo
         buttons_logo(self)
         buttons_change_possesion(self)
         buttons_for_match_time(self)
@@ -64,23 +66,7 @@ def setup_ui(self):
     grid_config(self)
 
 
-def setup_ui_home_team(self):
-    self.frames.home_team = ttk.LabelFrame(self.frames.teams, text="Equipo Local")
-    self.frames.home_team.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-    ttk.Label(self.frames.home_team, text="Nombre:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-    self.entry.home_team.name = ttk.Entry(self.frames.home_team)
-    self.entry.home_team.name.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
-    ttk.Button(self.frames.home_team, text="Actualizar Nombre:", command=lambda: update_home_team_name(self)).grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
-    self.frames.home_team.grid_columnconfigure(1, weight=1)
 
-def setup_ui_away_team(self):
-    self.frames.away_team = ttk.LabelFrame(self.frames.teams, text="Equipo Visitante")
-    self.frames.away_team.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-    ttk.Label(self.frames.away_team, text="Nombre:").grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-    self.entry.away_team.name = ttk.Entry(self.frames.away_team)
-    self.entry.away_team.name.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
-    self.frames.away_team.grid_columnconfigure(1, weight=1)
-    ttk.Button(self.frames.away_team, text="Actualizar Nombre:", command=lambda: update_away_team_name(self)).grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 def setup_ui_control(self):
     setup_ui_control_time_match(self)
     setup_ui_control_home_team_match(self)
@@ -125,21 +111,9 @@ def grid_config(self):
     self.frames.match.grid_columnconfigure(1, weight=1)
 
 ### team names functions 
-def update_home_team_name(self):
-    new_home_team_name = self.entry.home_team.name.get()
-    self.match_state_controller.home_team_controller.change_name(new_home_team_name) 
-    self.scoreboard_window.update_team_names_labels()
-    self.frames.match.home_team.config(text=self.match_state_controller.home_team_controller.team.name)
- 
-def update_away_team_name(self):
-    new_away_team_name = self.entry.away_team.name.get() 
-    self.match_state_controller.away_team_controller.change_name(new_away_team_name)
-    self.scoreboard_window.update_team_names_labels()
+
 
  ### logo functions   
-def buttons_logo(self):
-    ttk.Button(self.frames.home_team, text="Cargar Logo", command=lambda: upload_logo(self, self.match_state_controller.home_team_controller)).grid(row=0, column=2)
-    ttk.Button(self.frames.away_team, text="Cargar Logo", command=lambda: upload_logo(self, self.match_state_controller.away_team_controller)).grid(row=0, column=2)
 
 ### points functions
 def buttons_points(self):
@@ -194,24 +168,6 @@ def buttons_for_match_time(self):
 
        
 
-def upload_logo(self, teamController):
-        """Carga el logo del equipo desde 'assets/'."""
-        path = filedialog.askopenfilename(title="Seleccionar logo", filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg;*.gif")])
-        if path:
-            try:
-                file_name = f"{teamController.team.name}_logo.png"
-                #image_asset_path  = os.path.join("assets", file_name)
-                # os.makedirs("assets", exist_ok=True)
-                # os.replace(path, image_asset_path)
-
-                image = Image.open(path)
-                image = image.resize((300, 300), Image.LANCZOS)
-                logo = ImageTk.PhotoImage(image)
-
-                teamController.change_logo(logo)
-                self.scoreboard_window.update_team_logo_label()
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo cargar la imagen: {str(e)}")
 
 if __name__ == "__main__":
     root = tk.Tk()
