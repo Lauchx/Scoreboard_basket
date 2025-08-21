@@ -2,10 +2,13 @@ import tkinter as tk
 from tkinter import ttk
 from controller.match_state_controller import Match_state_controller
 from controller.team_controller import Team_controller
+# from gui.control_panel.ui_components.ui_teams.away_team.ui_away_team_players import setup_away_team_players
+# from gui.control_panel.ui_components.ui_teams.home_team.delete import buttons_players
+from gui.control_panel.ui_components.ui_players import setup_away_team_players
 from gui.scoreboard.gui_scoreboard import Gui_scoreboard
 from types import SimpleNamespace
 from model.team import Team
-from gui.control_panel.ui_components.ui_teams import ui_teams
+from gui.control_panel.ui_components.ui_teams.ui_teams import ui_teams
 from gui.control_panel.ui_components.ui_logo import buttons_logo 
 from gui.control_panel.ui_components.ui_possession import buttons_change_possesion
 from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time
@@ -36,16 +39,20 @@ class Gui_control_panel():
         buttons_logo(self)
 
         buttons_change_possesion(self)
-        
+        #buttons_players(self)
+        #setup_away_team_players(self)
         ##start_timer(self)
+        setup_away_team_players(self, home_team_controller, self.frames.home_team)
+        setup_away_team_players(self, away_team_controller, self.frames.away_team)
         
 def simpleNamespace_forUi(self):
     self.entry = SimpleNamespace()
     self.entry.home_team = SimpleNamespace()
     self.entry.away_team = SimpleNamespace()
     self.entry.match = SimpleNamespace()
-    #self.notebooks =SimpleNamespace()
     self.frames = SimpleNamespace()
+    self.combobox = SimpleNamespace()
+    self.combobox.player = SimpleNamespace()
 
 
 def initialize_gui_scoreboard(self):
