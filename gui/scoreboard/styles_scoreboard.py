@@ -6,3 +6,4 @@ def apply_styles():
     # Podés definir más estilos:
     style.configure("Red.TButton", font=("Arial", 14), foreground="white", background="red")
     style.configure("Title.TEntry", font=("Arial", 16))
+    style.configure("home_team.TFrame",background="red")

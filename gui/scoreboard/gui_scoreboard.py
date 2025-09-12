@@ -84,13 +84,16 @@ def _nameSpace_entry_for_controller(self, team_name) -> SimpleNamespace:
     return self.labels.away_team
 
 def setup_ui(self):
+    for c in range(3):
+        self.root.grid_columnconfigure(c, weight=1)
+    self.root.grid_rowconfigure(0, weight=1)
     setup_ui_match(self)
     create_time_labels(self)
     create_possession_labels(self)
     create_quarter_labels(self)
 
 def creates_home_team(self):
-    self.frames.teams.home_team = ttk.Frame(self.root)
+    self.frames.teams.home_team = ttk.Frame(self.root, style="home_team.TFrame")
     self.frames.teams.home_team.grid(row=0, column=0)
     #ui_team
     teams_labels_grid_configure(self.frames.teams.home_team)

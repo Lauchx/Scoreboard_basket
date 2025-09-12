@@ -6,7 +6,7 @@ def create_names_labels(team_frame, team_labels, team_name):
 
 def create_logos_labels(team_frame, team_labels):
         team_labels.logo = ttk.Label(team_frame)
-        team_labels.logo.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+        team_labels.logo.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
 
 def create_points_labels(team_frame, team_labels, points_team):
         team_labels.points = ttk.Label(team_frame, text=points_team, font=("Arial", 80))
@@ -15,3 +15,5 @@ def create_points_labels(team_frame, team_labels, points_team):
 def teams_labels_grid_configure(team_frame):
         for c in range(4):
                 team_frame.grid_columnconfigure(c, weight=1)
+        for c in range(4):
+                team_frame.grid_rowconfigure(c, weight=1)
