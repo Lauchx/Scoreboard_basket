@@ -40,7 +40,7 @@ def add_player(self, team_controller, team_entry, team_combobox):
     player = Player(player_name,player_jersey_number,False) 
     team_controller.add_player_in_team(player)
     team_controller.show_team_players()
-    self.scoreboard_window.update_label_players(player_jersey_number,player_name )
+    self.scoreboard_window.update_label_players(player_jersey_number,player_name, team_controller.team.name)
 
 def _nameSpace_entry_for_controller(self, team_controller) -> SimpleNamespace:
     if team_controller.team.name == self.match_state_controller.home_team_controller.team.name:
@@ -55,3 +55,5 @@ def _nameSpace_frame_for_controller(self, team_controller) -> SimpleNamespace:
     if team_controller.team.name == self.match_state_controller.home_team_controller.team.name:
         return self.frames.home_team
     return self.frames.away_team
+
+        
