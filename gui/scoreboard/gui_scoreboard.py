@@ -18,12 +18,19 @@ class Gui_scoreboard:
         self.root.configure(bg="black")
         simpleNamespace_forUi(self)
         self.match_state = match_state
-        create_logos_labels(self)
-        create_names_labels(self)
-        create_time_labels(self)
-        create_points_labels(self)
-        create_quarter_labels(self)
-        create_possession_labels(self)
+        if not hasattr(self, "labels"):
+            self.labels = SimpleNamespace(home_team=SimpleNamespace(),
+                                     away_team=SimpleNamespace(),
+                                     match=SimpleNamespace())
+        home_team_labels = _nameSpace_entry_for_controller(self, self.match_state.home_team.name)
+        awat_team_labels =_nameSpace_entry_for_controller(self, self.match_state.away_team.name)
+        create_logos_labels(self,home_team_labels)
+        create_names_labels(self, home_team_labels, self.match_state.home_team.name)
+        #create_time_labels(self, home_team_labels)
+        create_points_labels(self, home_team_labels, self.match_state.home_team.points)
+        # create_quarter_labels(self, home_team_labels)
+        # create_possession_labels(self, home_team_labels)
+        # create_players_labels(self, home_team_labels)
     # Updates labels functions
     def update_team_logo_label(self):
         self.labels.home_team.logo.config(image=self.match_state.home_team.logo)
@@ -58,6 +65,9 @@ class Gui_scoreboard:
             self.match_state.possession = "Away"
             new_possesion = "⇨" 
             self.labels.match.possession.config(text=str(new_possesion))
+    def update_label_players(self, player_jersey_number,player_name): 
+       # self.labels.match.players.config(text=self.match_state.home_team.players)
+        self.labels.match.players.insert(tk.END, f"{player_jersey_number} - {player_name}")
 
 def simpleNamespace_forUi(self):
         self.labels = SimpleNamespace()
@@ -66,39 +76,15 @@ def simpleNamespace_forUi(self):
         self.labels.match = SimpleNamespace()
         self.match = SimpleNamespace()
 # Create functions labels
-def create_names_labels(self):
-        self.labels.home_team.name = ttk.Label(self.root, text=self.match_state.home_team.name, style="Teams_name.TLabel")
-        self.labels.home_team.name.grid(row=1, column=0, padx=20)
 
-        self.labels.away_team.name = ttk.Label(self.root, text=self.match_state.away_team.name, style="Teams_name.TLabel")
-        self.labels.away_team.name.grid(row=1, column=2, padx=20)
+def _nameSpace_entry_for_controller(self, team_name) -> SimpleNamespace:
+    if team_name == self.match_state.home_team.name:
+        return self.labels.home_team
+    return self.labels.away_team
 
-def create_logos_labels(self):
-        self.labels.home_team.logo = tk.Label(self.root, bg="black")
-        self.labels.home_team.logo.grid(row=0, column=0, padx=10, pady=5)
+def setup_ui(self):
+    self.notebook = ttk.Notebook(self.root)
+    self.notebook.grid(row=0, column=0, sticky="nsew")
 
-        self.labels.away_team.logo = tk.Label(self.root, bg="black")
-        self.labels.away_team.logo.grid(row=0, column=2, padx=10, pady=5)
-def create_time_labels(self):
-        minutes = self.match_state.seconds_match_time // 60
-        seconds = self.match_state.seconds_match_time % 60
-        self.labels.match.time = tk.Label(self.root, text=f"{minutes:02}:{seconds:02}", font=("Arial", 60), fg="white", bg="black")
-        ## {minutes:02}:{seconds:02} (:02) agrega dos digitos si el numero es menor a 10
-        self.labels.match.time.grid(row=0, column=1)
-    
-def create_points_labels(self):
-        self.labels.home_team.points = tk.Label(self.root, text=self.match_state.home_team.points, font=("Arial", 80), fg="orange", bg="black")
-        self.labels.home_team.points.grid(row=2, column=0)
-        self.labels.away_team.points = tk.Label(self.root, text=self.match_state.away_team.points, font=("Arial", 80), fg="orange", bg="black")
-        self.labels.away_team.points.grid(row=2, column=2)
-    
-def create_quarter_labels(self):
-        self.labels.match.quarter = tk.Label(self.root, text=str(f"Cuarto: {self.match_state.quarter}"), font=("Arial", 30), fg="white", bg="black")
-        self.labels.match.quarter.grid(row=1, column=1)
-
-def create_possession_labels(self):
-        self.labels.match.possession = tk.Label(self.root, text="⇦", font=("Arial", 200), fg="red", bg="black")
-        self.labels.match.possession.grid(row=2, column=1)
-
-        self.labels.match.poseesion_text = tk.Label(self.root, text="POSESIÓN", font=("Arial", 30), fg="white", bg="black")
-        self.labels.match.poseesion_text.grid(row=3, column=1)
+    self.frames.teams = ttk.Frame(self.notebook)
+    self.notebook.add(self.frames.teams, text="Equipos")
