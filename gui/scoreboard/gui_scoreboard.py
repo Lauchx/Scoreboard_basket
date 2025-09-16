@@ -18,6 +18,7 @@ class Gui_scoreboard:
         self.root = root
         apply_styles()
         self.root.title("Scoreboard")
+        #self.root.minsize(800,500) ### Checkear en varios dispositivos - Los números no son correctos del todo 
         self.root.configure(bg="black")
         simpleNamespace_forUi(self)
         self.match_state = match_state
@@ -84,17 +85,20 @@ def _nameSpace_entry_for_controller(self, team_name) -> SimpleNamespace:
     return self.labels.away_team
 
 def setup_ui(self):
-    for c in range(3):
-        self.root.grid_columnconfigure(c, weight=1)
+    for column in range(3):
+        self.root.grid_columnconfigure(column, weight=1, uniform="scoreboard")
+
     self.root.grid_rowconfigure(0, weight=1)
+    self.root.grid_rowconfigure(1, weight=0)
+
     setup_ui_match(self)
     create_time_labels(self)
     create_possession_labels(self)
     create_quarter_labels(self)
 
 def creates_home_team(self):
-    self.frames.teams.home_team = ttk.Frame(self.root, style="home_team.TFrame")
-    self.frames.teams.home_team.grid(row=0, column=0)
+    self.frames.teams.home_team = ttk.Frame(self.root, style="home_team.TFrame", padding=(20, 15))
+    self.frames.teams.home_team.grid(row=0, column=0, sticky="nsew", padx=(20, 10), pady=20)
     #ui_team
     teams_labels_grid_configure(self.frames.teams.home_team)
     create_names_labels(self.frames.teams.home_team, self.labels.home_team, self.match_state.home_team.name)
@@ -105,8 +109,8 @@ def creates_home_team(self):
    
 
 def creates_away_team(self):
-    self.frames.teams.away_team = ttk.Frame(self.root)
-    self.frames.teams.away_team.grid(row=0, column=2)
+    self.frames.teams.away_team = ttk.Frame(self.root, padding=(20, 15))
+    self.frames.teams.away_team.grid(row=0, column=2, sticky="nsew", padx=(10, 20), pady=20)
     #ui_team
     teams_labels_grid_configure(self.frames.teams.away_team)
     create_names_labels(self.frames.teams.away_team, self.labels.away_team, self.match_state.away_team.name)
