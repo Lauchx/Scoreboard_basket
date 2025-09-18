@@ -1,14 +1,41 @@
 from tkinter import ttk
 from gui.control_panel.ui_components.ui_quarter import buttons_change_quarter
-def start_timer(self):
-        print(self.match_state_controller.match_state.seconds_match_time)
-        time_left = self.match_state_controller.match_state.seconds_match_time
-        if time_left > 0:
-            self.match_state_controller.match_state.seconds_match_time -= 1
+def start_timer(self):  
+        print(self.match_state_controller.match_state.seconds_time_left)
+        time_left = self.match_state_controller.match_state.seconds_time_left
+        if time_left > 0 and self.is_active_timer:
+            self.match_state_controller.match_state.seconds_time_left -= 1
             self.scoreboard_window.update_time_labels()
-            self.root.after(1000, lambda: start_timer(self))   
+            #self.button.start_timer.config(state="disabled") 
+            self.is_active_timer = True
+            self.root.after(1000, lambda: start_timer(self))  
         else:
-           print("FIN")
+           print("END")   
+def pause_resume_timer(self):
+    self.is_active_timer = not self.is_active_timer
+
+def change_text_button_timer(self):
+    text = "Pausar" if self.is_active_timer else "Reanudar"
+    self.button.timer.config(text=text)
+
+def reset_timer(self):
+    self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
+    if self.is_active_timer:
+        pause_resume_timer(self)
+        change_text_button_timer(self)
+    self.scoreboard_window.update_time_labels()
+
+
+def manage_timer(self):
+    if (self.is_active_timer is not None):
+        pause_resume_timer(self)  
+        if self.is_active_timer:
+            start_timer(self)
+    else:
+        self.is_active_timer = True
+        start_timer(self)
+    change_text_button_timer(self)
+            
 
 def setup_ui_time(self):
     print(self)
@@ -23,7 +50,8 @@ def setup_ui_time(self):
 def change_time(self):
      minutes = int(self.entry.match.minutes_match_time.get())
      seconds = int(self.entry.match.seconds_match_time.get())
-     self.match_state_controller.match_state.seconds_match_time = (minutes * 60) + seconds
+     self.match_state_controller.match_state.seconds_match_time = (minutes * 60) + seconds 
+     self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
      self.scoreboard_window.update_time_labels()
 
 def setup_ui_control_time_match(self):
@@ -32,9 +60,16 @@ def setup_ui_control_time_match(self):
     buttons_change_quarter(self)
     setup_ui_time(self)
 
-
 def buttons_for_match_time(self):
-    ttk.Button(self.frames.match.time, text="Iniciar", command=lambda: start_timer(self)).grid(row=1, column=5)
-    # ttk.Button(self.frame, text="Pausar", command=lambda: pausar_timer(self)).grid(row=9, column=1)
-    # ttk.Button(self.frame, text="Reset", command=lambda: reset_timer(self)).grid(row=9, column=2)
-    # ttk.Button(self.frame, text="Reset 24s", command=lambda: reset_poseesion(self)).grid(row=10, column=1)
+    self.button.timer = ttk.Button(self.frames.match.time, text="Iniciar", command=lambda: manage_timer(self))
+    self.button.timer.grid(row=1, column=5)
+    self.button.reset_timer = ttk.Button(self.frames.match.time, text="Reset", command=lambda: reset_timer(self))
+    self.button.reset_timer.grid(row=1, column=6)
+
+
+
+
+
+    
+    # self.button.pause_timer = ttk.Button(self.frames.match.time, text="Pausar", command=lambda: pause_timer(self))
+    # self.button.pause_timer.grid(row=9, column=1)

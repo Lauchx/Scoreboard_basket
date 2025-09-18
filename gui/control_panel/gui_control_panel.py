@@ -24,7 +24,7 @@ class Gui_control_panel():
         simpleNamespace_forUi(self)
         self.home_team_controller = Team_controller(Team("","Equipo Local",0,0,[],3))
         self.away_team_controller = Team_controller(Team("","Equipo Visitante",0,0,[],3))
-        self.match_state_controller = Match_state_controller(self.home_team_controller,self.away_team_controller,900,"Home",1)
+        self.match_state_controller = Match_state_controller(self.home_team_controller,self.away_team_controller,900,900,"Home",1)
         """
             match_state_controller.match_sate(Match_state): Object Match_state share with Gui_scoreboard.
         """
@@ -54,6 +54,7 @@ def simpleNamespace_forUi(self):
     self.combobox = SimpleNamespace()
     self.combobox.home_team = SimpleNamespace()
     self.combobox.away_team = SimpleNamespace()
+    self.button = SimpleNamespace()
 def setup_teams_players(self):
     setup_away_team_players(self, self.home_team_controller)
     setup_away_team_players(self, self.away_team_controller)
@@ -62,6 +63,7 @@ def initialize_gui_scoreboard(self):
     self.scoreboard_window = Gui_scoreboard(tk.Toplevel(self.root),self.match_state_controller.match_state)
 
 def setup_ui(self):
+    self.is_active_timer = None
     self.notebook = ttk.Notebook(self.root)
     self.notebook.grid(row=0, column=0, sticky="nsew")
 

@@ -1,9 +1,9 @@
 from tkinter import ttk
 
 def create_time_labels(self):
-    minutes = self.match_state.seconds_match_time // 60
+    minutes = self.match_state.seconds_time_left // 60
 
-    seconds = self.match_state.seconds_match_time % 60
+    seconds = self.match_state.seconds_time_left % 60
     self.labels.match.time = ttk.Label(
         self.frames.match,
         text=f"{minutes:02}:{seconds:02}",

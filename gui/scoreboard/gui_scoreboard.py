@@ -43,8 +43,8 @@ class Gui_scoreboard:
         self.labels.away_team.points.config(text=str(self.match_state.away_team.points))
 
     def update_time_labels(self):
-        minutes = self.match_state.seconds_match_time // 60
-        seconds = self.match_state.seconds_match_time % 60
+        minutes = self.match_state.seconds_time_left // 60
+        seconds = self.match_state.seconds_time_left % 60
         self.labels.match.time.config(text=f"{minutes:02}:{seconds:02}")
 
     def update_possession_labels(self, possession):
