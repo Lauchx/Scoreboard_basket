@@ -11,7 +11,9 @@ from model.team import Team
 from gui.control_panel.ui_components.ui_teams.ui_teams import ui_teams
 from gui.control_panel.ui_components.ui_logo import buttons_logo 
 from gui.control_panel.ui_components.ui_possession import buttons_change_possesion
-from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time
+from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time, manage_timer, pause_resume_timer, change_text_button_timer
+from controller.joystick_controller import JoystickController
+from gui.control_panel.ui_components.ui_joystick import setup_joystick_ui
 
 
 
@@ -28,6 +30,23 @@ class Gui_control_panel():
         """
             match_state_controller.match_sate(Match_state): Object Match_state share with Gui_scoreboard.
         """
+
+        # Inicializar JoystickController
+        self.joystick_controller = JoystickController()
+
+        # Inicializar configuración de botones por defecto
+        self.button_config = {
+            'home_add_point': 4,
+            'away_add_point': 5,
+            'home_subtract_point': 2,
+            'away_subtract_point': 3,
+            'start_timer': 7,
+            'pause_timer': 0,
+            'resume_timer': 1
+        }
+
+        setup_joystick_callbacks(self)
+
         initialize_gui_scoreboard(self)
         setup_ui(self)
 
@@ -43,8 +62,87 @@ class Gui_control_panel():
         #setup_away_team_players(self)
         ##start_timer(self)
         setup_teams_players(self)
-        
-        
+
+        # Configurar interfaz del joystick
+        setup_joystick_ui(self)
+
+        # Configurar limpieza al cerrar la ventana
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def on_closing(self):
+        """Función que se ejecuta al cerrar la aplicación"""
+        print("🚪 Cerrando aplicación...")
+
+        # Limpiar joystick controller
+        if hasattr(self, 'joystick_controller'):
+            self.joystick_controller.cleanup()
+
+        # Cerrar ventana
+        self.root.destroy()
+
+    def add_points_home(self, points):
+        """Suma puntos al equipo local"""
+        for _ in range(points):
+            self.home_team_controller.add_point()
+        self.scoreboard_window.update_points_labels()
+        print(f"🏠 +{points} puntos equipo local (Total: {self.home_team_controller.team.points})")
+
+    def add_points_away(self, points):
+        """Suma puntos al equipo visitante"""
+        for _ in range(points):
+            self.away_team_controller.add_point()
+        self.scoreboard_window.update_points_labels()
+        print(f"🚗 +{points} puntos equipo visitante (Total: {self.away_team_controller.team.points})")
+
+    def subtract_points_home(self):
+        """Resta un punto al equipo local"""
+        if self.home_team_controller.team.points > 0:
+            self.home_team_controller.substract_point()
+            self.scoreboard_window.update_points_labels()
+            print(f"🏠 -1 punto equipo local (Total: {self.home_team_controller.team.points})")
+
+    def subtract_points_away(self):
+        """Resta un punto al equipo visitante"""
+        if self.away_team_controller.team.points > 0:
+            self.away_team_controller.substract_point()
+            self.scoreboard_window.update_points_labels()
+            print(f"🚗 -1 punto equipo visitante (Total: {self.away_team_controller.team.points})")
+
+    def start_timer(self):
+        """Inicia el cronómetro"""
+        print("▶️ Iniciar cronómetro")
+        # Usar la función existente manage_timer que maneja inicio/pausa
+        manage_timer(self)
+
+    def pause_timer(self):
+        """Pausa el cronómetro"""
+        # Solo pausar si el cronómetro está activo
+        if hasattr(self, 'is_active_timer') and self.is_active_timer:
+            print("⏸️ Cronómetro pausado")
+            pause_resume_timer(self)
+            change_text_button_timer(self)
+        else:
+            print("⚠️ El cronómetro ya está pausado o no iniciado")
+
+    def resume_timer(self):
+        """Reanuda el cronómetro"""
+        # Solo reanudar si el cronómetro está pausado
+        if hasattr(self, 'is_active_timer') and not self.is_active_timer:
+            print("▶️ Cronómetro reanudado")
+            pause_resume_timer(self)
+            # Necesitamos importar start_timer del módulo ui_time
+            from gui.control_panel.ui_components.ui_time import start_timer
+            start_timer(self)
+            change_text_button_timer(self)
+        else:
+            print("⚠️ El cronómetro ya está en funcionamiento o no está configurado")
+
+    def change_possession(self):
+        """Cambia la posesión del balón"""
+        self.scoreboard_window.update_possession_labels()
+        print(f"🏀 Posesión cambiada a: {self.match_state_controller.match_state.possession}")
+
+
 def simpleNamespace_forUi(self):
     self.entry = SimpleNamespace()
     self.entry.home_team = SimpleNamespace()
@@ -91,6 +189,29 @@ def grid_config(self):
     self.frames.match.grid_rowconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(1, weight=1)
+
+def setup_joystick_callbacks(self):
+    """
+    Configura las funciones callback que se ejecutarán cuando se presionen botones del joystick.
+    Conecta cada acción del joystick con las funciones correspondientes del marcador.
+    """
+    print("🎮 Configurando callbacks del joystick...")
+
+    # Callbacks para sumar puntos (1 punto cada vez)
+    self.joystick_controller.set_callback('home_add_point', lambda: self.add_points_home(1))
+    self.joystick_controller.set_callback('away_add_point', lambda: self.add_points_away(1))
+
+    # Callbacks para restar puntos
+    self.joystick_controller.set_callback('home_subtract_point', lambda: self.subtract_points_home())
+    self.joystick_controller.set_callback('away_subtract_point', lambda: self.subtract_points_away())
+
+    # Callbacks para control de tiempo
+    self.joystick_controller.set_callback('start_timer', lambda: self.start_timer())
+    self.joystick_controller.set_callback('pause_timer', lambda: self.pause_timer())
+    self.joystick_controller.set_callback('resume_timer', lambda: self.resume_timer())
+
+    print("✅ Callbacks del joystick configurados")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
