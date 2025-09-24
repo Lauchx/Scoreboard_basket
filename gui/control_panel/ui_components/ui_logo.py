@@ -1,11 +1,10 @@
 from tkinter import Image, filedialog, messagebox, ttk
 from PIL import Image, ImageTk
 
-def buttons_logo(self):
-    ttk.Button(self.frames.home_team, text="Cargar Logo", command=lambda: upload_logo(self, self.match_state_controller.home_team_controller)).grid(row=0, column=2)
-    ttk.Button(self.frames.away_team, text="Cargar Logo", command=lambda: upload_logo(self, self.match_state_controller.away_team_controller)).grid(row=0, column=2)
+def buttons_logo(self, team_controller, team_simple_name_space):
+    ttk.Button(team_simple_name_space.labelFrame, text="Cargar Logo", command=lambda: upload_logo(self, team_controller, team_simple_name_space)).grid(row=0, column=2)
 
-def upload_logo(self, teamController):
+def upload_logo(self, teamController, team_simple_name_space):
         """Carga el logo del equipo desde 'assets/'."""
         path = filedialog.askopenfilename(title="Seleccionar logo", filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg;*.gif")])
         if path:

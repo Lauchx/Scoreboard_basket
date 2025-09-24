@@ -4,10 +4,10 @@ def create_time_labels(self):
     minutes = self.match_state.seconds_time_left // 60
 
     seconds = self.match_state.seconds_time_left % 60
-    self.labels.match.time = ttk.Label(
+    self.match.labels.time = ttk.Label(
         self.frames.match,
         text=f"{minutes:02}:{seconds:02}",
         font=("Arial", 60),
         background="blue",
     )  # {minutes:02}:{seconds:02} (:02) agrega dos digitos si el numero es menor a 10
-    self.labels.match.time.grid(row=0, column=0, sticky="nsew", pady=(0, 10))
+    self.match.labels.time.grid(row=0, column=0, sticky="nsew", pady=(0, 10))
