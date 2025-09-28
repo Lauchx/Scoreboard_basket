@@ -40,16 +40,16 @@ def manage_timer(self):
 def setup_ui_time(self):
     print(self)
     ttk.Label(self.frames.match.time, text="Minutos").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-    self.entry.match.minutes_match_time = ttk.Entry(self.frames.match.time)
-    self.entry.match.minutes_match_time.grid(row=1, column=1,sticky="nsew")
+    self.match.entry.minutes_match_time = ttk.Entry(self.frames.match.time)
+    self.match.entry.minutes_match_time.grid(row=1, column=1,sticky="nsew")
     ttk.Label(self.frames.match.time, text="Segundos").grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
-    self.entry.match.seconds_match_time = ttk.Entry(self.frames.match.time)
-    self.entry.match.seconds_match_time.grid(row=1, column=3, sticky="nsew")
+    self.match.entry.seconds_match_time = ttk.Entry(self.frames.match.time)
+    self.match.entry.seconds_match_time.grid(row=1, column=3, sticky="nsew")
     ttk.Button(self.frames.match.time, text="Actualizar tiempo", command=lambda: change_time(self)).grid(row=1, column=4,sticky="nsew")
 
 def change_time(self):
-     minutes = int(self.entry.match.minutes_match_time.get())
-     seconds = int(self.entry.match.seconds_match_time.get())
+     minutes = int(self.match.entry.minutes_match_time.get())
+     seconds = int(self.match.entry.seconds_match_time.get())
      self.match_state_controller.match_state.seconds_match_time = (minutes * 60) + seconds 
      self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
      self.scoreboard_window.update_time_labels()

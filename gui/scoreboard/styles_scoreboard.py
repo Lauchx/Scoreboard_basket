@@ -8,3 +8,5 @@ def apply_styles():
     style.configure("Title.TEntry", font=("Arial", 16))
     style.configure("home_team.TFrame",background="red")
     style.configure("time.TFrame",background="orange")
+    style.configure("active_player.TFrame", foreground="green")
+    style.configure("not_active_player.TFrame", foreground="blue")

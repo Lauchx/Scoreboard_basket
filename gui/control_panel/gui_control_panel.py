@@ -4,7 +4,7 @@ from controller.match_state_controller import Match_state_controller
 from controller.team_controller import Team_controller
 # from gui.control_panel.ui_components.ui_teams.away_team.ui_away_team_players import setup_away_team_players
 # from gui.control_panel.ui_components.ui_teams.home_team.delete import buttons_players
-from gui.control_panel.ui_components.ui_players import setup_away_team_players
+from gui.control_panel.ui_components.ui_players import setup_team_players
 from gui.scoreboard.gui_scoreboard import Gui_scoreboard
 from types import SimpleNamespace
 from model.team import Team
@@ -55,7 +55,10 @@ class Gui_control_panel():
         setup_ui_control_time_match(self)
         buttons_for_match_time(self)
 
-        buttons_logo(self)
+        home_team_name_space = _nameSpace_team_for_controller(self, self.home_team_controller)
+        away_team_name_space = _nameSpace_team_for_controller(self, self.away_team_controller)
+        buttons_logo(self, self.home_team_controller, home_team_name_space)
+        buttons_logo(self, self.away_team_controller, away_team_name_space)
 
         buttons_change_possesion(self)
         #buttons_players(self)
@@ -144,18 +147,20 @@ class Gui_control_panel():
 
 
 def simpleNamespace_forUi(self):
-    self.entry = SimpleNamespace()
-    self.entry.home_team = SimpleNamespace()
-    self.entry.away_team = SimpleNamespace()
-    self.entry.match = SimpleNamespace()
     self.frames = SimpleNamespace()
-    self.combobox = SimpleNamespace()
-    self.combobox.home_team = SimpleNamespace()
-    self.combobox.away_team = SimpleNamespace()
     self.button = SimpleNamespace()
+    self.away_team = SimpleNamespace(checkbutton=SimpleNamespace(), combobox=SimpleNamespace(), entry=SimpleNamespace(), player=SimpleNamespace())
+    self.home_team = SimpleNamespace(checkbutton=SimpleNamespace(), combobox=SimpleNamespace(), entry=SimpleNamespace(), player=SimpleNamespace())
+    self.match = SimpleNamespace(entry= SimpleNamespace())
+
+def _nameSpace_team_for_controller(self, team_controller) -> SimpleNamespace:
+    if team_controller.team.name == self.match_state_controller.home_team_controller.team.name:
+        return self.home_team
+    return self.away_team
+
 def setup_teams_players(self):
-    setup_away_team_players(self, self.home_team_controller)
-    setup_away_team_players(self, self.away_team_controller)
+    setup_team_players(self, self.home_team_controller)
+    setup_team_players(self, self.away_team_controller)
 
 def initialize_gui_scoreboard(self):
     self.scoreboard_window = Gui_scoreboard(tk.Toplevel(self.root),self.match_state_controller.match_state)

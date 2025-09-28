@@ -27,8 +27,8 @@ class Gui_scoreboard:
             self.labels = SimpleNamespace(home_team=SimpleNamespace(),
                                      away_team=SimpleNamespace(),
                                      match=SimpleNamespace())
-        self.home_team_labels = _nameSpace_entry_for_controller(self, self.match_state.home_team.name)
-        self.away_team_labels =_nameSpace_entry_for_controller(self, self.match_state.away_team.name)
+        self.home_team_labels = _nameSpace_team_for_controller(self, self.match_state.home_team.name)
+        self.away_team_labels =_nameSpace_team_for_controller(self, self.match_state.away_team.name)
         # create_quarter_labels(self, home_team_labels)
         # create_possession_labels(self, home_team_labels)
         # create_players_labels(self, home_team_labels)
@@ -68,21 +68,27 @@ class Gui_scoreboard:
             self.match_state.possession = "Away"
             new_possesion = "⇨" 
             self.labels.match.possession.config(text=str(new_possesion))
-    def update_label_players(self, player_jersey_number,player_name, team_name): 
-        if team_name == self.match_state.home_team.name:
-            self.labels.home_team.players.insert(tk.END, f"{player_jersey_number} - {player_name}")
+    def update_label_players(self, player, team_contoller): 
+        team_simple_name_space = _nameSpace_team_for_controller(self, team_contoller.team.name)
+        team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}" )
+        index = team_simple_name_space.labels.players.size() - 1
+        if player.is_active:
+            team_simple_name_space.labels.players.itemconfig(index, {'fg': 'green'}) 
         else:
-            self.labels.away_team.players.insert(tk.END, f"{player_jersey_number} - {player_name}")
+            team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})   
 
 def simpleNamespace_forUi(self):
-        self.labels = SimpleNamespace(home_team=SimpleNamespace(),away_team=SimpleNamespace(),match=SimpleNamespace())
-        self.frames = SimpleNamespace(teams=SimpleNamespace())
+        #self.labels = SimpleNamespace(home_team=SimpleNamespace(),away_team=SimpleNamespace(),match=SimpleNamespace())
+        self.frames = SimpleNamespace(teams=SimpleNamespace()) 
+        self.home_team = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
+        self.away_team = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
+        self.match = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
 # Create functions labels
 
-def _nameSpace_entry_for_controller(self, team_name) -> SimpleNamespace:
+def _nameSpace_team_for_controller(self, team_name) -> SimpleNamespace:
     if team_name == self.match_state.home_team.name:
-        return self.labels.home_team
-    return self.labels.away_team
+        return self.home_team
+    return self.away_team
 
 def setup_ui(self):
     for column in range(3):
@@ -97,24 +103,24 @@ def setup_ui(self):
     create_quarter_labels(self)
 
 def creates_home_team(self):
-    self.frames.teams.home_team = ttk.Frame(self.root, style="home_team.TFrame", padding=(20, 15))
-    self.frames.teams.home_team.grid(row=0, column=0, sticky="nsew", padx=(20, 10), pady=20)
+    self.home_team.frames = ttk.Frame(self.root, style="home_team.TFrame", padding=(20, 15))
+    self.home_team.frames.grid(row=0, column=0, sticky="nsew", padx=(20, 10), pady=20)
     #ui_team
-    teams_labels_grid_configure(self.frames.teams.home_team)
-    create_names_labels(self.frames.teams.home_team, self.labels.home_team, self.match_state.home_team.name)
-    create_logos_labels(self.frames.teams.home_team, self.labels.home_team)
-    create_points_labels(self.frames.teams.home_team, self.labels.home_team, self.match_state.home_team.points)
+    teams_labels_grid_configure(self.home_team.frames)
+    create_names_labels(self.home_team.frames, self.labels.home_team, self.match_state.home_team.name)
+    create_logos_labels(self.home_team.frames, self.labels.home_team)
+    create_points_labels(self.home_team.frames, self.labels.home_team, self.match_state.home_team.points)
     #ui_players
-    create_players_labels(self.frames.teams.home_team, self.labels.home_team, True)
+    create_players_labels(self.home_team, True)
    
 
 def creates_away_team(self):
-    self.frames.teams.away_team = ttk.Frame(self.root, padding=(20, 15))
-    self.frames.teams.away_team.grid(row=0, column=2, sticky="nsew", padx=(10, 20), pady=20)
+    self.away_team.frames = ttk.Frame(self.root, padding=(20, 15))
+    self.away_team.frames.grid(row=0, column=2, sticky="nsew", padx=(10, 20), pady=20)
     #ui_team
-    teams_labels_grid_configure(self.frames.teams.away_team)
-    create_names_labels(self.frames.teams.away_team, self.labels.away_team, self.match_state.away_team.name)
-    create_logos_labels(self.frames.teams.away_team, self.labels.away_team)
-    create_points_labels(self.frames.teams.away_team, self.labels.away_team, self.match_state.away_team.points)
+    teams_labels_grid_configure(self.away_team.frames)
+    create_names_labels(self.away_team.frames, self.labels.away_team, self.match_state.away_team.name)
+    create_logos_labels(self.away_team.frames, self.labels.away_team)
+    create_points_labels(self.away_team.frames, self.labels.away_team, self.match_state.away_team.points)
     #ui_players
-    create_players_labels(self.frames.teams.away_team, self.labels.away_team, False)
+    create_players_labels(self.away_team, False)
