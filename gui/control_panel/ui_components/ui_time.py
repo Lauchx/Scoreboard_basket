@@ -65,11 +65,3 @@ def buttons_for_match_time(self):
     self.button.timer.grid(row=1, column=5)
     self.button.reset_timer = ttk.Button(self.frames.match.time, text="Reset", command=lambda: reset_timer(self))
     self.button.reset_timer.grid(row=1, column=6)
-
-
-
-
-
-    
-    # self.button.pause_timer = ttk.Button(self.frames.match.time, text="Pausar", command=lambda: pause_timer(self))
-    # self.button.pause_timer.grid(row=9, column=1)

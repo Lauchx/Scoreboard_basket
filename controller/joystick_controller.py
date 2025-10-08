@@ -13,7 +13,6 @@ class JoystickController:
     """
 
     def __init__(self):
-        """Inicializa pygame y configura el joystick"""
         # Inicializar pygame y el módulo de joystick
         pygame.init()
         pygame.joystick.init()

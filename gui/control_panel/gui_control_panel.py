@@ -8,7 +8,7 @@ from gui.control_panel.ui_components.ui_players import setup_team_players
 from gui.scoreboard.gui_scoreboard import Gui_scoreboard
 from types import SimpleNamespace
 from model.team import Team
-from gui.control_panel.ui_components.ui_teams.ui_teams import ui_teams
+from gui.control_panel.ui_components.ui_teams import ui_teams
 from gui.control_panel.ui_components.ui_logo import buttons_logo 
 from gui.control_panel.ui_components.ui_possession import buttons_change_possesion
 from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time, manage_timer, pause_resume_timer, change_text_button_timer
@@ -149,9 +149,18 @@ class Gui_control_panel():
 def simpleNamespace_forUi(self):
     self.frames = SimpleNamespace()
     self.button = SimpleNamespace()
-    self.away_team = SimpleNamespace(checkbutton=SimpleNamespace(), combobox=SimpleNamespace(), entry=SimpleNamespace(), player=SimpleNamespace())
-    self.home_team = SimpleNamespace(checkbutton=SimpleNamespace(), combobox=SimpleNamespace(), entry=SimpleNamespace(), player=SimpleNamespace())
+    self.away_team = SimpleNamespace(frames=SimpleNamespace(team=SimpleNamespace(),match=SimpleNamespace()), player=SimpleNamespace())
+    self.home_team = SimpleNamespace(frames=SimpleNamespace(team=SimpleNamespace(),match=SimpleNamespace()), player=SimpleNamespace())
     self.match = SimpleNamespace(entry= SimpleNamespace())
+    set_atributes_simpleNamespace_shared(self.away_team.frames.team)
+    set_atributes_simpleNamespace_shared(self.away_team.frames.match)
+    set_atributes_simpleNamespace_shared(self.home_team.frames.team)
+    set_atributes_simpleNamespace_shared(self.home_team.frames.match)
+
+def set_atributes_simpleNamespace_shared(namespace):
+    setattr(namespace,"entry", SimpleNamespace())
+    setattr(namespace,"checkbutton", SimpleNamespace())
+    setattr(namespace,"combobox", SimpleNamespace())
 
 def _nameSpace_team_for_controller(self, team_controller) -> SimpleNamespace:
     if team_controller.team.name == self.match_state_controller.home_team_controller.team.name:

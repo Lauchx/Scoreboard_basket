@@ -45,10 +45,10 @@ class Gui_scoreboard:
     def update_time_labels(self):
         minutes = self.match_state.seconds_time_left // 60
         seconds = self.match_state.seconds_time_left % 60
-        self.labels.match.time.config(text=f"{minutes:02}:{seconds:02}")
+        self.match.labels.time.config(text=f"{minutes:02}:{seconds:02}")
 
     def update_possession_labels(self, possession):
-        self.labels.match.possession.config(text=possession)   
+         self.match.labels.possesion.config(text=possession)   
 
     def update_team_names_labels(self):
         self.labels.home_team.name.config(text=self.match_state.home_team.name)
@@ -56,18 +56,18 @@ class Gui_scoreboard:
 
     def update_quarter_labels(self, number):
         self.match_state.quarter += number
-        self.labels.match.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
+        self.match.labels.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
 
     def update_possession_labels(self):
         current_possesion = self.match_state.possession
         if current_possesion == "Away":
             self.match_state.possession = "Home"
             new_possesion = "⇦"  
-            self.labels.match.possession.config(text=str(new_possesion))
+            self.match.labels.possesion.config(text=str(new_possesion))
         else:
             self.match_state.possession = "Away"
             new_possesion = "⇨" 
-            self.labels.match.possession.config(text=str(new_possesion))
+            self.match.labels.possesion.config(text=str(new_possesion))
     def update_label_players(self, player, team_contoller): 
         team_simple_name_space = _nameSpace_team_for_controller(self, team_contoller.team.name)
         team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}" )
@@ -98,6 +98,7 @@ def setup_ui(self):
     self.root.grid_rowconfigure(1, weight=0)
 
     setup_ui_match(self)
+    
     create_time_labels(self)
     create_possession_labels(self)
     create_quarter_labels(self)

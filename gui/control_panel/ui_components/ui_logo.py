@@ -2,7 +2,7 @@ from tkinter import Image, filedialog, messagebox, ttk
 from PIL import Image, ImageTk
 
 def buttons_logo(self, team_controller, team_simple_name_space):
-    ttk.Button(team_simple_name_space.labelFrame, text="Cargar Logo", command=lambda: upload_logo(self, team_controller, team_simple_name_space)).grid(row=0, column=2)
+    ttk.Button(team_simple_name_space.frames.match.labelFrame, text="Cargar Logo", command=lambda: upload_logo(self, team_controller, team_simple_name_space)).grid(row=0, column=2)
 
 def upload_logo(self, teamController, team_simple_name_space):
         """Carga el logo del equipo desde 'assets/'."""
