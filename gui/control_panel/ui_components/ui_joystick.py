@@ -69,8 +69,7 @@ def create_joystick_controls_section(control_panel):
         controls_frame.grid_columnconfigure(i, weight=1)
     
     # Botón para detectar joysticks
-    btn_detect = ttk.Button(controls_frame, text="🔍 Detectar Joysticks", 
-                           command=lambda: detect_joysticks_action(control_panel))
+    btn_detect = ttk.Button(controls_frame, text="🔍 Detectar Joysticks", command=lambda: detect_joysticks_action(control_panel))
     btn_detect.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
     
     # Botón para conectar joystick

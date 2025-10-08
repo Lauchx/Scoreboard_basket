@@ -12,18 +12,20 @@ class ui_teams:
         setup_ui_control_team(self,self.parent.home_team, self.home_team_controller.team.name, 0) 
         setup_ui_control_team(self,self.parent.away_team, self.away_team_controller.team.name, 1)
     def buttons_points(self):
-        ttk.Button(self.parent.home_team.frames.match.labelFrame, text=f"Sumar Punto", command=lambda: add_point(self, self.home_team_controller)).grid(row=1, column=2)
-        ttk.Button(self.parent.away_team.frames.match.labelFrame, text=f"Sumar Punto", command=lambda: add_point(self, self.away_team_controller)).grid(row=1, column=2)
-        ttk.Button(self.parent.home_team.frames.match.labelFrame, text=f"Restar Punto", command=lambda: substract_point(self, self.home_team_controller)).grid(row=2, column=2)
-        ttk.Button(self.parent.away_team.frames.match.labelFrame, text=f"Restar Punto", command=lambda: substract_point(self, self.away_team_controller)).grid(row=2, column=2)
+        ttk.Button(self.parent.home_team.frames.match.labelFrame, text=f"Sumar Punto", command=lambda: self.add_point(self, self.home_team_controller)).grid(row=1, column=2)
+        ttk.Button(self.parent.away_team.frames.match.labelFrame, text=f"Sumar Punto", command=lambda: self.add_point(self, self.away_team_controller)).grid(row=1, column=2)
+        ttk.Button(self.parent.home_team.frames.match.labelFrame, text=f"Restar Punto", command=lambda: self.substract_point(self, self.home_team_controller)).grid(row=2, column=2)
+        ttk.Button(self.parent.away_team.frames.match.labelFrame, text=f"Restar Punto", command=lambda: self.substract_point(self, self.away_team_controller)).grid(row=2, column=2)
+    # Points Functions
+    def add_point(self, team_controller):
+        team_controller.add_point()
+        self.parent.scoreboard_window.update_points_labels()
 
-# Points Functions
-def add_point(self, team_controller):
-    team_controller.add_point()
-    self.parent.scoreboard_window.update_points_labels()
-def substract_point(self, team_controller):
-    team_controller.substract_point()
-    self.parent.scoreboard_window.update_points_labels()
+    def substract_point(self, team_controller):
+        team_controller.substract_point()
+        self.parent.scoreboard_window.update_points_labels()
+
+
 
 def setup_ui_control_team(self,team_simple_name_space, team_name, colum):
     team_simple_name_space.frames.match.labelFrame = ttk.LabelFrame(self.parent.frames.match, text=team_name)

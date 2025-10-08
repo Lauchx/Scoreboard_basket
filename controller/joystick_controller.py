@@ -316,12 +316,10 @@ class JoystickController:
         Limpia recursos y cierra conexiones.
         Llama esto antes de cerrar la aplicación.
         """
-        print("🧹 Limpiando JoystickController...")
         self.stop_listening()
         self.disconnect_joystick()
         pygame.joystick.quit()
         pygame.quit()
-        print("✅ JoystickController limpiado")
 
 # Función de utilidad para crear y probar el controlador
 def test_joystick_controller():

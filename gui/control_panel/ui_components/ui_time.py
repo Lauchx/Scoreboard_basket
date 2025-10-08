@@ -11,18 +11,19 @@ def start_timer(self):
             self.root.after(1000, lambda: start_timer(self))  
         else:
            print("END")   
+
 def pause_resume_timer(self):
     self.is_active_timer = not self.is_active_timer
 
-def change_text_button_timer(self):
-    text = "Pausar" if self.is_active_timer else "Reanudar"
+def change_text_button_timer(self, string="Reanudar"):
+    text = "Pausar" if self.is_active_timer else string
     self.button.timer.config(text=text)
 
 def reset_timer(self):
     self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
     if self.is_active_timer:
         pause_resume_timer(self)
-        change_text_button_timer(self)
+        change_text_button_timer(self, 'Iniciar')
     self.scoreboard_window.update_time_labels()
 
 

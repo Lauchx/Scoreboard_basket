@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from types import SimpleNamespace
 # from PIL import Image, ImageTk
 # import os -- Revisar uso.
@@ -20,6 +21,7 @@ class Gui_scoreboard:
         self.root.title("Scoreboard")
         #self.root.minsize(800,500) ### Checkear en varios dispositivos - Los números no son correctos del todo 
         self.root.configure(bg="black")
+        self.root.protocol("WM_DELETE_WINDOW", lambda: messagebox.showinfo("Info", "No podés cerrar esta ventana."))
         simpleNamespace_forUi(self)
         self.match_state = match_state
         setup_ui(self)
