@@ -40,7 +40,7 @@ class Gui_control_panel():
             'away_add_point': 5,
             'home_subtract_point': 2,
             'away_subtract_point': 3,
-            'start_timer': 7,
+            'manage_timer': 7,
             'pause_timer': 0,
             'resume_timer': 1
         }
@@ -67,8 +67,7 @@ class Gui_control_panel():
         # Configurar limpieza al cerrar la ventana
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
     def on_closing(self):
-        """Función que se ejecuta al cerrar la aplicación"""
-        # Limpiar joystick controller. Evita dejar procesos colgados (ya que usa Hilos).
+        # Función que se ejecuta al cerrar la aplicación. Limpiar joystick controller. Evita dejar procesos colgados (ya que usa Hilos).
         if hasattr(self, 'joystick_controller'):
             self.joystick_controller.cleanup()
         self.root.destroy()
@@ -146,8 +145,8 @@ def setup_joystick_callbacks(self):
     self.joystick_controller.set_callback('away_subtract_point', lambda: self.ui_teams.substract_point(self.away_team_controller))
 
     # Callbacks para control de tiempo
-    self.joystick_controller.set_callback('start_timer', lambda: manage_timer(self))
-    self.joystick_controller.set_callback('pause_timer', lambda: manage_timer(self))
+    self.joystick_controller.set_callback('manage_timer', lambda: manage_timer(self))
+    #self.joystick_controller.set_callback('pause_timer', lambda: manage_timer(self))
     self.joystick_controller.set_callback('resume_timer', lambda: manage_timer(self))
 
 

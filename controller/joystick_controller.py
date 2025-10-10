@@ -1,3 +1,4 @@
+from tkinter import messagebox
 import pygame
 import threading
 import time
@@ -33,9 +34,7 @@ class JoystickController:
         Retorna una lista con información de los joysticks.
         """
         joystick_count = pygame.joystick.get_count()
-        joysticks_info = []
-
-        print(f"🔍 Buscando joysticks... Encontrados: {joystick_count}")
+        joysticks_array_info = []
 
         for i in range(joystick_count):
             joystick = pygame.joystick.Joystick(i)
@@ -46,30 +45,22 @@ class JoystickController:
                 'num_axes': joystick.get_numaxes(),
                 'num_hats': joystick.get_numhats()
             }
-            joysticks_info.append(joystick_info)
-            print(f"  📱 Joystick {i}: {joystick_info['name']}")
-            print(f"     Botones: {joystick_info['num_buttons']}")
-            print(f"     Ejes: {joystick_info['num_axes']}")
+            joysticks_array_info.append(joystick_info)
 
-        return joysticks_info
+        return joysticks_array_info
 
     def connect_joystick(self, joystick_id=0):
         """
         Conecta con un joystick específico.
-
         Args:
             joystick_id (int): ID del joystick a conectar (por defecto 0)
-
         Returns:
             bool: True si se conectó exitosamente, False si no
         """
         try:
             if pygame.joystick.get_count() == 0:
-                print("❌ No hay joysticks conectados")
                 return False
-
             if joystick_id >= pygame.joystick.get_count():
-                print(f"❌ Joystick ID {joystick_id} no existe")
                 return False
 
             # Conectar al joystick
@@ -87,22 +78,18 @@ class JoystickController:
             return False
 
     def disconnect_joystick(self):
-        """Desconecta el joystick actual"""
         if self.joystick:
             self.joystick.quit()
             self.joystick = None
-            print("🔌 Joystick desconectado")
 
     def is_connected(self):
-        """Verifica si hay un joystick conectado"""
         return self.joystick is not None and self.joystick.get_init()
 
     def set_callback(self, action, callback_function):
         """
         Asigna una función callback a una acción específica.
-
         Args:
-            action (str): Nombre de la acción (ej: 'home_add_point', 'start_timer')
+            action (str): Nombre de la acción (ej: 'home_add_point', 'manage_timer')
             callback_function: Función a ejecutar cuando se presione el botón
         """
         self.callbacks[action] = callback_function
@@ -114,11 +101,11 @@ class JoystickController:
         Esto permite que el joystick funcione sin bloquear la interfaz.
         """
         if not self.is_connected():
-            print("❌ No hay joystick conectado para escuchar")
+            messagebox.showinfo("❌ No hay joystick conectado para escuchar")
             return False
 
         if self.is_running:
-            print("⚠️ Ya se está escuchando el joystick")
+            messagebox.showinfo("⚠️ Ya se está escuchando el joystick")
             return False
 
         self.is_running = True
@@ -132,15 +119,12 @@ class JoystickController:
         self.is_running = False
         if self.thread:
             self.thread.join(timeout=1.0)
-        print("🛑 Escucha del joystick detenida")
 
     def _listen_loop(self):
         """
         Bucle principal que escucha constantemente el input del joystick.
         Esta función corre en un hilo separado.
         """
-        print("🔄 Bucle de escucha iniciado")
-
         # Variables para evitar spam de botones
         button_states = {}
 
@@ -164,18 +148,14 @@ class JoystickController:
 
                 # Leer ejes (sticks analógicos)
                 self._handle_axes()
-
-                # Leer D-pad (hat)
+                # Leer D-pad (hat): Devolviendo su posición como una tupla de dos valores (x,y).
                 self._handle_hat()
-
                 # Pequeña pausa para no sobrecargar el CPU
                 time.sleep(0.01)  # 100 FPS es más que suficiente
 
             except Exception as e:
-                print(f"❌ Error en bucle de escucha: {e}")
+                messagebox.showinfo(f"❌ Error en bucle de escucha: {e}")
                 break
-
-        print("🔄 Bucle de escucha terminado")
 
     def _handle_button_press(self, button_id):
         """
@@ -217,11 +197,8 @@ class JoystickController:
         Útil para navegación o acciones direccionales.
         """
         if self.joystick.get_numhats() > 0:
-            hat = self.joystick.get_hat(0)  # Primer D-pad
-            # hat devuelve (x, y) donde cada valor puede ser -1, 0, o 1
-            # Por ejemplo: (0, 1) = arriba, (1, 0) = derecha, etc.
+            hat = self.joystick.get_hat(0)  # Primer D-pad # hat devuelve (x, y) donde cada valor puede ser -1, 0, o 1
 
-            # Por ahora solo detectamos, después implementaremos acciones
             if hat != (0, 0):  # Si se está presionando alguna dirección
                 pass  # Implementaremos después
 
@@ -233,14 +210,6 @@ class JoystickController:
         Returns:
             dict: Diccionario con button_id -> action_name
         """
-        # Mapeo personalizado según los requerimientos del usuario:
-        # Botón 5: +1 punto equipo visitante
-        # Botón 4: +1 punto equipo local
-        # Botón 2: -1 punto equipo local
-        # Botón 3: -1 punto equipo visitante
-        # Botón 7: iniciar tiempo
-        # Botón 0: pausar tiempo
-        # Botón 1: reanudar tiempo
         return {
             0: 'pause_timer',           # Pausar cronómetro
             1: 'resume_timer',          # Reanudar cronómetro
@@ -248,7 +217,7 @@ class JoystickController:
             3: 'away_subtract_point',   # -1 punto equipo visitante
             4: 'home_add_point',        # +1 punto equipo local
             5: 'away_add_point',        # +1 punto equipo visitante
-            7: 'start_timer',           # Iniciar cronómetro
+            7: 'manage_timer',           # Iniciar cronómetro
         }
 
     def get_joystick_info(self):
@@ -274,21 +243,22 @@ class JoystickController:
         Útil para identificar qué botón es cuál en tu control.
         """
         if not self.is_connected():
-            print("❌ No hay joystick conectado")
+            messagebox.showinfo("❌ No hay joystick conectado")
             return
 
         print("🧪 MODO PRUEBA: Presiona cualquier botón (Ctrl+C para salir)")
-        print("   Esto te ayudará a identificar qué número tiene cada botón")
+        print("Esto te ayudará a identificar qué número tiene cada botón")
 
         button_states = {}
 
         try:
             while True:
                 pygame.event.pump()
-
                 # Probar botones
                 for button_id in range(self.joystick.get_numbuttons()):
                     button_pressed = self.joystick.get_button(button_id)
+                    print("--------.ñññññññ")
+                    print(button_states.get(button_id, False))
 
                     if button_pressed and not button_states.get(button_id, False):
                         print(f"🔘 BOTÓN {button_id} presionado")

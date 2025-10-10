@@ -104,7 +104,7 @@ def create_joystick_config_section(control_panel):
             'away_add_point': 5,
             'home_subtract_point': 2,
             'away_subtract_point': 3,
-            'start_timer': 7,
+            'manage_timer': 7,
             'pause_timer': 0,
             'resume_timer': 1
         }
@@ -136,9 +136,9 @@ def create_joystick_config_section(control_panel):
 
     # Fila 3: Control de tiempo
     ttk.Label(config_frame, text="▶️ Iniciar:", font=('Arial', 8)).grid(row=2, column=0, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['start_timer'] = ttk.Entry(config_frame, width=5)
-    control_panel.config_entries['start_timer'].grid(row=2, column=1, padx=2, pady=2)
-    control_panel.config_entries['start_timer'].insert(0, str(control_panel.button_config['start_timer']))
+    control_panel.config_entries['manage_timer'] = ttk.Entry(config_frame, width=5)
+    control_panel.config_entries['manage_timer'].grid(row=2, column=1, padx=2, pady=2)
+    control_panel.config_entries['manage_timer'].insert(0, str(control_panel.button_config['manage_timer']))
 
     ttk.Label(config_frame, text="⏸️ Pausar:", font=('Arial', 8)).grid(row=2, column=2, padx=2, pady=2, sticky="w")
     control_panel.config_entries['pause_timer'] = ttk.Entry(config_frame, width=5)
@@ -151,16 +151,13 @@ def create_joystick_config_section(control_panel):
     control_panel.config_entries['resume_timer'].insert(0, str(control_panel.button_config['resume_timer']))
 
     # Botones de acción
-    btn_apply = ttk.Button(config_frame, text="✅ Aplicar",
-                          command=lambda: apply_button_config(control_panel))
+    btn_apply = ttk.Button(config_frame, text="✅ Aplicar",  command=lambda: apply_button_config(control_panel))
     btn_apply.grid(row=3, column=0, columnspan=2, padx=5, pady=10, sticky="ew")
 
-    btn_reset = ttk.Button(config_frame, text="🔄 Restablecer",
-                          command=lambda: reset_button_config(control_panel))
+    btn_reset = ttk.Button(config_frame, text="🔄 Restablecer", command=lambda: reset_button_config(control_panel))
     btn_reset.grid(row=3, column=2, columnspan=2, padx=5, pady=10, sticky="ew")
 
-    btn_test_mode = ttk.Button(config_frame, text="🧪 Modo Prueba",
-                              command=lambda: toggle_test_mode(control_panel))
+    btn_test_mode = ttk.Button(config_frame, text="🧪 Modo Prueba", command=lambda: toggle_test_mode(control_panel))
     btn_test_mode.grid(row=3, column=4, columnspan=2, padx=5, pady=10, sticky="ew")
 
 def create_joystick_log_section(control_panel):
@@ -338,7 +335,7 @@ def reset_button_config(control_panel):
         'away_add_point': 5,
         'home_subtract_point': 2,
         'away_subtract_point': 3,
-        'start_timer': 7,
+        'manage_timer': 7,
         'pause_timer': 0,
         'resume_timer': 1
     }
@@ -367,7 +364,7 @@ def toggle_test_mode(control_panel):
     # Crear ventana de modo prueba
     test_window = tk.Toplevel(control_panel.root)
     test_window.title("🧪 Modo Prueba - Identificar Botones")
-    test_window.geometry("400x300")
+    test_window.geometry("400x400")
     test_window.resizable(False, False)
 
     # Hacer la ventana modal
@@ -378,7 +375,7 @@ def toggle_test_mode(control_panel):
     ttk.Label(test_window, text="🧪 Modo Prueba de Botones",
               font=('Arial', 14, 'bold')).pack(pady=10)
 
-    ttk.Label(test_window, text="Presiona cualquier botón del joystick\npara ver su número",
+    ttk.Label(test_window, text="Presiona cualquier botón del joystick para ver su número",
               font=('Arial', 10)).pack(pady=5)
 
     # Text widget para mostrar botones presionados
@@ -391,8 +388,7 @@ def toggle_test_mode(control_panel):
     test_text.configure(yscrollcommand=scrollbar.set)
 
     # Botón para cerrar
-    ttk.Button(test_window, text="❌ Cerrar",
-               command=test_window.destroy).pack(pady=10)
+    ttk.Button(test_window, text="❌ Cerrar", command=test_window.destroy).pack(pady=10)
 
     # Función para mostrar botones presionados
     def show_button_press(button_id):
