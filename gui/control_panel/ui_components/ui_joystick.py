@@ -58,6 +58,48 @@ def create_joystick_info_section(control_panel):
     control_panel.joystick_info_labels['axes'] = ttk.Label(info_frame, text="N/A")
     control_panel.joystick_info_labels['axes'].grid(row=3, column=1, sticky="w")
 
+    console = tk.StringVar(value="PlayStation")
+    control_panel.is_playstation = True
+    control_panel.radioButton = {}
+    control_panel.radioButton["playstation"] = ttk.Radiobutton(info_frame, text="PlayStation", variable=console, value="PlayStation",command=lambda:on_console_change(control_panel, True))
+    control_panel.radioButton["playstation"].grid(row=0, column=3, sticky="w")
+    control_panel.radioButton["xbox"] = ttk.Radiobutton(info_frame, text="Xbox", variable=console, value="Xbox", command=lambda:on_console_change(control_panel, False))
+    control_panel.radioButton["xbox"].grid(row=0, column=4, sticky="w")
+
+def on_console_change(control_panel,bool):
+    setattr(control_panel, "is_playstation", bool)
+    config_button(control_panel)
+
+def config_button(control_panel):
+    if control_panel.is_playstation == True:
+        control_panel.button_config = {
+            'L1': 4,
+            'R1':5,
+            '□': 2,
+            '△':3,
+            '►':7 ,
+            'X':0,
+            'O':1
+        }
+    else:
+            control_panel.button_config = {
+            'LB': 4,
+            'RB': 5,
+            'X': 2,
+            'Y': 3,
+            '►': 7,
+            'A': 0,
+            'B': 1
+        }
+    if 'home_add_point' in control_panel.config_entries:
+    # Lógica si la clave existe
+        control_panel.config_entries['home_add_point'].configure(values=list(control_panel.button_config.keys()))
+        control_panel.config_entries['home_add_point'].set('')
+    else:
+        print("Error: la clave 'home_add_point' no se encuentra en el diccionario.")
+
+       
+
 def create_joystick_controls_section(control_panel):
     """Crea la sección de controles del joystick"""
     # Frame principal para controles
@@ -111,44 +153,36 @@ def create_joystick_config_section(control_panel):
 
     # Crear labels y entries para cada acción
     control_panel.config_entries = {}
+    config_button(control_panel)
 
     # Fila 1: Puntos
     ttk.Label(config_frame, text="🏠 +1 Local:", font=('Arial', 8)).grid(row=0, column=0, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['home_add_point'] = ttk.Entry(config_frame, width=5)
+    control_panel.config_entries['home_add_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
     control_panel.config_entries['home_add_point'].grid(row=0, column=1, padx=2, pady=2)
-    control_panel.config_entries['home_add_point'].insert(0, str(control_panel.button_config['home_add_point']))
-
+    control_panel.config_entries['home_add_point'].set('L1')
+    
     ttk.Label(config_frame, text="🚗 +1 Visit:", font=('Arial', 8)).grid(row=0, column=2, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['away_add_point'] = ttk.Entry(config_frame, width=5)
+    control_panel.config_entries['away_add_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
     control_panel.config_entries['away_add_point'].grid(row=0, column=3, padx=2, pady=2)
-    control_panel.config_entries['away_add_point'].insert(0, str(control_panel.button_config['away_add_point']))
+    control_panel.config_entries['away_add_point'].set('R1')
 
     # Fila 2: Restar puntos
     ttk.Label(config_frame, text="🏠 -1 Local:", font=('Arial', 8)).grid(row=1, column=0, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['home_subtract_point'] = ttk.Entry(config_frame, width=5)
+    control_panel.config_entries['home_subtract_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
     control_panel.config_entries['home_subtract_point'].grid(row=1, column=1, padx=2, pady=2)
-    control_panel.config_entries['home_subtract_point'].insert(0, str(control_panel.button_config['home_subtract_point']))
+    control_panel.config_entries['home_subtract_point'].set('□')
 
     ttk.Label(config_frame, text="🚗 -1 Visit:", font=('Arial', 8)).grid(row=1, column=2, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['away_subtract_point'] = ttk.Entry(config_frame, width=5)
+    control_panel.config_entries['away_subtract_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
     control_panel.config_entries['away_subtract_point'].grid(row=1, column=3, padx=2, pady=2)
-    control_panel.config_entries['away_subtract_point'].insert(0, str(control_panel.button_config['away_subtract_point']))
+    control_panel.config_entries['away_subtract_point'].set('△')
 
     # Fila 3: Control de tiempo
     ttk.Label(config_frame, text="▶️ Iniciar:", font=('Arial', 8)).grid(row=2, column=0, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['manage_timer'] = ttk.Entry(config_frame, width=5)
+    control_panel.config_entries['manage_timer'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
     control_panel.config_entries['manage_timer'].grid(row=2, column=1, padx=2, pady=2)
-    control_panel.config_entries['manage_timer'].insert(0, str(control_panel.button_config['manage_timer']))
-
-    ttk.Label(config_frame, text="⏸️ Pausar:", font=('Arial', 8)).grid(row=2, column=2, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['pause_timer'] = ttk.Entry(config_frame, width=5)
-    control_panel.config_entries['pause_timer'].grid(row=2, column=3, padx=2, pady=2)
-    control_panel.config_entries['pause_timer'].insert(0, str(control_panel.button_config['pause_timer']))
-
-    ttk.Label(config_frame, text="▶️ Reanudar:", font=('Arial', 8)).grid(row=2, column=4, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['resume_timer'] = ttk.Entry(config_frame, width=5)
-    control_panel.config_entries['resume_timer'].grid(row=2, column=5, padx=2, pady=2)
-    control_panel.config_entries['resume_timer'].insert(0, str(control_panel.button_config['resume_timer']))
+    #FUNCION HACER UN FOR DE LAS KEYS Y POR PARAMETRO PASARLE LA KEY QUE TIENE QUE DEVOLVER ---- importarte  
+    control_panel.config_entries['manage_timer'].set('►')
 
     # Botones de acción
     btn_apply = ttk.Button(config_frame, text="✅ Aplicar",  command=lambda: apply_button_config(control_panel))
@@ -159,6 +193,8 @@ def create_joystick_config_section(control_panel):
 
     btn_test_mode = ttk.Button(config_frame, text="🧪 Modo Prueba", command=lambda: toggle_test_mode(control_panel))
     btn_test_mode.grid(row=3, column=4, columnspan=2, padx=5, pady=10, sticky="ew")
+
+
 
 def create_joystick_log_section(control_panel):
     """Crea la sección de log del joystick"""
@@ -295,20 +331,24 @@ def apply_button_config(control_panel):
         # Leer valores de los entries
         new_config = {}
         for action, entry in control_panel.config_entries.items():
-            value = entry.get().strip()
-            if not value.isdigit():
+            value = control_panel.button_config[entry.get().strip()]
+            print(value, "g")
+            if not isinstance(value, int):
                 raise ValueError(f"El valor para {action} debe ser un número")
             new_config[action] = int(value)
+        
+        for action in new_config:
+            print(action, "=", new_config[action])
 
         # Verificar que no hay botones duplicados
         button_numbers = list(new_config.values())
         if len(button_numbers) != len(set(button_numbers)):
             raise ValueError("No puedes asignar el mismo botón a múltiples acciones")
 
-        # Verificar que los números de botón son válidos (0-15 es un rango razonable)
+        # Verificar que los números de botón son válidos (0-11 es un rango razonable)
         for action, button_num in new_config.items():
-            if button_num < 0 or button_num > 15:
-                raise ValueError(f"El botón {button_num} está fuera del rango válido (0-15)")
+            if button_num < 0 or button_num > 11:
+                raise ValueError(f"El botón {button_num} está fuera del rango válido (0-11)")
 
         # Actualizar configuración
         control_panel.button_config = new_config
