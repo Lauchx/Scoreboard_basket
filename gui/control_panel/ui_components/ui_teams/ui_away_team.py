@@ -13,7 +13,7 @@ def setup_ui_away_team(self):
     ttk.Button(self.parent.away_team.labelFrame, text="Actualizar Nombre:", command=lambda: update_away_team_name(self)).grid(row=0, column=6, columnspan=2, padx=5, pady=5, sticky="nsew")
     
 def update_away_team_name(self):
-    new_away_team_name = self.parent.entry.away_team.name.get() 
+    new_away_team_name = self.parent.away_team.entry.name.get()
     self.parent.match_state_controller.away_team_controller.change_name(new_away_team_name)
     self.parent.scoreboard_window.update_team_names_labels()
     self.parent.frames.match.home_team.config(text=self.away_team_controller.team.name)

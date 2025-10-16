@@ -18,20 +18,23 @@ class Gui_scoreboard:
         self.root = root
         apply_styles()
         self.root.title("Scoreboard")
-        #self.root.minsize(800,500) ### Checkear en varios dispositivos - Los números no son correctos del todo 
         self.root.configure(bg="black")
-        simpleNamespace_forUi(self)
+        # Inicialización robusta de todos los espacios de nombres y labels
+        self.labels = SimpleNamespace(
+            home_team=SimpleNamespace(),
+            away_team=SimpleNamespace(),
+            match=SimpleNamespace()
+        )
+        self.frames = SimpleNamespace(teams=SimpleNamespace())
+        self.home_team = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
+        self.away_team = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
+        self.match = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
         self.match_state = match_state
+        # Crear todos los frames y labels principales antes de setup_ui
+        # Esto asegura que los métodos de actualización no fallen
         setup_ui(self)
-        if not hasattr(self, "labels"):
-            self.labels = SimpleNamespace(home_team=SimpleNamespace(),
-                                     away_team=SimpleNamespace(),
-                                     match=SimpleNamespace())
         self.home_team_labels = _nameSpace_team_for_controller(self, self.match_state.home_team.name)
-        self.away_team_labels =_nameSpace_team_for_controller(self, self.match_state.away_team.name)
-        # create_quarter_labels(self, home_team_labels)
-        # create_possession_labels(self, home_team_labels)
-        # create_players_labels(self, home_team_labels)
+        self.away_team_labels = _nameSpace_team_for_controller(self, self.match_state.away_team.name)
         creates_home_team(self)
         creates_away_team(self)
     # Updates labels functions
@@ -45,7 +48,10 @@ class Gui_scoreboard:
     def update_time_labels(self):
         minutes = self.match_state.seconds_time_left // 60
         seconds = self.match_state.seconds_time_left % 60
-        self.labels.match.time.config(text=f"{minutes:02}:{seconds:02}")
+        if hasattr(self.labels, 'match') and hasattr(self.labels.match, 'time'):
+            self.labels.match.time.config(text=f"{minutes:02}:{seconds:02}")
+        else:
+            print("Advertencia: El label de tiempo no está inicializado.")
 
     def update_possession_labels(self, possession):
         self.labels.match.possession.config(text=possession)   

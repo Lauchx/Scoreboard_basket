@@ -6,7 +6,9 @@ def start_timer(self):
         if time_left > 0 and self.is_active_timer:
             self.match_state_controller.match_state.seconds_time_left -= 1
             self.scoreboard_window.update_time_labels()
-            #self.button.start_timer.config(state="disabled") 
+            # Actualización centralizada: actualizar label de tiempo en consola test si existe
+            if hasattr(self, 'control_panel_test') and hasattr(self.control_panel_test, 'update_time_label'):
+                self.control_panel_test.update_time_label(force=True)
             self.is_active_timer = True
             self.root.after(1000, lambda: start_timer(self))  
         else:
@@ -48,8 +50,20 @@ def setup_ui_time(self):
     ttk.Button(self.frames.match.time, text="Actualizar tiempo", command=lambda: change_time(self)).grid(row=1, column=4,sticky="nsew")
 
 def change_time(self):
-     minutes = int(self.match.entry.minutes_match_time.get())
-     seconds = int(self.match.entry.seconds_match_time.get())
+     min_text = self.match.entry.minutes_match_time.get().strip()
+     sec_text = self.match.entry.seconds_match_time.get().strip()
+     # Permitir formato mm:ss en el campo de minutos
+     if ':' in min_text:
+         parts = min_text.split(':')
+         if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+             minutes = int(parts[0])
+             seconds = int(parts[1])
+         else:
+             print("Formato inválido. Usa mm:ss o solo minutos.")
+             return
+     else:
+         minutes = int(min_text) if min_text.isdigit() else 0
+         seconds = int(sec_text) if sec_text.isdigit() else 0
      self.match_state_controller.match_state.seconds_match_time = (minutes * 60) + seconds 
      self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
      self.scoreboard_window.update_time_labels()

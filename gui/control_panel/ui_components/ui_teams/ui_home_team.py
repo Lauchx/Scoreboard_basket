@@ -12,7 +12,7 @@ def setup_ui_home_team(self):
     ttk.Button(self.parent.home_team.labelFrame, text="Actualizar Nombre:", command=lambda: update_home_team_name(self)).grid(row=0, column=6, columnspan=2, padx=5, pady=5, sticky="nsew")
     self.parent.home_team.labelFrame.grid_columnconfigure(1, weight=1)
 def update_home_team_name(self):
-    new_home_team_name = self.parent.entry.home_team.name.get()
+    new_home_team_name = self.parent.home_team.entry.name.get()
     self.parent.match_state_controller.home_team_controller.change_name(new_home_team_name) 
     self.parent.scoreboard_window.update_team_names_labels()
     self.parent.frames.match.home_team.config(text=self.home_team_controller.team.name)
