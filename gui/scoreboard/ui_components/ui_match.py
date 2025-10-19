@@ -1,5 +1,6 @@
 from tkinter import ttk
 
+
 def create_quarter_labels(self):
     self.match.labels.quarter = ttk.Label(
         self.frames.match,
@@ -7,6 +8,7 @@ def create_quarter_labels(self):
         font=("Arial", 30),
     )
     self.match.labels.quarter.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
+
 
 def create_possession_labels(self):
     self.match.labels.possesion = ttk.Label(self.frames.match, text="-", font=("Arial", 200))
@@ -18,6 +20,7 @@ def create_possession_labels(self):
         font=("Arial", 30),
     )
     self.match.labels.possesion_text.grid(row=3, column=0, sticky="nsew", pady=(10, 0))
+
 
 def setup_ui_match(self):
     self.frames.match = ttk.Frame(self.root, padding=(20, 15))
