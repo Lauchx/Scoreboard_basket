@@ -90,13 +90,19 @@ def config_button(control_panel):
             '►': 7,
             'A': 0,
             'B': 1
-        }
-    if 'home_add_point' in control_panel.config_entries:
-    # Lógica si la clave existe
-        control_panel.config_entries['home_add_point'].configure(values=list(control_panel.button_config.keys()))
-        control_panel.config_entries['home_add_point'].set('')
-    else:
-        print("Error: la clave 'home_add_point' no se encuentra en el diccionario.")
+        }        
+    
+    for key in control_panel.config_entries:
+            print("2")
+            print(control_panel.config_entries[key])
+            control_panel.config_entries[key].configure(values=list(control_panel.button_config.keys()))
+            control_panel.config_entries[key].set('')
+        
+
+    
+
+    
+        
 
        
 
@@ -132,12 +138,12 @@ def create_joystick_controls_section(control_panel):
 def create_joystick_config_section(control_panel):
     """Crea la sección de configuración de botones del joystick"""
     # Frame principal para configuración
-    config_frame = ttk.LabelFrame(control_panel.frames.joystick, text="⚙️ Configuración de Botones", padding=10)
-    config_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
+    control_panel.config_frame = ttk.LabelFrame(control_panel.frames.joystick, text="⚙️ Configuración de Botones", padding=10)
+    control_panel.config_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
 
     # Configurar grid del frame de configuración
     for i in range(8):
-        config_frame.grid_columnconfigure(i, weight=1)
+        control_panel.config_frame.grid_columnconfigure(i, weight=1)
 
     # Inicializar diccionario para almacenar las configuraciones
     if not hasattr(control_panel, 'button_config'):
@@ -146,52 +152,35 @@ def create_joystick_config_section(control_panel):
             'away_add_point': 5,
             'home_subtract_point': 2,
             'away_subtract_point': 3,
-            'manage_timer': 7,
-            'pause_timer': 0,
-            'resume_timer': 1
+            'manage_timer': 7
         }
 
     # Crear labels y entries para cada acción
     control_panel.config_entries = {}
+
     config_button(control_panel)
 
     # Fila 1: Puntos
-    ttk.Label(config_frame, text="🏠 +1 Local:", font=('Arial', 8)).grid(row=0, column=0, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['home_add_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
-    control_panel.config_entries['home_add_point'].grid(row=0, column=1, padx=2, pady=2)
-    control_panel.config_entries['home_add_point'].set('L1')
-    
-    ttk.Label(config_frame, text="🚗 +1 Visit:", font=('Arial', 8)).grid(row=0, column=2, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['away_add_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
-    control_panel.config_entries['away_add_point'].grid(row=0, column=3, padx=2, pady=2)
-    control_panel.config_entries['away_add_point'].set('R1')
+    ttk.Label(control_panel.config_frame, text="🏠 +1 Local:", font=('Arial', 8)).grid(row=0, column=1, sticky="w")
+    ttk.Label(control_panel.config_frame, text="🚗 +1 Visit:", font=('Arial', 8)).grid(row=0, column=2,  sticky="w")
+    ttk.Label(control_panel.config_frame, text="🏠 -1 Local:", font=('Arial', 8)).grid(row=0, column=3,  sticky="w")
+    ttk.Label(control_panel.config_frame, text="🚗 -1 Visit:", font=('Arial', 8)).grid(row=0, column=4,  sticky="w")
+    ttk.Label(control_panel.config_frame, text="▶️ Iniciar:", font=('Arial', 8)).grid(row=0, column=5,  sticky="w")
 
-    # Fila 2: Restar puntos
-    ttk.Label(config_frame, text="🏠 -1 Local:", font=('Arial', 8)).grid(row=1, column=0, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['home_subtract_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
-    control_panel.config_entries['home_subtract_point'].grid(row=1, column=1, padx=2, pady=2)
-    control_panel.config_entries['home_subtract_point'].set('□')
-
-    ttk.Label(config_frame, text="🚗 -1 Visit:", font=('Arial', 8)).grid(row=1, column=2, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['away_subtract_point'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
-    control_panel.config_entries['away_subtract_point'].grid(row=1, column=3, padx=2, pady=2)
-    control_panel.config_entries['away_subtract_point'].set('△')
-
-    # Fila 3: Control de tiempo
-    ttk.Label(config_frame, text="▶️ Iniciar:", font=('Arial', 8)).grid(row=2, column=0, padx=2, pady=2, sticky="w")
-    control_panel.config_entries['manage_timer'] = ttk.Combobox(config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
-    control_panel.config_entries['manage_timer'].grid(row=2, column=1, padx=2, pady=2)
-    #FUNCION HACER UN FOR DE LAS KEYS Y POR PARAMETRO PASARLE LA KEY QUE TIENE QUE DEVOLVER ---- importarte  
-    control_panel.config_entries['manage_timer'].set('►')
+    reset_button_config(control_panel)
+    for i,key in enumerate(control_panel.default_config, start=1):
+            control_panel.config_entries[key] = ttk.Combobox(control_panel.config_frame, state="readonly", values=list(control_panel.button_config.keys()), width=5)
+            control_panel.config_entries[key].grid(row=1, column=i)
+            control_panel.config_entries[key].set('L1')
 
     # Botones de acción
-    btn_apply = ttk.Button(config_frame, text="✅ Aplicar",  command=lambda: apply_button_config(control_panel))
+    btn_apply = ttk.Button(control_panel.config_frame, text="✅ Aplicar",  command=lambda: apply_button_config(control_panel))
     btn_apply.grid(row=3, column=0, columnspan=2, padx=5, pady=10, sticky="ew")
 
-    btn_reset = ttk.Button(config_frame, text="🔄 Restablecer", command=lambda: reset_button_config(control_panel))
+    btn_reset = ttk.Button(control_panel.config_frame, text="🔄 Restablecer", command=lambda: reset_button_config(control_panel))
     btn_reset.grid(row=3, column=2, columnspan=2, padx=5, pady=10, sticky="ew")
 
-    btn_test_mode = ttk.Button(config_frame, text="🧪 Modo Prueba", command=lambda: toggle_test_mode(control_panel))
+    btn_test_mode = ttk.Button(control_panel.config_frame, text="🧪 Modo Prueba", command=lambda: toggle_test_mode(control_panel))
     btn_test_mode.grid(row=3, column=4, columnspan=2, padx=5, pady=10, sticky="ew")
 
 
@@ -330,8 +319,8 @@ def apply_button_config(control_panel):
     try:
         # Leer valores de los entries
         new_config = {}
-        for action, entry in control_panel.config_entries.items():
-            value = control_panel.button_config[entry.get().strip()]
+        for action, combobox in control_panel.config_entries.items():
+            value = control_panel.button_config[combobox.get().strip()]
             print(value, "g")
             if not isinstance(value, int):
                 raise ValueError(f"El valor para {action} debe ser un número")
@@ -370,24 +359,22 @@ def apply_button_config(control_panel):
 
 def reset_button_config(control_panel):
     """Restablece la configuración de botones a los valores por defecto"""
-    default_config = {
+    control_panel.default_config = {
         'home_add_point': 4,
         'away_add_point': 5,
         'home_subtract_point': 2,
         'away_subtract_point': 3,
-        'manage_timer': 7,
-        'pause_timer': 0,
-        'resume_timer': 1
+        'manage_timer': 7
     }
 
     # Actualizar entries con valores por defecto
-    for action, default_value in default_config.items():
+    for action, default_value in control_panel.default_config.items():
         if action in control_panel.config_entries:
             control_panel.config_entries[action].delete(0, tk.END)
             control_panel.config_entries[action].insert(0, str(default_value))
 
     # Actualizar configuración
-    control_panel.button_config = default_config
+    #control_panel.button_config = control_panel.default_config
 
     # Actualizar el mapeo en el joystick controller
     update_joystick_mapping(control_panel)
