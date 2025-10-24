@@ -412,11 +412,9 @@ def toggle_test_mode(control_panel):
     test_window.grab_set()
 
     # Contenido de la ventana
-    ttk.Label(test_window, text="🧪 Modo Prueba de Botones",
-              font=('Arial', 14, 'bold')).pack(pady=10)
+    ttk.Label(test_window, text="🧪 Modo Prueba de Botones",font=('Arial', 14, 'bold')).pack(pady=10)
 
-    ttk.Label(test_window, text="Presiona cualquier botón del joystick para ver su número",
-              font=('Arial', 10)).pack(pady=5)
+    ttk.Label(test_window, text="Presiona cualquier botón del joystick para ver su número", font=('Arial', 10)).pack(pady=5)
 
     # Text widget para mostrar botones presionados
     test_text = tk.Text(test_window, height=10, width=40, state=tk.DISABLED)
