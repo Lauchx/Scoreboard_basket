@@ -31,19 +31,11 @@ class Gui_control_panel():
             match_state_controller.match_sate(Match_state): Object Match_state share with Gui_scoreboard.
         """
 
-        # Inicializar JoystickController
+        # Inicializar JoystickController con sistema de mapeo abstracto
         self.joystick_controller = JoystickController()
 
-        # Inicializar configuración de botones por defecto
-        self.button_config = {
-            'home_add_point': 4,
-            'away_add_point': 5,
-            'home_subtract_point': 2,
-            'away_subtract_point': 3,
-            'manage_timer': 7,
-            'pause_timer': 0,
-            'resume_timer': 1
-        }
+        # La configuración de botones ahora se maneja a través del sistema abstracto
+        # No necesitamos button_config aquí, se usa action_config con botones abstractos
 
         setup_joystick_callbacks(self)
 
@@ -146,8 +138,8 @@ def setup_joystick_callbacks(self):
 
     # Callbacks para control de tiempo
     self.joystick_controller.set_callback('manage_timer', lambda: manage_timer(self))
-    #self.joystick_controller.set_callback('pause_timer', lambda: manage_timer(self))
-    self.joystick_controller.set_callback('resume_timer', lambda: manage_timer(self))
+    self.joystick_controller.set_callback('pause_timer', lambda: pause_resume_timer(self))
+    self.joystick_controller.set_callback('resume_timer', lambda: pause_resume_timer(self))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ from tkinter import messagebox
 import pygame
 import threading
 import time
+from controller.button_mapper import ButtonMapper, AbstractButton, DEFAULT_SCOREBOARD_ACTIONS, create_button_mapper
 
 class JoystickController:
     """
@@ -26,7 +27,13 @@ class JoystickController:
         # Callback functions - aquí conectaremos con el marcador
         self.callbacks = {}
 
-        print("🎮 JoystickController inicializado")
+        # Sistema de mapeo abstracto de botones
+        self.button_mapper = ButtonMapper()
+
+        # Configuración de acciones con botones abstractos
+        self.action_config = DEFAULT_SCOREBOARD_ACTIONS.copy()
+
+        print("🎮 JoystickController inicializado con sistema de mapeo abstracto")
 
     def detect_joysticks(self):
         """
@@ -67,7 +74,12 @@ class JoystickController:
             self.joystick = pygame.joystick.Joystick(joystick_id)
             self.joystick.init()
 
-            print(f"✅ Conectado a: {self.joystick.get_name()}")
+            # Detectar automáticamente el tipo de controlador
+            controller_name = self.joystick.get_name()
+            detected_type = self.button_mapper.detect_controller_type(controller_name)
+
+            print(f"✅ Conectado a: {controller_name}")
+            print(f"   Tipo detectado: {detected_type.value}")
             print(f"   Botones: {self.joystick.get_numbuttons()}")
             print(f"   Ejes: {self.joystick.get_numaxes()}")
 
@@ -94,6 +106,39 @@ class JoystickController:
         """
         self.callbacks[action] = callback_function
         print(f"📋 Callback asignado: {action}")
+
+    def set_action_config(self, action_config: dict):
+        """
+        Establece la configuración de acciones con botones abstractos.
+
+        Args:
+            action_config (dict): Diccionario de acciones a botones abstractos
+        """
+        self.action_config = action_config.copy()
+        print(f"⚙️ Configuración de acciones actualizada: {len(action_config)} acciones")
+
+    def set_controller_type(self, controller_type):
+        """
+        Establece manualmente el tipo de controlador.
+
+        Args:
+            controller_type: Tipo de controlador (ButtonMapper.ControllerType o string)
+        """
+        if isinstance(controller_type, str):
+            from controller.button_mapper import ControllerType
+            controller_type = ControllerType(controller_type)
+
+        self.button_mapper.set_controller_type(controller_type)
+        print(f"🎮 Tipo de controlador establecido manualmente: {controller_type.value}")
+
+    def get_available_buttons(self):
+        """
+        Obtiene los botones disponibles con sus nombres para mostrar.
+
+        Returns:
+            Dict[str, str]: Diccionario de botones abstractos y sus nombres
+        """
+        return {btn.value: name for btn, name in self.button_mapper.get_available_buttons().items()}
 
     def start_listening(self):
         """
@@ -204,21 +249,13 @@ class JoystickController:
 
     def _get_button_mapping(self):
         """
-        Retorna el mapeo de botones a acciones.
-        Este mapeo se puede personalizar según el tipo de control.
+        Retorna el mapeo de botones físicos a acciones usando el sistema abstracto.
 
         Returns:
             dict: Diccionario con button_id -> action_name
         """
-        return {
-            0: 'pause_timer',           # Pausar cronómetro
-            1: 'resume_timer',          # Reanudar cronómetro
-            2: 'home_subtract_point',   # -1 punto equipo local
-            3: 'away_subtract_point',   # -1 punto equipo visitante
-            4: 'home_add_point',        # +1 punto equipo local
-            5: 'away_add_point',        # +1 punto equipo visitante
-            7: 'manage_timer',           # Iniciar cronómetro
-        }
+        # Crear mapeo usando el sistema abstracto
+        return self.button_mapper.create_action_mapping(self.action_config)
 
     def get_joystick_info(self):
         """
@@ -228,7 +265,7 @@ class JoystickController:
         if not self.is_connected():
             return None
 
-        return {
+        base_info = {
             'name': self.joystick.get_name(),
             'id': self.joystick.get_instance_id(),
             'num_buttons': self.joystick.get_numbuttons(),
@@ -236,6 +273,12 @@ class JoystickController:
             'num_hats': self.joystick.get_numhats(),
             'power_level': self.joystick.get_power_level() if hasattr(self.joystick, 'get_power_level') else 'Unknown'
         }
+
+        # Agregar información del mapeador
+        mapper_info = self.button_mapper.get_controller_info()
+        base_info.update(mapper_info)
+
+        return base_info
 
     def test_all_buttons(self):
         """
