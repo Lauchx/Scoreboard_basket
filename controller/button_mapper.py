@@ -59,14 +59,14 @@ class ButtonMapper:
                 AbstractButton.SELECT: 6,           # Back
             },
             ControllerType.PLAYSTATION: {
-                AbstractButton.LEFT_BUMPER: 4,      # L1
-                AbstractButton.RIGHT_BUMPER: 5,     # R1
+                AbstractButton.LEFT_BUMPER: 10,     # L1
+                AbstractButton.RIGHT_BUMPER: 11,    # R1
                 AbstractButton.ACTION_BOTTOM: 0,    # X
                 AbstractButton.ACTION_RIGHT: 1,     # O
                 AbstractButton.ACTION_LEFT: 2,      # □
                 AbstractButton.ACTION_TOP: 3,       # △
-                AbstractButton.START: 7,            # Options
-                AbstractButton.SELECT: 6,           # Share
+                AbstractButton.START: 9,            # Options
+                AbstractButton.SELECT: 8,           # Share
             }
         }
 
