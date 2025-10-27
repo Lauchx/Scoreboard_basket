@@ -2,7 +2,9 @@ from tkinter import messagebox
 import pygame
 import threading
 import time
-from controller.button_mapper import ButtonMapper, AbstractButton, DEFAULT_SCOREBOARD_ACTIONS, create_button_mapper
+from model.joystick_types import ControllerType, AbstractButton
+from model.button_mapping import ButtonMapping
+from model.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
 
 class JoystickController:
     """
@@ -27,13 +29,13 @@ class JoystickController:
         # Callback functions - aquí conectaremos con el marcador
         self.callbacks = {}
 
-        # Sistema de mapeo abstracto de botones
-        self.button_mapper = ButtonMapper()
+        # Sistema de mapeo abstracto de botones (inyección del modelo)
+        self.button_mapping = ButtonMapping()
 
         # Configuración de acciones con botones abstractos
         self.action_config = DEFAULT_SCOREBOARD_ACTIONS.copy()
 
-        print("🎮 JoystickController inicializado con sistema de mapeo abstracto")
+        print("JoystickController inicializado con sistema de mapeo abstracto")
 
     def detect_joysticks(self):
         """
@@ -76,7 +78,8 @@ class JoystickController:
 
             # Detectar automáticamente el tipo de controlador
             controller_name = self.joystick.get_name()
-            detected_type = self.button_mapper.detect_controller_type(controller_name)
+            detected_type = self._detect_controller_type(controller_name)
+            self._set_controller_type(detected_type)
 
             print(f"✅ Conectado a: {controller_name}")
             print(f"   Tipo detectado: {detected_type.value}")
@@ -122,14 +125,62 @@ class JoystickController:
         Establece manualmente el tipo de controlador.
 
         Args:
-            controller_type: Tipo de controlador (ButtonMapper.ControllerType o string)
+            controller_type: Tipo de controlador (ControllerType o string)
         """
         if isinstance(controller_type, str):
-            from controller.button_mapper import ControllerType
             controller_type = ControllerType(controller_type)
 
-        self.button_mapper.set_controller_type(controller_type)
+        self._set_controller_type(controller_type)
         print(f"🎮 Tipo de controlador establecido manualmente: {controller_type.value}")
+
+    # =======================================================================
+    # MÉTODOS PRIVADOS DE LÓGICA (antes estaban en el modelo)
+    # =======================================================================
+
+    def _detect_controller_type(self, controller_name: str) -> ControllerType:
+        """
+        Detecta el tipo de controlador basado en el nombre del dispositivo.
+        Lógica movida desde el modelo.
+
+        Args:
+            controller_name (str): Nombre del controlador detectado por pygame
+
+        Returns:
+            ControllerType: Tipo de controlador detectado
+        """
+        controller_name_lower = controller_name.lower()
+
+        # Patrones comunes para Xbox
+        xbox_patterns = ['xbox', 'xinput', 'microsoft']
+        # Patrones comunes para PlayStation
+        playstation_patterns = ['playstation', 'dualshock', 'dual sense', 'sony', 'PS3']
+
+        if any(pattern in controller_name_lower for pattern in xbox_patterns):
+            return ControllerType.XBOX
+        elif any(pattern in controller_name_lower for pattern in playstation_patterns):
+            return ControllerType.PLAYSTATION
+        else:
+            return ControllerType.UNKNOWN
+
+    def _set_controller_type(self, controller_type: ControllerType):
+        """
+        Establece el tipo de controlador y actualiza el mapeo correspondiente.
+        Lógica movida desde el modelo.
+
+        Args:
+            controller_type (ControllerType): Tipo de controlador a establecer
+        """
+        self.button_mapping.controller_type = controller_type
+        self._update_current_mapping()
+
+    def _update_current_mapping(self):
+        """Actualiza el mapeo actual basado en el tipo de controlador.
+        Lógica movida desde el modelo."""
+        if self.button_mapping.controller_type in self.button_mapping.CONTROLLER_MAPPINGS:
+            self.button_mapping.current_mapping = self.button_mapping.CONTROLLER_MAPPINGS[self.button_mapping.controller_type].copy()
+        else:
+            # Si no se reconoce el controlador, usar mapeo genérico (Xbox como default)
+            self.button_mapping.current_mapping = self.button_mapping.CONTROLLER_MAPPINGS[ControllerType.XBOX].copy()
 
     def get_available_buttons(self):
         """
@@ -138,7 +189,7 @@ class JoystickController:
         Returns:
             Dict[str, str]: Diccionario de botones abstractos y sus nombres
         """
-        return {btn.value: name for btn, name in self.button_mapper.get_available_buttons().items()}
+        return {btn.value: name for btn, name in self.button_mapping.get_available_buttons().items()}
 
     def start_listening(self):
         """
@@ -255,7 +306,7 @@ class JoystickController:
             dict: Diccionario con button_id -> action_name
         """
         # Crear mapeo usando el sistema abstracto
-        return self.button_mapper.create_action_mapping(self.action_config)
+        return self.button_mapping.create_action_mapping(self.action_config)
 
     def get_joystick_info(self):
         """
@@ -275,7 +326,7 @@ class JoystickController:
         }
 
         # Agregar información del mapeador
-        mapper_info = self.button_mapper.get_controller_info()
+        mapper_info = self.button_mapping.get_controller_info()
         base_info.update(mapper_info)
 
         return base_info

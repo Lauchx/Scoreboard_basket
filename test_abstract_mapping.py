@@ -7,10 +7,9 @@ con diferentes tipos de controladores (Xbox, PlayStation, etc.).
 """
 
 import pygame
-from controller.button_mapper import (
-    ButtonMapper, ControllerType, AbstractButton,
-    DEFAULT_SCOREBOARD_ACTIONS, create_button_mapper
-)
+from model.joystick_types import ControllerType, AbstractButton
+from model.button_mapping import ButtonMapping
+from model.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
 
 def test_button_mapper():
     """Prueba las funcionalidades básicas del ButtonMapper"""

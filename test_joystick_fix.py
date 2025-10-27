@@ -8,14 +8,19 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from controller.button_mapper import ButtonMapper, ControllerType, AbstractButton, DEFAULT_SCOREBOARD_ACTIONS, create_button_mapper
+from model.joystick_types import ControllerType, AbstractButton
+from model.button_mapping import ButtonMapping
+from model.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
 
 def test_button_mapping():
     print("=== PRUEBA DE MAPEO DE BOTONES ===\n")
 
     # Probar con controlador Xbox
     print("1. Probando mapeo para XBOX:")
-    xbox_mapper = create_button_mapper(controller_type=ControllerType.XBOX)
+    xbox_mapper = ButtonMapping()
+    # Configuración manual (como lo haría el controller)
+    xbox_mapper.controller_type = ControllerType.XBOX
+    xbox_mapper.current_mapping = xbox_mapper.CONTROLLER_MAPPINGS[ControllerType.XBOX].copy()
 
     print(f"   Tipo: {xbox_mapper.controller_type.value}")
     print(f"   Botones mapeados: {len(xbox_mapper.current_mapping)}")
@@ -35,7 +40,10 @@ def test_button_mapping():
 
     # Probar con controlador PlayStation
     print("2. Probando mapeo para PLAYSTATION:")
-    ps_mapper = create_button_mapper(controller_type=ControllerType.PLAYSTATION)
+    ps_mapper = ButtonMapping()
+    # Configuración manual (como lo haría el controller)
+    ps_mapper.controller_type = ControllerType.PLAYSTATION
+    ps_mapper.current_mapping = ps_mapper.CONTROLLER_MAPPINGS[ControllerType.PLAYSTATION].copy()
 
     print(f"   Tipo: {ps_mapper.controller_type.value}")
     print(f"   Botones mapeados: {len(ps_mapper.current_mapping)}")

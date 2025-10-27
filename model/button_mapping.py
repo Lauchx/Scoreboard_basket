@@ -1,53 +1,25 @@
 """
-Button Mapper - Sistema abstracto de mapeo de botones para diferentes tipos de controladores.
-
-Este módulo proporciona una capa de abstracción que permite manejar diferentes tipos
-de mandos (Xbox, PlayStation, etc.) sin importar los números específicos de los botones.
+Modelo de datos para el mapeo de botones de joystick.
+Este módulo contiene la lógica de datos para mapear botones abstractos a botones físicos.
 """
 
-from enum import Enum
 from typing import Dict, Optional
+from .joystick_types import ControllerType, AbstractButton
 
-class ControllerType(Enum):
-    """Tipos de controladores soportados"""
-    XBOX = "xbox"
-    PLAYSTATION = "playstation"
-    UNKNOWN = "unknown"
-
-class AbstractButton(Enum):
-    """Botones abstractos independientes del tipo de controlador"""
-    # Bumpers/Triggers superiores
-    LEFT_BUMPER = "left_bumper"      # LB (Xbox) / L1 (PlayStation)
-    RIGHT_BUMPER = "right_bumper"    # RB (Xbox) / R1 (PlayStation)
-
-    # Botones de acción principales
-    ACTION_BOTTOM = "action_bottom"  # A (Xbox) / X (PlayStation)
-    ACTION_RIGHT = "action_right"    # B (Xbox) / O (PlayStation)
-    ACTION_LEFT = "action_left"      # X (Xbox) / □ (PlayStation)
-    ACTION_TOP = "action_top"        # Y (Xbox) / △ (PlayStation)
-
-    # Botones de sistema
-    START = "start"                  # Start/Options
-    SELECT = "select"                # Back/Share
-
-    # D-Pad
-    DPAD_UP = "dpad_up"
-    DPAD_DOWN = "dpad_down"
-    DPAD_LEFT = "dpad_left"
-    DPAD_RIGHT = "dpad_right"
-
-class ButtonMapper:
+class ButtonMapping:
     """
-    Clase principal que maneja el mapeo entre botones abstractos y números físicos
-    según el tipo de controlador detectado.
+    Modelo de datos puro para el mapeo entre botones abstractos y números físicos.
+
+    Este modelo solo contiene datos y getters (consultas puras).
+    Toda la lógica de modificación está en el controller.
     """
 
     def __init__(self):
         self.controller_type = ControllerType.UNKNOWN
         self.current_mapping: Dict[AbstractButton, int] = {}
 
-        # Mapeos predefinidos para cada tipo de controlador
-        self.controller_mappings = {
+        # Datos estáticos: mapeos predefinidos para cada tipo de controlador
+        self.CONTROLLER_MAPPINGS = {
             ControllerType.XBOX: {
                 AbstractButton.LEFT_BUMPER: 4,      # LB
                 AbstractButton.RIGHT_BUMPER: 5,     # RB
@@ -70,8 +42,8 @@ class ButtonMapper:
             }
         }
 
-        # Nombres descriptivos para mostrar en la UI
-        self.button_display_names = {
+        # Datos estáticos: nombres descriptivos para mostrar en la UI
+        self.BUTTON_DISPLAY_NAMES = {
             ControllerType.XBOX: {
                 AbstractButton.LEFT_BUMPER: "LB",
                 AbstractButton.RIGHT_BUMPER: "RB",
@@ -94,50 +66,9 @@ class ButtonMapper:
             }
         }
 
-    def detect_controller_type(self, controller_name: str) -> ControllerType:
-        """
-        Detecta el tipo de controlador basado en el nombre del dispositivo.
-
-        Args:
-            controller_name (str): Nombre del controlador detectado por pygame
-
-        Returns:
-            ControllerType: Tipo de controlador detectado
-        """
-        controller_name_lower = controller_name.lower()
-
-        # Patrones comunes para Xbox
-        xbox_patterns = ['xbox', 'xinput', 'microsoft']
-        # Patrones comunes para PlayStation
-        playstation_patterns = ['playstation', 'dualshock', 'dual sense', 'sony']
-
-        if any(pattern in controller_name_lower for pattern in xbox_patterns):
-            self.controller_type = ControllerType.XBOX
-        elif any(pattern in controller_name_lower for pattern in playstation_patterns):
-            self.controller_type = ControllerType.PLAYSTATION
-        else:
-            self.controller_type = ControllerType.UNKNOWN
-
-        self._update_current_mapping()
-        return self.controller_type
-
-    def set_controller_type(self, controller_type: ControllerType):
-        """
-        Establece manualmente el tipo de controlador.
-
-        Args:
-            controller_type (ControllerType): Tipo de controlador a establecer
-        """
-        self.controller_type = controller_type
-        self._update_current_mapping()
-
-    def _update_current_mapping(self):
-        """Actualiza el mapeo actual basado en el tipo de controlador"""
-        if self.controller_type in self.controller_mappings:
-            self.current_mapping = self.controller_mappings[self.controller_type].copy()
-        else:
-            # Si no se reconoce el controlador, usar mapeo genérico (Xbox como default)
-            self.current_mapping = self.controller_mappings[ControllerType.XBOX].copy()
+    # =======================================================================
+# MÉTODOS GETTERS PUROS (solo consultas, no modifican estado)
+# =======================================================================
 
     def get_physical_button(self, abstract_button: AbstractButton) -> Optional[int]:
         """
@@ -176,8 +107,8 @@ class ButtonMapper:
         Returns:
             str: Nombre para mostrar del botón
         """
-        if self.controller_type in self.button_display_names:
-            return self.button_display_names[self.controller_type].get(abstract_button, str(abstract_button.value))
+        if self.controller_type in self.BUTTON_DISPLAY_NAMES:
+            return self.BUTTON_DISPLAY_NAMES[self.controller_type].get(abstract_button, str(abstract_button.value))
         return str(abstract_button.value)
 
     def get_available_buttons(self) -> Dict[AbstractButton, str]:
@@ -187,8 +118,8 @@ class ButtonMapper:
         Returns:
             Dict[AbstractButton, str]: Diccionario de botones abstractos y sus nombres
         """
-        if self.controller_type in self.button_display_names:
-            return self.button_display_names[self.controller_type]
+        if self.controller_type in self.BUTTON_DISPLAY_NAMES:
+            return self.BUTTON_DISPLAY_NAMES[self.controller_type]
         # fallback a nombres genéricos
         return {btn: btn.value.replace('_', ' ').title() for btn in AbstractButton}
 
@@ -221,34 +152,3 @@ class ButtonMapper:
             'display_name': self.controller_type.value.title(),
             'mapped_buttons': len(self.current_mapping)
         }
-
-# Configuración por defecto de acciones del marcador
-DEFAULT_SCOREBOARD_ACTIONS = {
-    'home_add_point': AbstractButton.LEFT_BUMPER,
-    'away_add_point': AbstractButton.RIGHT_BUMPER,
-    'home_subtract_point': AbstractButton.ACTION_LEFT,
-    'away_subtract_point': AbstractButton.ACTION_TOP,
-    'manage_timer': AbstractButton.ACTION_BOTTOM,
-    'pause_timer': AbstractButton.SELECT,
-    'resume_timer': AbstractButton.START,
-}
-
-def create_button_mapper(controller_name: str = None, controller_type: ControllerType = ControllerType.XBOX) -> ButtonMapper:
-    """
-    Función de utilidad para crear un ButtonMapper con detección automática o manual.
-
-    Args:
-        controller_name (str, optional): Nombre del controlador para detección automática
-        controller_type (ControllerType): Tipo de controlador manual (usado si no se puede detectar)
-
-    Returns:
-        ButtonMapper: Instancia configurada del ButtonMapper
-    """
-    mapper = ButtonMapper()
-
-    if controller_name:
-        mapper.detect_controller_type(controller_name)
-    else:
-        mapper.set_controller_type(controller_type)
-
-    return mapper

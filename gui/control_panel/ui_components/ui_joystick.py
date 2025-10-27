@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import threading
-from controller.button_mapper import ButtonMapper, ControllerType, AbstractButton, DEFAULT_SCOREBOARD_ACTIONS
+from model.joystick_types import ControllerType, AbstractButton
+from model.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
 
 def setup_joystick_ui(control_panel):
     """
@@ -182,7 +183,7 @@ def create_joystick_config_section(control_panel):
 
         # Establecer valor por defecto
         default_abstract_button = control_panel.action_config[action]
-        default_display_name = control_panel.joystick_controller.button_mapper.get_display_name(default_abstract_button)
+        default_display_name = control_panel.joystick_controller.button_mapping.get_display_name(default_abstract_button)
         control_panel.config_entries[action].set(default_display_name)
 
     # Botones de acción
@@ -338,6 +339,8 @@ def apply_button_config(control_panel):
     try:
         # Leer valores de los comboboxes y convertir a botones abstractos
         new_action_config = {}
+
+        
         available_buttons = control_panel.joystick_controller.get_available_buttons()
 
         for action, combobox in control_panel.config_entries.items():
@@ -395,7 +398,7 @@ def reset_button_config(control_panel):
     for action, abstract_button in control_panel.action_config.items():
         if action in control_panel.config_entries:
             # Obtener el nombre para mostrar del botón abstracto
-            display_name = control_panel.joystick_controller.button_mapper.get_display_name(abstract_button)
+            display_name = control_panel.joystick_controller.button_mapping.get_display_name(abstract_button)
             control_panel.config_entries[action].set(display_name)
 
     # Actualizar la configuración en el joystick controller
@@ -478,9 +481,9 @@ def update_joystick_mapping(control_panel):
     # Formatear mensaje de log
     mapping_info = []
     for physical_btn, action in current_mapping.items():
-        abstract_btn = control_panel.joystick_controller.button_mapper.get_abstract_button(physical_btn)
+        abstract_btn = control_panel.joystick_controller.button_mapping.get_abstract_button(physical_btn)
         if abstract_btn:
-            display_name = control_panel.joystick_controller.button_mapper.get_display_name(abstract_btn)
+            display_name = control_panel.joystick_controller.button_mapping.get_display_name(abstract_btn)
             mapping_info.append(f"{display_name}({physical_btn})→{action}")
 
     log_joystick_message(control_panel, f"🔄 Mapeo actualizado: {', '.join(mapping_info)}")
