@@ -1,8 +1,6 @@
-
 import tkinter as tk
 from tkinter import ttk
 from gui.control_panel.styles_control_panel_test import apply_styles_control_panel_test
-# UI-only test panel: no functional imports (placeholders kept for reference)
 
 
 class Gui_control_panel_test:
@@ -12,12 +10,12 @@ class Gui_control_panel_test:
         self.root.configure(bg="white")
         self.root.minsize(900, 600)
         self.match_state_controller = match_state_controller
-        # Referencia al panel principal (opcional). Si se provee, delegamos control del timer allí.
+
         self.main_panel = main_panel
-        # Aplicar estilos personalizados
+
         apply_styles_control_panel_test()
 
-        # Configurar el grid para dividir la ventana en 1/6 y 5/6
+        # Configurar el grid raíz (1/6 izquierda y 5/6 derecha)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=7)
@@ -26,109 +24,118 @@ class Gui_control_panel_test:
         self.left_frame = ttk.Frame(self.root, style="PanelTestLeft.TFrame")
         self.left_frame.grid(row=0, column=0, sticky="nsew")
 
-        # Agregar notebook (pestañas)
         self.notebook = ttk.Notebook(self.left_frame)
         self.notebook.pack(fill="both", expand=True, padx=5, pady=5)
-
-        # Pestaña Jugadores
         self.tab_jugadores = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_jugadores, text="Jugadores")
-
-        # Pestaña Ajustes
         self.tab_ajustes = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_ajustes, text="Ajustes")
 
-        # Frame derecho (5/6): consola principal
+        # Frame derecho (5/6): divide en 3x3 uniforme
         self.right_frame = ttk.Frame(self.root, style="PanelTest.TFrame")
         self.right_frame.grid(row=0, column=1, sticky="nsew")
+        for r in range(3):
+            self.right_frame.grid_rowconfigure(r, weight=1, uniform='rightgrid')
+        for c in range(3):
+            self.right_frame.grid_columnconfigure(c, weight=1, uniform='rightgrid')
 
-        # Dividir right_frame en 2 filas y 6 columnas
-        for r in range(2):
-            self.right_frame.grid_rowconfigure(r, weight=1)
-        for c in range(6):
-            self.right_frame.grid_columnconfigure(c, weight=1)
+        # ---------------- FILA 1 ----------------
+        # Contenedor del tiempo (row=0, col=0)
+        self.time_container = ttk.Frame(self.right_frame, style="PanelTestTime.TFrame")
+        self.time_container.grid(row=0, column=0, sticky="nsew", padx=6, pady=6)
+        self.label_tiempo = ttk.Label(self.time_container, text="TIEMPO", style="PanelTestTimeTitle.TLabel")
+        self.label_tiempo.pack(side="top", fill="x", pady=(2, 0))
+        self.time_label = ttk.Label(self.time_container, text="00:00", style="PanelTestTime.TLabel")
+        self.time_label.pack(side="top", fill='both', expand=True, pady=(0, 2))
 
-        # Panel de cuarto simple (visible, esquina superior derecha del right_frame)
+       # ---------------- quarter (row=0, col=2) ----------------
         self.quarter_panel = ttk.Frame(self.right_frame, style="PanelTestQuarter.TFrame")
-        self.quarter_panel.grid(row=0, column=5, sticky="ne", padx=10, pady=10)
-        self.quarter_panel_title = ttk.Label(self.quarter_panel, text="CUARTO", style="PanelTestQuarterTitle.TLabel")
-        self.quarter_panel_title.pack(side="top", pady=(2, 0))
-        self.quarter_panel_label = ttk.Label(
-            self.quarter_panel,
-            text=str(getattr(self.match_state_controller.match_state, 'quarter', 1)),
-            style="PanelTestQuarter.TLabel",
-        )
-        self.quarter_panel_label.pack(side="top", pady=(0, 4))
+        self.quarter_panel.grid(row=0, column=2, sticky="nsew", padx=6, pady=6)
 
-        # botones - y + horizontales
-        qbtns = ttk.Frame(self.quarter_panel)
-        qbtns.pack(side="top")
-        # Placeholders: no funcionalidad, pueden enlazarse más tarde
-        self.quarter_minus_btn = ttk.Button(qbtns, text='-', width=3, style="ControlPanel.Small.TButton", command=lambda: None)
-        self.quarter_plus_btn = ttk.Button(qbtns, text='+', width=3, style="ControlPanel.Small.TButton", command=lambda: None)
+        # Permitir que el panel se expanda y distribuya espacio
+        self.quarter_panel.grid_rowconfigure(0, weight=1)
+        self.quarter_panel.grid_columnconfigure(0, weight=1)
+
+        # Contenedor centrado dentro del panel
+        quarter_content = ttk.Frame(self.quarter_panel)
+        quarter_content.grid(row=0, column=0, sticky="nsew")  # ← centrado total
+
+        # Centrado interno vertical
+        quarter_content.grid_rowconfigure(0, weight=1)
+        quarter_content.grid_columnconfigure(0, weight=1)
+
+        # Título del cuarto
+        self.quarter_panel_title = ttk.Label(quarter_content, text="CUARTO", style="PanelTestQuarterTitle.TLabel")
+        self.quarter_panel_title.pack(pady=(6, 6))
+
+        # Número del cuarto
+        self.quarter_panel_label = ttk.Label(
+            quarter_content,
+            text=str(getattr(self.match_state_controller.match_state, 'quarter', 1)),
+            style="PanelTestQuarter.TLabel"
+        )
+        self.quarter_panel_label.pack(pady=(4, 4))
+
+        # Botones + y -
+        qbtns = ttk.Frame(quarter_content)
+        qbtns.pack()
+
+        self.quarter_minus_btn = ttk.Button(qbtns, text='-', width=3, style="ControlPanel.Minus.TButton", command=lambda: None)
         self.quarter_minus_btn.pack(side='left', padx=4)
+
+        self.quarter_plus_btn = ttk.Button(qbtns, text='+', width=3, style="ControlPanel.Plus.TButton", command=lambda: None)
         self.quarter_plus_btn.pack(side='left', padx=4)
 
-        # Contenedor del tiempo (esquina superior izquierda) - visual gestionada por ttk style
-        self.time_container = ttk.Frame(self.right_frame, style="PanelTestTime.TFrame")
-        self.time_container.grid(row=0, column=0, sticky="nw", padx=10, pady=10, rowspan=1, columnspan=1)
-
-        # Contador de cuarto dentro del contenedor de tiempo (esquina superior derecha del tiempo)
-        self.quarter_container = ttk.Frame(self.time_container, style="PanelTestQuarter.TFrame")
-        # Usamos place para posicionar en la esquina superior derecha dentro del time_container
-        self.quarter_container.place(relx=1.0, x=-10, y=6, anchor='ne')
-        self.quarter_title = ttk.Label(self.quarter_container, text="CUARTO", style="PanelTestQuarterTitle.TLabel")
-        self.quarter_title.pack(side="top", padx=6, pady=(2, 0))
-        self.quarter_label = ttk.Label(
-            self.quarter_container,
-            text=str(getattr(self.match_state_controller.match_state, 'quarter', 1)),
-            style="PanelTestQuarter.TLabel",
-        )
-        self.quarter_label.pack(side="top", padx=6, pady=(0, 2))
-
-        # Botones + / - alineados horizontalmente debajo del cuarto (dentro del mismo contenedor)
-        btns_frame = ttk.Frame(self.quarter_container)
-        btns_frame.pack(side="top", pady=(4, 2))
-        # Placeholders in time container
-        self.btn_quarter_minus = ttk.Button(btns_frame, text="-", width=3, style="ControlPanel.Small.TButton", command=lambda: None)
-        self.btn_quarter_plus = ttk.Button(btns_frame, text="+", width=3, style="ControlPanel.Small.TButton", command=lambda: None)
-        self.btn_quarter_minus.pack(side="left", padx=4)
-        self.btn_quarter_plus.pack(side="left", padx=4)
-
-        # Label 'TIEMPO' arriba del tiempo (usando ttk.Label y estilo)
-        self.label_tiempo = ttk.Label(self.time_container, text="TIEMPO", style="PanelTestTimeTitle.TLabel")
-        self.label_tiempo.pack(side="top", fill="x", pady=(2, 0), ipady=0)
-
-        # Label de tiempo sincronizado (usando ttk.Label y estilo)
-        self.time_label = ttk.Label(self.time_container, text="00:00", style="PanelTestTime.TLabel")
-        self.time_label.pack(side="top", pady=(0, 2), ipady=0)
-        # Estado local del timer para este panel de prueba
-        self._is_active_timer = False
-
-        # Botones a la derecha del tiempo (Iniciar, Pausar, Reiniciar)
-        # Se colocan en una columna al lado del contenedor de tiempo y se centran horizontalmente
+        # ---------------- botones de control (row=0, col=1) ----------------
+        # Mantener tamaño natural (no fill expand)
         self.button_container = ttk.Frame(self.right_frame, style="ControlPanel.Stack.TFrame")
-        self.button_container.grid(row=0, column=1, sticky="n", padx=10, pady=10)
-
-        # Marco interno para centrar los botones verticalmente
+        self.button_container.grid(row=0, column=1, sticky="n", padx=6, pady=6)
         self.buttons_inner = ttk.Frame(self.button_container, style="ControlPanel.Stack.TFrame")
-        # Usamos pack con fill=None y anchor center para centrar verticalmente
         self.buttons_inner.pack(anchor="center", pady=10)
-        # Botones (estilos definidos en styles_control_panel_test)
-        # Usamos un único botón que actúa como Iniciar/Pausar/Reanudar
-        # Botones visuales sin funcionalidad
         self.btn_iniciar = ttk.Button(self.buttons_inner, text="Iniciar", style="ControlPanel.Button.TButton", command=lambda: None)
         self.btn_reiniciar = ttk.Button(self.buttons_inner, text="Reiniciar", style="ControlPanel.Button.TButton", command=lambda: None)
+        # No usar fill='x' para conservar ancho natural
+        self.btn_iniciar.pack(side="top", pady=6)
+        self.btn_reiniciar.pack(side="top", pady=6)
 
-        # Empaquetar verticalmente con separación
-        self.btn_iniciar.pack(side="top", pady=6, fill='x')
-        self.btn_reiniciar.pack(side="top", pady=6, fill='x')
+        # ---------------- FILA 2: PUNTOS ----------------
+        # Local (row=1, col=0)
+        self.local_score_panel = ttk.Frame(self.right_frame, style="PanelTestScore.TFrame")
+        self.local_score_panel.grid(row=1, column=0, sticky="nsew", padx=6, pady=6)
+        self.local_score_title = ttk.Label(self.local_score_panel, text="LOCAL", style="PanelTestScoreTitle.TLabel")
+        self.local_score_title.pack(side="top", pady=(2, 0))
+        try:
+            home_team = getattr(self.match_state_controller.match_state, 'home_team', None)
+            home_points = getattr(home_team, 'points', 0) if home_team is not None else 0
+        except Exception:
+            home_points = 0
+        self.local_score_label = ttk.Label(self.local_score_panel, text=str(home_points), style="PanelTestScore.TLabel")
+        # Mantener tamaño natural; reservar espacio para botones +/- que se agregarán luego
+        self.local_score_label.pack(side="top", pady=(6, 4))
+        self.local_score_buttons = ttk.Frame(self.local_score_panel)
+        self.local_score_buttons.pack(side="top")
 
-        # UI-only: set static initial labels (no periodic updates)
+        # Centro vacío (row=1, col=1) reservado
+
+        # Visitante (row=1, col=2)
+        self.visitor_score_panel = ttk.Frame(self.right_frame, style="PanelTestScore.TFrame")
+        self.visitor_score_panel.grid(row=1, column=2, sticky="nsew", padx=6, pady=6)
+        self.visitor_score_title = ttk.Label(self.visitor_score_panel, text="VISITANTE", style="PanelTestScoreTitle.TLabel")
+        self.visitor_score_title.pack(side="top", pady=(2, 0))
+        try:
+            away_team = getattr(self.match_state_controller.match_state, 'away_team', None)
+            away_points = getattr(away_team, 'points', 0) if away_team is not None else 0
+        except Exception:
+            away_points = 0
+        self.visitor_score_label = ttk.Label(self.visitor_score_panel, text=str(away_points), style="PanelTestScore.TLabel")
+        self.visitor_score_label.pack(side="top", pady=(6, 4))
+        self.visitor_score_buttons = ttk.Frame(self.visitor_score_panel)
+        self.visitor_score_buttons.pack(side="top")
+
+        # Inicializar valores visuales
         self.update_time_label()
 
     def update_time_label(self, force=False):
-        # UI-only: set labels once from match_state if present, no recurring timers
         try:
             if getattr(self, 'time_label', None) and getattr(self.match_state_controller, 'match_state', None):
                 seconds_left = getattr(self.match_state_controller.match_state, 'seconds_time_left', 0)
@@ -137,46 +144,44 @@ class Gui_control_panel_test:
                 self.time_label.config(text=f"{minutes:02}:{seconds:02}")
         except Exception:
             pass
-        # Actualizar cuarto visuales si existen
         try:
             quarter = getattr(self.match_state_controller.match_state, 'quarter', None)
-            if quarter is not None and getattr(self, 'quarter_label', None):
-                self.quarter_label.config(text=str(quarter))
             if quarter is not None and getattr(self, 'quarter_panel_label', None):
                 self.quarter_panel_label.config(text=str(quarter))
+            if quarter is not None and getattr(self, 'quarter_label', None):
+                self.quarter_label.config(text=str(quarter))
         except Exception:
             pass
 
-    # Acciones vinculadas a los botones: intentan delegar en el controller si existen, sino actúan como placeholders
+    # Placeholders para acciones de los botones
     def start_action(self):
-        # UI-only placeholder: no functionality
         return
 
     def pause_action(self):
         pass
 
     def reset_action(self):
-        # UI-only placeholder: no functionality
         return
 
     def _timer_tick(self):
-        # UI-only: timer logic removed — placeholder for future hookup
         return
 
     def _quarter_plus(self):
-        # UI-only placeholder
         return
 
     def _quarter_minus(self):
-        # UI-only placeholder
         return
 
+
 if __name__ == "__main__":
-    # Create a minimal stub match_state_controller so the UI can be run standalone for design review
+    # Minimal stub to run the window for visual testing
     class _StubMatchState:
         def __init__(self):
             self.seconds_time_left = 0
             self.quarter = 1
+            from model.team import Team
+            self.home_team = Team("", "Equipo Local", 0, 12, [], 3)
+            self.away_team = Team("", "Equipo Visitante", 0, 8, [], 3)
 
     class _StubController:
         def __init__(self):
