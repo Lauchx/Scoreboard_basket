@@ -1,4 +1,7 @@
 import tkinter as tk
+
+#main
+
 from gui.control_panel.gui_control_panel import Gui_control_panel
 from gui.control_panel.gui_control_panel_test import Gui_control_panel_test
 from styles import apply_general_styles

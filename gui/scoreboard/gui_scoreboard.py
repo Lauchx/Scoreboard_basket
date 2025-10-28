@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from types import SimpleNamespace
 # from PIL import Image, ImageTk
 # import os -- Revisar uso.
@@ -18,23 +19,21 @@ class Gui_scoreboard:
         self.root = root
         apply_styles()
         self.root.title("Scoreboard")
+        #self.root.minsize(800,500) ### Checkear en varios dispositivos - Los números no son correctos del todo 
         self.root.configure(bg="black")
-        # Inicialización robusta de todos los espacios de nombres y labels
-        self.labels = SimpleNamespace(
-            home_team=SimpleNamespace(),
-            away_team=SimpleNamespace(),
-            match=SimpleNamespace()
-        )
-        self.frames = SimpleNamespace(teams=SimpleNamespace())
-        self.home_team = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
-        self.away_team = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
-        self.match = SimpleNamespace(labels=SimpleNamespace(), frames=SimpleNamespace())
+        self.root.protocol("WM_DELETE_WINDOW", lambda: messagebox.showinfo("Info", "No podés cerrar esta ventana."))
+        simpleNamespace_forUi(self)
         self.match_state = match_state
-        # Crear todos los frames y labels principales antes de setup_ui
-        # Esto asegura que los métodos de actualización no fallen
         setup_ui(self)
+        if not hasattr(self, "labels"):
+            self.labels = SimpleNamespace(home_team=SimpleNamespace(),
+                                     away_team=SimpleNamespace(),
+                                     match=SimpleNamespace())
         self.home_team_labels = _nameSpace_team_for_controller(self, self.match_state.home_team.name)
-        self.away_team_labels = _nameSpace_team_for_controller(self, self.match_state.away_team.name)
+        self.away_team_labels =_nameSpace_team_for_controller(self, self.match_state.away_team.name)
+        # create_quarter_labels(self, home_team_labels)
+        # create_possession_labels(self, home_team_labels)
+        # create_players_labels(self, home_team_labels)
         creates_home_team(self)
         creates_away_team(self)
     # Updates labels functions
@@ -48,13 +47,10 @@ class Gui_scoreboard:
     def update_time_labels(self):
         minutes = self.match_state.seconds_time_left // 60
         seconds = self.match_state.seconds_time_left % 60
-        if hasattr(self.labels, 'match') and hasattr(self.labels.match, 'time'):
-            self.labels.match.time.config(text=f"{minutes:02}:{seconds:02}")
-        else:
-            print("Advertencia: El label de tiempo no está inicializado.")
+        self.match.labels.time.config(text=f"{minutes:02}:{seconds:02}")
 
     def update_possession_labels(self, possession):
-        self.labels.match.possession.config(text=possession)   
+         self.match.labels.possesion.config(text=possession)   
 
     def update_team_names_labels(self):
         self.labels.home_team.name.config(text=self.match_state.home_team.name)
@@ -62,18 +58,18 @@ class Gui_scoreboard:
 
     def update_quarter_labels(self, number):
         self.match_state.quarter += number
-        self.labels.match.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
+        self.match.labels.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
 
     def update_possession_labels(self):
         current_possesion = self.match_state.possession
         if current_possesion == "Away":
             self.match_state.possession = "Home"
             new_possesion = "⇦"  
-            self.labels.match.possession.config(text=str(new_possesion))
+            self.match.labels.possesion.config(text=str(new_possesion))
         else:
             self.match_state.possession = "Away"
             new_possesion = "⇨" 
-            self.labels.match.possession.config(text=str(new_possesion))
+            self.match.labels.possesion.config(text=str(new_possesion))
     def update_label_players(self, player, team_contoller): 
         team_simple_name_space = _nameSpace_team_for_controller(self, team_contoller.team.name)
         team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}" )
@@ -104,6 +100,7 @@ def setup_ui(self):
     self.root.grid_rowconfigure(1, weight=0)
 
     setup_ui_match(self)
+    
     create_time_labels(self)
     create_possession_labels(self)
     create_quarter_labels(self)

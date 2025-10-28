@@ -8,10 +8,12 @@ from gui.control_panel.ui_components.ui_players import setup_team_players
 from gui.scoreboard.gui_scoreboard import Gui_scoreboard
 from types import SimpleNamespace
 from model.team import Team
-from gui.control_panel.ui_components.ui_teams.ui_teams import ui_teams
+from gui.control_panel.ui_components.ui_teams import ui_teams
 from gui.control_panel.ui_components.ui_logo import buttons_logo 
 from gui.control_panel.ui_components.ui_possession import buttons_change_possesion
-from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time
+from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time, manage_timer, pause_resume_timer, change_text_button_timer, manage_timer
+from controller.joystick_controller import JoystickController
+from gui.control_panel.ui_components.ui_joystick import setup_joystick_ui
 
 
 
@@ -28,6 +30,15 @@ class Gui_control_panel():
         """
             match_state_controller.match_sate(Match_state): Object Match_state share with Gui_scoreboard.
         """
+
+        # Inicializar JoystickController con sistema de mapeo abstracto
+        self.joystick_controller = JoystickController()
+
+        # La configuración de botones ahora se maneja a través del sistema abstracto
+        # No necesitamos button_config aquí, se usa action_config con botones abstractos
+
+        setup_joystick_callbacks(self)
+
         initialize_gui_scoreboard(self)
         setup_ui(self)
 
@@ -42,18 +53,33 @@ class Gui_control_panel():
         buttons_logo(self, self.away_team_controller, away_team_name_space)
 
         buttons_change_possesion(self)
-        #buttons_players(self)
-        #setup_away_team_players(self)
-        ##start_timer(self)
         setup_teams_players(self)
-        
-        
+        setup_joystick_ui(self)
+
+        # Configurar limpieza al cerrar la ventana
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+    def on_closing(self):
+        # Función que se ejecuta al cerrar la aplicación. Limpiar joystick controller. Evita dejar procesos colgados (ya que usa Hilos).
+        if hasattr(self, 'joystick_controller'):
+            self.joystick_controller.cleanup()
+        self.root.destroy()
+
+
 def simpleNamespace_forUi(self):
     self.frames = SimpleNamespace()
     self.button = SimpleNamespace()
-    self.away_team = SimpleNamespace(checkbutton=SimpleNamespace(), combobox=SimpleNamespace(), entry=SimpleNamespace(), player=SimpleNamespace())
-    self.home_team = SimpleNamespace(checkbutton=SimpleNamespace(), combobox=SimpleNamespace(), entry=SimpleNamespace(), player=SimpleNamespace())
+    self.away_team = SimpleNamespace(frames=SimpleNamespace(team=SimpleNamespace(),match=SimpleNamespace()), player=SimpleNamespace())
+    self.home_team = SimpleNamespace(frames=SimpleNamespace(team=SimpleNamespace(),match=SimpleNamespace()), player=SimpleNamespace())
     self.match = SimpleNamespace(entry= SimpleNamespace())
+    set_atributes_simpleNamespace_shared(self.away_team.frames.team)
+    set_atributes_simpleNamespace_shared(self.away_team.frames.match)
+    set_atributes_simpleNamespace_shared(self.home_team.frames.team)
+    set_atributes_simpleNamespace_shared(self.home_team.frames.match)
+
+def set_atributes_simpleNamespace_shared(namespace):
+    setattr(namespace,"entry", SimpleNamespace())
+    setattr(namespace,"checkbutton", SimpleNamespace())
+    setattr(namespace,"combobox", SimpleNamespace())
 
 def _nameSpace_team_for_controller(self, team_controller) -> SimpleNamespace:
     if team_controller.team.name == self.match_state_controller.home_team_controller.team.name:
@@ -96,6 +122,25 @@ def grid_config(self):
     self.frames.match.grid_rowconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(1, weight=1)
+
+def setup_joystick_callbacks(self):
+    """
+    Configura las funciones callback que se ejecutarán cuando se presionen botones del joystick.
+    Conecta cada acción del joystick con las funciones correspondientes del marcador.
+    """
+    # Callbacks para sumar puntos (1 punto cada vez)
+    self.joystick_controller.set_callback('home_add_point', lambda: self.ui_teams.add_point(self.home_team_controller))
+    self.joystick_controller.set_callback('away_add_point', lambda: self.ui_teams.add_point(self.away_team_controller))
+
+    # Callbacks para restar puntos
+    self.joystick_controller.set_callback('home_subtract_point', lambda: self.ui_teams.substract_point(self.home_team_controller))
+    self.joystick_controller.set_callback('away_subtract_point', lambda: self.ui_teams.substract_point(self.away_team_controller))
+
+    # Callbacks para control de tiempo
+    self.joystick_controller.set_callback('manage_timer', lambda: manage_timer(self))
+    self.joystick_controller.set_callback('pause_timer', lambda: pause_resume_timer(self))
+    self.joystick_controller.set_callback('resume_timer', lambda: pause_resume_timer(self))
+
 
 if __name__ == "__main__":
     root = tk.Tk()
