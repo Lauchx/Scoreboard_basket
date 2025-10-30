@@ -1,12 +1,10 @@
 from tkinter import ttk
 from gui.control_panel.ui_components.ui_quarter import buttons_change_quarter
 def start_timer(self):  
-        print(self.match_state_controller.match_state.seconds_time_left)
         time_left = self.match_state_controller.match_state.seconds_time_left
         if time_left > 0 and self.is_active_timer:
             self.match_state_controller.match_state.seconds_time_left -= 1
             self.scoreboard_window.update_time_labels()
-            #self.button.start_timer.config(state="disabled") 
             self.is_active_timer = True
             self.root.after(1000, lambda: start_timer(self))  
         else:
@@ -29,7 +27,7 @@ def reset_timer(self):
 
 def manage_timer(self):
     if (self.is_active_timer is not None):
-        pause_resume_timer(self)  
+        pause_resume_timer
         if self.is_active_timer:
             start_timer(self)
     else:
