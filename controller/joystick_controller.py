@@ -153,7 +153,7 @@ class JoystickController:
         # Patrones comunes para Xbox
         xbox_patterns = ['xbox', 'xinput', 'microsoft']
         # Patrones comunes para PlayStation
-        playstation_patterns = ['playstation', 'dualshock', 'dual sense', 'sony', 'PS3']
+        playstation_patterns = ['playstation', 'dualshock', 'dual sense', 'sony', 'ps3']
 
         if any(pattern in controller_name_lower for pattern in xbox_patterns):
             return ControllerType.XBOX
@@ -330,7 +330,13 @@ class JoystickController:
         base_info.update(mapper_info)
 
         return base_info
-
+    
+    def get_abstract_button_from_action(self, action:str):
+        for action_config, abstract_btn in self.action_config.items():
+            print(action, action_config)
+            if action == action_config:
+                return action_config
+        
     def test_all_buttons(self):
         """
         Función de prueba que imprime cuando se presiona cualquier botón.

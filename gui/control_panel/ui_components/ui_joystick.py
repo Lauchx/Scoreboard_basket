@@ -64,8 +64,7 @@ def create_joystick_info_section(control_panel):
     control_panel.controller_type_var = tk.StringVar(value="xbox")
     control_panel.controller_type_radios = {}
 
-    control_panel.controller_type_radios["xbox"] = ttk.Radiobutton(
-        info_frame, text="Xbox",
+    control_panel.controller_type_radios["xbox"] = ttk.Radiobutton(info_frame, text="Xbox",
         variable=control_panel.controller_type_var,
         value="xbox",
         command=lambda: on_controller_type_change(control_panel)
@@ -85,6 +84,7 @@ def on_controller_type_change(control_panel):
     Maneja el cambio de tipo de controlador.
     """
     selected_type = control_panel.controller_type_var.get()
+    
     control_panel.joystick_controller.set_controller_type(selected_type)
     update_button_config_ui(control_panel)
     log_joystick_message(control_panel, f"🎮 Tipo de controlador cambiado a: {selected_type}")
@@ -95,21 +95,23 @@ def update_button_config_ui(control_panel):
     """
     if hasattr(control_panel, 'config_entries'):
         available_buttons = control_panel.joystick_controller.get_available_buttons()
-
+        print(available_buttons)
         for action, combobox in control_panel.config_entries.items():
-            combobox['values'] = list(available_buttons.values())
             # Intentar mantener el valor actual si es válido para el nuevo tipo
             current_value = combobox.get()
-            if current_value not in available_buttons.values():
+            if current_value:
+                current_action = control_panel.joystick_controller.get_abstract_button_from_action(action)
+            else:
+                current_abstract = None
+            combobox['values'] = list(available_buttons.values())
+
+            if current_abstract:
+                print("holiwis")
+                new_display_name = control_panel.joystick_controller.button_mapping.get_display_name_from_abstract(current_action)
+                print(new_display_name)
+                combobox.set(new_display_name)
+            elif current_value not in available_buttons.values():
                 combobox.set('')
-        
-
-    
-
-    
-        
-
-       
 
 def create_joystick_controls_section(control_panel):
     """Crea la sección de controles del joystick"""
@@ -262,6 +264,7 @@ def update_joystick_info(control_panel):
         # Actualizar el radio button del tipo de controlador detectado
         if info['type'] in ['xbox', 'playstation']:
             control_panel.controller_type_var.set(info['type'])
+            update_button_config_ui(control_panel)
 
         # Actualizar botones
         control_panel.btn_connect.config(text="🔌 Desconectar")
