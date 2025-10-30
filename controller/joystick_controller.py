@@ -2,9 +2,9 @@ from tkinter import messagebox
 import pygame
 import threading
 import time
-from model.joystick_types import ControllerType, AbstractButton
-from model.button_mapping import ButtonMapping
-from model.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
+from model.joystick.joystick_types import ControllerType
+from model.joystick.button_mapping import ButtonMapping
+from model.joystick.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
 
 class JoystickController:
     """
@@ -189,7 +189,10 @@ class JoystickController:
         Returns:
             Dict[str, str]: Diccionario de botones abstractos y sus nombres
         """
-        return {btn.value: name for btn, name in self.button_mapping.get_available_buttons().items()}
+        if self.joystick == None:
+            return None
+        else:
+            return {btn.value: name for btn, name in self.button_mapping.get_available_buttons().items()}
 
     def start_listening(self):
         """
@@ -333,53 +336,8 @@ class JoystickController:
     
     def get_abstract_button_from_action(self, action:str):
         for action_config, abstract_btn in self.action_config.items():
-            print(action, action_config)
             if action == action_config:
-                return action_config
-        
-    def test_all_buttons(self):
-        """
-        Función de prueba que imprime cuando se presiona cualquier botón.
-        Útil para identificar qué botón es cuál en tu control.
-        """
-        if not self.is_connected():
-            messagebox.showinfo("❌ No hay joystick conectado")
-            return
-
-        print("🧪 MODO PRUEBA: Presiona cualquier botón (Ctrl+C para salir)")
-        print("Esto te ayudará a identificar qué número tiene cada botón")
-
-        button_states = {}
-
-        try:
-            while True:
-                pygame.event.pump()
-                # Probar botones
-                for button_id in range(self.joystick.get_numbuttons()):
-                    button_pressed = self.joystick.get_button(button_id)
-                    print("--------.ñññññññ")
-                    print(button_states.get(button_id, False))
-
-                    if button_pressed and not button_states.get(button_id, False):
-                        print(f"🔘 BOTÓN {button_id} presionado")
-
-                    button_states[button_id] = button_pressed
-
-                # Probar D-pad
-                if self.joystick.get_numhats() > 0:
-                    hat = self.joystick.get_hat(0)
-                    if hat != (0, 0):
-                        direction = ""
-                        if hat[1] == 1: direction += "ARRIBA "
-                        if hat[1] == -1: direction += "ABAJO "
-                        if hat[0] == 1: direction += "DERECHA "
-                        if hat[0] == -1: direction += "IZQUIERDA "
-                        print(f"🎯 D-PAD: {direction}")
-
-                time.sleep(0.1)
-
-        except KeyboardInterrupt:
-            print("\n🛑 Modo prueba terminado")
+                return abstract_btn
 
     def cleanup(self):
         """
@@ -392,38 +350,5 @@ class JoystickController:
         pygame.quit()
 
 # Función de utilidad para crear y probar el controlador
-def test_joystick_controller():
-    """
-    Función de prueba independiente para probar el JoystickController.
-    Puedes ejecutar este archivo directamente para probar.
-    """
-    print("🎮 === PRUEBA DEL JOYSTICK CONTROLLER ===")
 
-    # Crear controlador
-    controller = JoystickController()
 
-    # Detectar joysticks
-    joysticks = controller.detect_joysticks()
-
-    if not joysticks:
-        print("❌ No se encontraron joysticks. Conecta un control y vuelve a intentar.")
-        return
-
-    # Conectar al primer joystick
-    if controller.connect_joystick(0):
-        print("\n📋 Información del joystick:")
-        info = controller.get_joystick_info()
-        for key, value in info.items():
-            print(f"   {key}: {value}")
-
-        print("\n🧪 Iniciando modo prueba...")
-        print("   Presiona botones para ver sus números")
-        print("   Presiona Ctrl+C para terminar")
-
-        controller.test_all_buttons()
-
-    # Limpiar
-    controller.cleanup()
-
-if __name__ == "__main__":
-    test_joystick_controller()

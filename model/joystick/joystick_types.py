@@ -14,18 +14,18 @@ class ControllerType(Enum):
 class AbstractButton(Enum):
     """Botones abstractos independientes del tipo de controlador"""
     # Bumpers/Triggers superiores
-    LEFT_BUMPER = "left_bumper"      # LB (Xbox) / L1 (PlayStation)
-    RIGHT_BUMPER = "right_bumper"    # RB (Xbox) / R1 (PlayStation)
+    LEFT_BUMPER = "LB"      # LB (Xbox) / L1 (PlayStation)
+    RIGHT_BUMPER = "RB"    # RB (Xbox) / R1 (PlayStation)
 
     # Botones de acción principales
-    ACTION_BOTTOM = "action_bottom"  # A (Xbox) / X (PlayStation)
-    ACTION_RIGHT = "action_right"    # B (Xbox) / O (PlayStation)
-    ACTION_LEFT = "action_left"      # X (Xbox) / □ (PlayStation)
-    ACTION_TOP = "action_top"        # Y (Xbox) / △ (PlayStation)
+    ACTION_BOTTOM = "A"  # A (Xbox) / X (PlayStation)
+    ACTION_RIGHT = "B"    # B (Xbox) / O (PlayStation)
+    ACTION_LEFT = "X"      # X (Xbox) / □ (PlayStation)
+    ACTION_TOP = "Y"        # Y (Xbox) / △ (PlayStation)
 
     # Botones de sistema
     START = "start"                  # Start/Options
-    SELECT = "select"                # Back/Share
+    SELECT = "select"                # Select/Share
 
     # D-Pad
     DPAD_UP = "dpad_up"

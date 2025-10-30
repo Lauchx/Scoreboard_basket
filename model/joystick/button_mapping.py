@@ -52,7 +52,7 @@ class ButtonMapping:
                 AbstractButton.ACTION_LEFT: "X",
                 AbstractButton.ACTION_TOP: "Y",
                 AbstractButton.START: "Start",
-                AbstractButton.SELECT: "Back",
+                AbstractButton.SELECT: "Select",
             },
             ControllerType.PLAYSTATION: {
                 AbstractButton.LEFT_BUMPER: "L1",
@@ -61,7 +61,7 @@ class ButtonMapping:
                 AbstractButton.ACTION_RIGHT: "O",
                 AbstractButton.ACTION_LEFT: "□",
                 AbstractButton.ACTION_TOP: "△",
-                AbstractButton.START: "Options",
+                AbstractButton.START: "Start",
                 AbstractButton.SELECT: "Share",
             }
         }
@@ -96,19 +96,6 @@ class ButtonMapping:
             if physical_btn == physical_button:
                 return abstract_btn
         return None
-    def get_display_name_from_abstract(self, abstract_button: AbstractButton) -> str:
-        """
-        Obtiene el display name para un AbstractButton según el tipo de controlador actual.
-
-        Args:
-            abstract_button (AbstractButton): El AbstractButton del que queremos el display name
-
-        Returns:
-            str: El display name correspondiente (ej: "L1", "LB", etc.)
-        """
-        if self.controller_type in self.BUTTON_DISPLAY_NAMES:
-            return self.BUTTON_DISPLAY_NAMES[self.controller_type].get(abstract_button, str(abstract_button.value))
-        return str(abstract_button.value)
     
     def get_abstract_button_from_display(self, display_name: str) -> Optional[AbstractButton]:
       """Obtiene el AbstractButton a partir del display name"""
