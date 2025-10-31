@@ -60,4 +60,13 @@ def apply_styles_control_panel_test():
     # ─────────────────────────────────────────────
     # Puntos de local y vigilante (pueden tener su propio frame)
     # ─────────────────────────────────────────────
-    
+    style.configure("PanelTestScore.TFrame", background="black", borderwidth=2, relief="ridge", padding=6)
+
+    style.configure("PanelTestScoreTitle.TLabel",
+                font=("Arial", 14, "bold"),
+                foreground="white",
+                background="black")
+
+    style.configure("PanelTestScore.TLabel",
+                font=("Arial", 48, "bold"),
+                foreground="black",)
