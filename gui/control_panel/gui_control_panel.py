@@ -10,7 +10,7 @@ from types import SimpleNamespace
 from model.team import Team
 from gui.control_panel.ui_components.ui_teams import ui_teams
 from gui.control_panel.ui_components.ui_logo import buttons_logo 
-from gui.control_panel.ui_components.ui_possession import buttons_change_possesion
+from gui.control_panel.ui_components.ui_possession import buttons_change_possesion, toggle_possession
 from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time, manage_timer, pause_resume_timer, change_text_button_timer, manage_timer
 from controller.joystick_controller import JoystickController
 from gui.control_panel.ui_components.ui_joystick import setup_joystick_ui
@@ -91,6 +91,7 @@ def setup_teams_players(self):
     setup_team_players(self, self.away_team_controller)
 
 def initialize_gui_scoreboard(self):
+    
     self.scoreboard_window = Gui_scoreboard(tk.Toplevel(self.root),self.match_state_controller.match_state)
 
 def setup_ui(self):
@@ -138,11 +139,16 @@ def setup_joystick_callbacks(self):
 
     # Callbacks para control de tiempo
     self.joystick_controller.set_callback('manage_timer', lambda: manage_timer(self))
-    self.joystick_controller.set_callback('pause_timer', lambda: pause_resume_timer(self))
-    self.joystick_controller.set_callback('resume_timer', lambda: pause_resume_timer(self))
+    self.joystick_controller.set_callback('change_possession', lambda: toggle_possession(self))
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = Gui_control_panel(root, None)  # Sin pantalla pública en modo independiente
     root.mainloop()
+
+# def recover_lost_window(self):
+"""
+    Funcion para recuperar ventana. Se necesitan guardar TODOS valores del match_state para que funcione correctamente. 
+"""
+#     tk.Button(self.frames.teams, text="Recuperar tablero", command=lambda:initialize_gui_scoreboard(self)).grid(row=6,column=6)

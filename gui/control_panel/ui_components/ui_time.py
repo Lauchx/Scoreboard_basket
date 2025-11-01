@@ -26,8 +26,13 @@ def reset_timer(self):
 
 
 def manage_timer(self):
+    import time
+    if time.time() - self.last_timer_button_time < 0.5:  # 200ms de debounce
+        return
+    print(time.time() - self.last_timer_button_time < 0.5)
+    self.last_timer_button_time = time.time()
     if (self.is_active_timer is not None):
-        pause_resume_timer
+        pause_resume_timer(self)
         if self.is_active_timer:
             start_timer(self)
     else:
@@ -38,6 +43,7 @@ def manage_timer(self):
 
 def setup_ui_time(self):
     print(self)
+    self.last_timer_button_time = 0
     ttk.Label(self.frames.match.time, text="Minutos").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
     self.match.entry.minutes_match_time = ttk.Entry(self.frames.match.time)
     self.match.entry.minutes_match_time.grid(row=1, column=1,sticky="nsew")

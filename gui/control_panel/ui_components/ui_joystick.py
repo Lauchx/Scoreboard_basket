@@ -163,7 +163,7 @@ def create_joystick_config_section(control_panel):
         'home_subtract_point': "🏠 -1 Local:",
         'away_subtract_point': "🚗 -1 Visit:",
         'manage_timer': "▶️ Iniciar:",
-        'pause_timer': "⏸️ Pausar:",
+        'change_possession': "⛹🏻‍♂️ Posesión:",
         'resume_timer': "▶️ Reanudar:"
     }
 

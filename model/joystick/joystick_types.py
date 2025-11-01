@@ -12,7 +12,7 @@ class ControllerType(Enum):
     UNKNOWN = "unknown"
 
 class AbstractButton(Enum):
-    """Botones abstractos independientes del tipo de controlador"""
+    """Botones abstractos independientes del tipo de controlador. Se dejan por default xbox, si falla el 'desconectado' en combobox"""
     # Bumpers/Triggers superiores
     LEFT_BUMPER = "LB"      # LB (Xbox) / L1 (PlayStation)
     RIGHT_BUMPER = "RB"    # RB (Xbox) / R1 (PlayStation)
