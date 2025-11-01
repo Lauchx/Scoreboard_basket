@@ -97,6 +97,45 @@ class JoystickController:
             self.joystick.quit()
             self.joystick = None
 
+    def try_auto_connect(self):
+        """
+        Intenta conectar automáticamente al primer joystick disponible.
+        Este método se usa para detectar joysticks que se conectaron después
+        de iniciar la aplicación.
+
+        Returns:
+            bool: True si se conectó exitosamente, False si no
+        """
+        joystick_count = pygame.joystick.get_count()
+
+        if joystick_count > 0:
+            print(f"🔍 Detectados {joystick_count} joystick(s), intentando conectar al primero...")
+            return self.connect_joystick(0)
+
+        return False
+
+    def refresh_joystick_detection(self):
+        """
+        Fuerza una detección de joysticks y actualiza el estado.
+        Útil para llamar desde un botón de "Refrescar" en la UI.
+
+        Returns:
+            bool: True si se detectó y conectó un joystick, False si no
+        """
+        # Si ya hay un joystick conectado, primero lo desconectamos
+        if self.is_connected():
+            print("🔄 Desconectando joystick actual...")
+            self.disconnect_joystick()
+            if self.is_running:
+                self.stop_listening()
+
+        # Forzar a pygame que actualice la lista de joysticks
+        pygame.joystick.quit()
+        pygame.joystick.init()
+
+        # Intentar conectar automáticamente
+        return self.try_auto_connect()
+
     def is_connected(self):
         return self.joystick is not None and self.joystick.get_init()
 
@@ -199,9 +238,13 @@ class JoystickController:
         Inicia el hilo que escucha constantemente el input del joystick.
         Esto permite que el joystick funcione sin bloquear la interfaz.
         """
+        # Primero intentar conectar automáticamente si no hay joystick conectado
         if not self.is_connected():
-            messagebox.showinfo("❌ No hay joystick conectado para escuchar")
-            return False
+            if self.try_auto_connect():
+                print("🎮 Joystick conectado automáticamente")
+            else:
+                messagebox.showinfo("❌ No hay joystick conectado para escuchar")
+                return False
 
         if self.is_running:
             messagebox.showinfo("⚠️ Ya se está escuchando el joystick")

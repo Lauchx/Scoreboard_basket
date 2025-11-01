@@ -277,18 +277,20 @@ def update_joystick_info(control_panel):
 # Funciones de acción para los botones
 
 def detect_joysticks_action(control_panel):
-    """Acción para detectar joysticks"""
-    joysticks = control_panel.joystick_controller.detect_joysticks()
-    
-    if joysticks:
-        message = f"🔍 Encontrados {len(joysticks)} joystick(s):\n"
-        for joy in joysticks:
-            message += f"  • {joy['name']} (ID: {joy['id']})\n"
+    """Acción para detectar y refrescar joysticks"""
+    log_joystick_message(control_panel, "🔍 Buscando joysticks conectados...")
+
+    # Usar el nuevo método de refresco que maneja detección dinámica
+    if control_panel.joystick_controller.refresh_joystick_detection():
+        log_joystick_message(control_panel, "✅ Joystick detectado y conectado automáticamente")
+        messagebox.showinfo("Detección de Joysticks", "✅ Joystick detectado y conectado exitosamente")
     else:
-        message = "❌ No se encontraron joysticks conectados"
-    
-    log_joystick_message(control_panel, message)
-    messagebox.showinfo("Detección de Joysticks", message)
+        log_joystick_message(control_panel, "❌ No se encontraron joysticks conectados")
+        messagebox.showinfo("Detección de Joysticks", "❌ No se encontraron joysticks conectados. Conecta un joystick y vuelve a intentar.")
+
+    # Actualizar la UI
+    update_joystick_info(control_panel)
+    update_button_config_ui(control_panel)
 
 def connect_joystick_action(control_panel):
     """Acción para conectar/desconectar joystick"""
