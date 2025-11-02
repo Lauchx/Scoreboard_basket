@@ -16,7 +16,7 @@ class JoystickController:
     3. Mapear acciones a funciones del marcador
     """
 
-    def __init__(self):
+    def __init__(self, on_disconnect_callback):
         # Inicializar pygame y el módulo de joystick
         pygame.init()
         pygame.joystick.init()
@@ -28,6 +28,7 @@ class JoystickController:
 
         # Callback functions - aquí conectaremos con el marcador
         self.callbacks = {}
+        self.on_disconnect_callback = on_disconnect_callback
 
         # Sistema de mapeo abstracto de botones (inyección del modelo)
         self.button_mapping = ButtonMapping()
@@ -37,15 +38,18 @@ class JoystickController:
 
         print("JoystickController inicializado con sistema de mapeo abstracto")
 
+    def set_ui_cleanup_callback(self, on_disconnect_callback):
+          """Establece el callback para limpiar la UI cuando se desconecta"""
+          self.on_disconnect_callback = on_disconnect_callback
     def detect_joysticks(self):
         """
         Detecta y lista todos los joysticks conectados.
         Retorna una lista con información de los joysticks.
         """
-        joystick_count = pygame.joystick.get_count()
+        self.joystick_count = pygame.joystick.get_count()
         joysticks_array_info = []
 
-        for i in range(joystick_count):
+        for i in range(self.joystick_count ):
             joystick = pygame.joystick.Joystick(i)
             joystick_info = {
                 'id': i,
@@ -106,10 +110,10 @@ class JoystickController:
         Returns:
             bool: True si se conectó exitosamente, False si no
         """
-        joystick_count = pygame.joystick.get_count()
+        self.joystick_count = pygame.joystick.get_count()
 
-        if joystick_count > 0:
-            print(f"🔍 Detectados {joystick_count} joystick(s), intentando conectar al primero...")
+        if self.joystick_count > 0:
+            print(f"🔍 Detectados {self.joystick_count} joystick(s), intentando conectar al primero...")
             return self.connect_joystick(0)
 
         return False
@@ -258,9 +262,39 @@ class JoystickController:
 
     def stop_listening(self):
         """Para la escucha del joystick"""
-        self.is_running = False
-        if self.thread:
-            self.thread.join(timeout=1.0)
+        try:
+          self.is_running = False
+          if self.thread:
+              current = threading.current_thread()
+              if self.thread == current:
+                  self.thread = None  # Solo limpiar la referencia
+              else:
+                  self.thread.join(timeout=1.0)
+        except Exception as e:
+          print(f"Error al cerrar thread: {type(e).__name__}: {e}")
+          print(f"Thread actual: {threading.current_thread().name}")
+          print(f"Thread a cerrar: {self.thread.name}")
+
+    def check_joystick_connected(self):
+        try:
+          if not hasattr(self, 'joystick_count'):
+            self.try_auto_connect()
+          # Verificar si el dispositivo físico sigue existiendo
+          current_count = pygame.joystick.get_count()
+          if current_count < self.joystick_count:
+            # Se desconectó un joystick
+            raise pygame.error("Joystick desconectado")
+
+          # Intentar acceder al índice actual
+          pygame.joystick.Joystick(self.joystick.get_id())
+          return True
+        except (pygame.error, AttributeError) as e:
+            messagebox.showinfo(f"❌ Error en el joystick", f"{e}")
+            self.cleanup()
+            self.clean_ui_control_panel()
+            return False
+        
+            
 
     def _listen_loop(self):
         """
@@ -278,6 +312,8 @@ class JoystickController:
                 if not self.is_connected():
                     break
 
+                if not self.check_joystick_connected():
+                    break
                 # Leer estado de todos los botones
                 for button_id in range(self.joystick.get_numbuttons()):
                     button_pressed = self.joystick.get_button(button_id)
@@ -296,7 +332,8 @@ class JoystickController:
                 time.sleep(0.01)  # 100 FPS es más que suficiente
 
             except Exception as e:
-                messagebox.showinfo(f"❌ Error en bucle de escucha: {e}")
+                messagebox.showinfo(f"❌ Error en bucle de escucha: ", f"{e}")
+                print( f"{e}")
                 break
 
     def _handle_button_press(self, button_id):
@@ -381,6 +418,12 @@ class JoystickController:
         for action_config, abstract_btn in self.action_config.items():
             if action == action_config:
                 return abstract_btn
+    def clean_ui_control_panel(self):
+        print(self.on_disconnect_callback())
+        if self.on_disconnect_callback():
+            self.on_disconnect_callback()
+        else:
+            messagebox.showinfo(f"❌ Error", "No se pudo actualizar el panel de control. Asegurese de tener conectado el joystick")
 
     def cleanup(self):
         """

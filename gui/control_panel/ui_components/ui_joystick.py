@@ -122,16 +122,11 @@ def create_joystick_controls_section(control_panel):
     # Configurar grid del frame de controles
     for i in range(4):
         controls_frame.grid_columnconfigure(i, weight=1)
-    
-    # Botón para detectar joysticks
-    btn_detect = ttk.Button(controls_frame, text="🔍 Detectar Joysticks", command=lambda: detect_joysticks_action(control_panel))
-    btn_detect.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-    
+
     # Botón para conectar joystick
-    control_panel.btn_connect = ttk.Button(controls_frame, text="🔌 Conectar", 
-                                          command=lambda: connect_joystick_action(control_panel))
-    control_panel.btn_connect.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-    
+    control_panel.connected_btn = False
+    control_panel.btn_connect = ttk.Button(controls_frame, text="🔌 Conectar", command=lambda: toogle_detect_joysticks_action(control_panel))
+    control_panel.btn_connect.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
     # Botón para iniciar/parar escucha
     control_panel.btn_listen = ttk.Button(controls_frame, text="🎧 Iniciar Escucha", 
                                          command=lambda: toggle_listening_action(control_panel))
@@ -164,7 +159,6 @@ def create_joystick_config_section(control_panel):
         'away_subtract_point': "🚗 -1 Visit:",
         'manage_timer': "▶️ Iniciar:",
         'change_possession': "⛹🏻‍♂️ Posesión:",
-        'resume_timer': "▶️ Reanudar:"
     }
 
     for i, (action, label) in enumerate(action_labels.items(), start=1):
@@ -264,6 +258,7 @@ def update_joystick_info(control_panel):
         # Actualizar botones
         control_panel.btn_connect.config(text="🔌 Desconectar")
         control_panel.btn_listen.config(state="normal")
+
     else:
         control_panel.joystick_info_labels['status'].config(text="❌ Desconectado", foreground="red")
         control_panel.joystick_info_labels['name'].config(text="N/A")
@@ -274,40 +269,52 @@ def update_joystick_info(control_panel):
         control_panel.btn_connect.config(text="🔌 Conectar")
         control_panel.btn_listen.config(state="disabled", text="🎧 Iniciar Escucha")
 
+
 # Funciones de acción para los botones
-
-def detect_joysticks_action(control_panel):
-    """Acción para detectar y refrescar joysticks"""
+def toogle_detect_joysticks_action(control_panel):
     log_joystick_message(control_panel, "🔍 Buscando joysticks conectados...")
-
-    # Usar el nuevo método de refresco que maneja detección dinámica
-    if control_panel.joystick_controller.refresh_joystick_detection():
-        log_joystick_message(control_panel, "✅ Joystick detectado y conectado automáticamente")
-        messagebox.showinfo("Detección de Joysticks", "✅ Joystick detectado y conectado exitosamente")
+    control_panel.connected_btn = not control_panel.connected_btn 
+    if control_panel.connected_btn:
+        detect_joysticks_action(control_panel)
     else:
-        log_joystick_message(control_panel, "❌ No se encontraron joysticks conectados")
-        messagebox.showinfo("Detección de Joysticks", "❌ No se encontraron joysticks conectados. Conecta un joystick y vuelve a intentar.")
-
+        disconnect_joystick_action(control_panel)
     # Actualizar la UI
     update_joystick_info(control_panel)
     update_button_config_ui(control_panel)
 
-def connect_joystick_action(control_panel):
-    """Acción para conectar/desconectar joystick"""
-    if control_panel.joystick_controller.is_connected():
+
+def detect_joysticks_action(control_panel):
+    """Acción para detectar y refrescar joysticks"""
+
+    # Usar el nuevo método de refresco que maneja detección dinámica
+    if control_panel.joystick_controller.refresh_joystick_detection():
+        log_joystick_message(control_panel, "✅ Joystick detectado y conectado automáticamente")
+    else:
+        log_joystick_message(control_panel, "❌ No se encontraron joysticks conectados")
+
+def disconnect_joystick_action(control_panel):
+     if control_panel.joystick_controller.is_connected():
         # Desconectar
         control_panel.joystick_controller.stop_listening()
         control_panel.joystick_controller.disconnect_joystick()
         log_joystick_message(control_panel, "🔌 Joystick desconectado")
-        update_button_config_ui(control_panel)
-    else:
-        # Conectar
-        if control_panel.joystick_controller.connect_joystick(0):
-            log_joystick_message(control_panel, "✅ Joystick conectado exitosamente")
-        else:
-            log_joystick_message(control_panel, "❌ Error al conectar joystick")
+
+# def connect_joystick_action(control_panel):
+#     """Acción para conectar/desconectar joystick"""
+#     if control_panel.joystick_controller.is_connected():
+#         # Desconectar
+#         control_panel.joystick_controller.stop_listening()
+#         control_panel.joystick_controller.disconnect_joystick()
+#         log_joystick_message(control_panel, "🔌 Joystick desconectado")
+#         update_button_config_ui(control_panel)
+#     else:
+#         # Conectar
+#         if control_panel.joystick_controller.connect_joystick(0):
+#             log_joystick_message(control_panel, "✅ Joystick conectado exitosamente")
+#         else:
+#             log_joystick_message(control_panel, "❌ Error al conectar joystick")
     
-    update_joystick_info(control_panel)
+#     update_joystick_info(control_panel)
 
 def toggle_listening_action(control_panel):
     """Acción para iniciar/parar la escucha del joystick"""
