@@ -177,7 +177,7 @@ def create_joystick_config_section(control_panel):
         # Establecer valor por defecto
         if not available_buttons == None:
             default_abstract_button = control_panel.action_config[action]
-            default_display_name = control_panel.joystick_controller.button_mapping.get_display_name(default_abstract_button)
+            default_display_name = control_panel.joystick_controller.get_display_name(default_abstract_button)
             control_panel.config_entries[action].set(default_display_name)
         else:
             control_panel.config_entries[action].set('Desconectado')
@@ -272,7 +272,6 @@ def update_joystick_info(control_panel):
 
 # Funciones de acción para los botones
 def toogle_detect_joysticks_action(control_panel):
-    log_joystick_message(control_panel, "🔍 Buscando joysticks conectados...")
     control_panel.connected_btn = not control_panel.connected_btn 
     if control_panel.connected_btn:
         detect_joysticks_action(control_panel)
@@ -285,7 +284,7 @@ def toogle_detect_joysticks_action(control_panel):
 
 def detect_joysticks_action(control_panel):
     """Acción para detectar y refrescar joysticks"""
-
+    log_joystick_message(control_panel, "🔍 Buscando joysticks conectados...")
     # Usar el nuevo método de refresco que maneja detección dinámica
     if control_panel.joystick_controller.refresh_joystick_detection():
         log_joystick_message(control_panel, "✅ Joystick detectado y conectado automáticamente")
@@ -298,23 +297,6 @@ def disconnect_joystick_action(control_panel):
         control_panel.joystick_controller.stop_listening()
         control_panel.joystick_controller.disconnect_joystick()
         log_joystick_message(control_panel, "🔌 Joystick desconectado")
-
-# def connect_joystick_action(control_panel):
-#     """Acción para conectar/desconectar joystick"""
-#     if control_panel.joystick_controller.is_connected():
-#         # Desconectar
-#         control_panel.joystick_controller.stop_listening()
-#         control_panel.joystick_controller.disconnect_joystick()
-#         log_joystick_message(control_panel, "🔌 Joystick desconectado")
-#         update_button_config_ui(control_panel)
-#     else:
-#         # Conectar
-#         if control_panel.joystick_controller.connect_joystick(0):
-#             log_joystick_message(control_panel, "✅ Joystick conectado exitosamente")
-#         else:
-#             log_joystick_message(control_panel, "❌ Error al conectar joystick")
-    
-#     update_joystick_info(control_panel)
 
 def toggle_listening_action(control_panel):
     """Acción para iniciar/parar la escucha del joystick"""
@@ -368,12 +350,12 @@ def apply_button_config(control_panel):
         control_panel.action_config = new_action_config
 
         # Actualizar la configuración en el joystick controller
-        control_panel.joystick_controller.set_action_config(new_action_config)
+        message = control_panel.joystick_controller.set_action_config(new_action_config)
 
         # Actualizar el mapeo en el joystick controller
         update_joystick_mapping(control_panel)
 
-        log_joystick_message(control_panel, "✅ Configuración de botones aplicada exitosamente")
+        log_joystick_message(control_panel, f"✅ Configuración de botones aplicada exitosamente: {message}")
         messagebox.showinfo("Configuración", "✅ Configuración de botones aplicada exitosamente")
 
     except ValueError as e:
@@ -396,7 +378,7 @@ def reset_button_config(control_panel):
     for action, abstract_button in control_panel.action_config.items():
         if action in control_panel.config_entries:
             # Obtener el nombre para mostrar del botón abstracto
-            display_name = control_panel.joystick_controller.button_mapping.get_display_name(abstract_button)
+            display_name = control_panel.joystick_controller.get_display_name(abstract_button)
             control_panel.config_entries[action].set(display_name)
 
     # Actualizar la configuración en el joystick controller
@@ -418,14 +400,14 @@ def update_joystick_mapping(control_panel):
         control_panel.joystick_controller.set_action_config(control_panel.action_config)
 
     # Obtener información del mapeo actual para logging
-    current_mapping = control_panel.joystick_controller._get_button_mapping()
+    current_mapping = control_panel.joystick_controller.create_button_mapping()
 
     # Formatear mensaje de log
     mapping_info = []
     for physical_btn, action in current_mapping.items():
-        abstract_btn = control_panel.joystick_controller.button_mapping.get_abstract_button(physical_btn)
+        abstract_btn = control_panel.joystick_controller.get_abstract_button(physical_btn)
         if abstract_btn:
-            display_name = control_panel.joystick_controller.button_mapping.get_display_name(abstract_btn)
+            display_name = control_panel.joystick_controller.get_display_name(abstract_btn)
             mapping_info.append(f"{display_name}({physical_btn})→{action}")
 
     log_joystick_message(control_panel, f"🔄 Mapeo actualizado: {', '.join(mapping_info)}")
