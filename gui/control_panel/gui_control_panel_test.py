@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from gui.control_panel.styles_control_panel_test import apply_styles_control_panel_test
+from gui.control_panel.gui_left_control_panel import setup_left_panel
 
 class Gui_control_panel_test:
     def __init__(self, root, match_state_controller, main_panel=None):
@@ -12,24 +13,12 @@ class Gui_control_panel_test:
         self.main_panel = main_panel
 
         apply_styles_control_panel_test()
+        setup_left_panel(self)
         
         # Configuración del grid raíz (1/6 izquierda, 5/6 derecha)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=7)
-
-        # Panel izquierdo: pestañas de jugadores y ajustes
-        self.left_frame = ttk.Frame(self.root, style="PanelTestLeft.TFrame")
-        self.left_frame.grid(row=0, column=0, sticky="nsew")
-
-        self.notebook = ttk.Notebook(self.left_frame)
-        self.notebook.pack(fill="both", expand=True, padx=5, pady=5)
-
-        self.tab_jugadores = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_jugadores, text="Jugadores")
-
-        self.tab_ajustes = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_ajustes, text="Ajustes")
 
         # Panel derecho: estructura 3x3 uniforme
         self.right_frame = ttk.Frame(self.root, style="PanelTest.TFrame")
@@ -214,6 +203,137 @@ class Gui_control_panel_test:
 
         # Inicializar valores visuales
         self.update_time_label()
+        
+        # Fila 3 - Panel de faltas LOCAL
+
+        # Contenedor general (sin fondo negro)
+        self.local_fouls_container = ttk.Frame(self.right_frame)
+        self.local_fouls_container.grid(row=2, column=0, sticky="nsew", padx=6, pady=6)
+
+        # Título fuera del fondo negro
+        self.local_fouls_title = ttk.Label(
+            self.local_fouls_container,
+            text="FALTAS LOCAL",
+            style="PanelFoulsTitle.TLabel"
+        )
+        self.local_fouls_title.pack(side="top", pady=(2, 0))
+
+        # Subpanel negro más chico
+        self.local_fouls_panel = ttk.Frame(self.local_fouls_container, style="PanelFouls.TFrame")
+        self.local_fouls_panel.pack(fill="x", expand=False, pady=(4, 0), ipadx=4, ipady=4)
+
+        # Valor inicial de faltas
+        try:
+            home_team = getattr(self.match_state_controller.match_state, 'home_team', None)
+            home_fouls = getattr(home_team, 'fouls', 0) if home_team is not None else 0
+        except Exception:
+            home_fouls = 0
+
+        self.local_fouls_label = ttk.Label(
+            self.local_fouls_panel,
+            text=str(home_fouls),
+            style="PanelFouls.TLabel"
+        )
+        self.local_fouls_label.pack(anchor="center", pady=(4, 2))
+
+        # Botones de control
+        self.local_fouls_buttons = ttk.Frame(self.local_fouls_panel)
+        self.local_fouls_buttons.pack(side="bottom", fill="x", pady=(2, 0))
+
+        self.local_fouls_inner = ttk.Frame(self.local_fouls_buttons)
+        self.local_fouls_inner.pack(anchor="center")
+
+        self.local_fouls_minus_btn = ttk.Button(
+            self.local_fouls_inner,
+            text='-',
+            width=3,
+            style="ControlPanel.Minus.TButton",
+            command=lambda: None
+        )
+        self.local_fouls_minus_btn.pack(side='left', padx=4)
+
+        self.local_fouls_plus_btn = ttk.Button(
+            self.local_fouls_inner,
+            text='+',
+            width=3,
+            style="ControlPanel.Plus.TButton",
+            command=lambda: None
+        )
+        self.local_fouls_plus_btn.pack(side='left', padx=4)
+        
+        # Fila 3 - Panel de faltas VISITANTE
+
+        # Contenedor general (sin fondo negro)
+        self.visitor_fouls_container = ttk.Frame(self.right_frame)
+        self.visitor_fouls_container.grid(row=2, column=2, sticky="nsew", padx=6, pady=6)
+
+        # Título fuera del fondo negro
+        self.visitor_fouls_title = ttk.Label(
+            self.visitor_fouls_container,
+            text="FALTAS VISITANTE",
+            style="PanelFoulsTitle.TLabel"
+        )
+        self.visitor_fouls_title.pack(side="top", pady=(2, 0))
+
+        # Subpanel negro más chico
+        self.visitor_fouls_panel = ttk.Frame(self.visitor_fouls_container, style="PanelFouls.TFrame")
+        self.visitor_fouls_panel.pack(fill="x", expand=False, pady=(4, 0), ipadx=4, ipady=4)
+
+        # Valor inicial de faltas
+        try:
+            away_team = getattr(self.match_state_controller.match_state, 'away_team', None)
+            away_fouls = getattr(away_team, 'fouls', 0) if away_team is not None else 0
+        except Exception:
+            away_fouls = 0
+
+        self.visitor_fouls_label = ttk.Label(
+            self.visitor_fouls_panel,
+            text=str(away_fouls),
+            style="PanelFouls.TLabel"
+        )
+        self.visitor_fouls_label.pack(anchor="center", pady=(4, 2))
+
+        # Botones de control
+        self.visitor_fouls_buttons = ttk.Frame(self.visitor_fouls_panel)
+        self.visitor_fouls_buttons.pack(side="bottom", fill="x", pady=(2, 0))
+
+        self.visitor_fouls_inner = ttk.Frame(self.visitor_fouls_buttons)
+        self.visitor_fouls_inner.pack(anchor="center")
+
+        self.visitor_fouls_minus_btn = ttk.Button(
+            self.visitor_fouls_inner,
+            text='-',
+            width=3,
+            style="ControlPanel.Minus.TButton",
+            command=lambda: None
+        )
+        self.visitor_fouls_minus_btn.pack(side='left', padx=4)
+
+        self.visitor_fouls_plus_btn = ttk.Button(
+            self.visitor_fouls_inner,
+            text='+',
+            width=3,
+            style="ControlPanel.Plus.TButton",
+            command=lambda: None
+        )
+        self.visitor_fouls_plus_btn.pack(side='left', padx=4)
+        
+        # Fila 3 - Panel central: botón "Borrar faltas"
+        self.clear_fouls_panel = ttk.Frame(self.right_frame, style="ControlPanel.Stack.TFrame")
+        self.clear_fouls_panel.grid(row=2, column=1, sticky="n", padx=6, pady=6)
+
+        self.clear_fouls_inner = ttk.Frame(self.clear_fouls_panel, style="ControlPanel.Stack.TFrame")
+        self.clear_fouls_inner.pack(anchor="center", pady=10)
+
+        self.clear_fouls_button = ttk.Button(
+            self.clear_fouls_inner,
+            text="Borrar faltas",
+            style="ControlPanel.ClearFouls.TButton",  # Estilo exclusivo
+            command=lambda: None
+        )
+        self.clear_fouls_button.pack(side="top", pady=6)
+
+        ##codigo##
 
     def update_time_label(self, force=False):
         try:
