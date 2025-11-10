@@ -102,11 +102,17 @@ def setup_ui(self):
     self.notebook = ttk.Notebook(self.root)
     self.notebook.grid(row=0, column=0, sticky="nsew")
 
+    # Pestaña Equipos
     self.frames.teams = ttk.Frame(self.notebook)
     self.notebook.add(self.frames.teams, text="Equipos")
 
+    # Pestaña Partido
     self.frames.match = ttk.Frame(self.notebook)
     self.notebook.add(self.frames.match, text="Partido", sticky="nsew")
+
+    # Pestaña Configuración (nueva)
+    self.frames.config = ttk.Frame(self.notebook)
+    self.notebook.add(self.frames.config, text="Configuración", sticky="nsew")
 
     grid_config(self)
     
@@ -126,6 +132,10 @@ def grid_config(self):
     self.frames.match.grid_rowconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(1, weight=1)
+
+    # Configuración para la pestaña Configuración
+    self.frames.config.grid_rowconfigure(0, weight=1)
+    self.frames.config.grid_columnconfigure(0, weight=1)
 
 def setup_joystick_callbacks(self):
     """

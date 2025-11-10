@@ -9,7 +9,7 @@ from tkinter import ttk, colorchooser, messagebox
 
 def setup_color_customization_ui(control_panel):
     """
-    Crea la interfaz de personalización de colores en la pestaña Partido.
+    Crea la interfaz de personalización de colores en la pestaña Configuración.
     Solo se muestra si el diseño moderno está activado.
 
     Args:
@@ -20,11 +20,11 @@ def setup_color_customization_ui(control_panel):
     if not (hasattr(scoreboard, 'modern_style') and scoreboard.modern_style):
         # Si no hay diseño moderno, mostrar mensaje informativo
         info_frame = ttk.LabelFrame(
-            control_panel.frames.match,
+            control_panel.frames.config,
             text="ℹ️ Personalización de Colores",
             padding=(15, 10)
         )
-        info_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
+        info_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
 
         info_label = ttk.Label(
             info_frame,
@@ -38,11 +38,11 @@ def setup_color_customization_ui(control_panel):
 
     # Frame principal para personalización de colores
     color_frame = ttk.LabelFrame(
-        control_panel.frames.match,
+        control_panel.frames.config,
         text="🎨 Personalización de Colores del Tablero",
         padding=(15, 10)
     )
-    color_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
+    color_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
     
     # Instrucciones
     instructions = ttk.Label(
@@ -261,21 +261,77 @@ def open_color_picker(control_panel, color_key, color_button_frame):
 def update_scoreboard_color(control_panel, color_key, new_color):
     """
     Actualiza un color específico en el scoreboard en tiempo real.
-    
+    Funciona tanto con ttk.Label como con tk.Label.
+
     Args:
         control_panel: Instancia de Gui_control_panel
         color_key: Clave del color a actualizar
         new_color: Nuevo color en formato hexadecimal
     """
     scoreboard = control_panel.scoreboard_window
-    
+
     # Verificar si tiene diseño moderno
     if hasattr(scoreboard, 'modern_style') and scoreboard.modern_style:
         # Actualizar el color en el diccionario
         scoreboard.modern_style.COLORS[color_key] = new_color
-        
-        # Reaplicar los estilos
+
+        # Reaplicar los estilos ttk
         scoreboard.modern_style._apply_ttk_styles()
+
+        # Actualizar widgets tk.Label directamente (como el reloj)
+        update_tk_widgets_colors(scoreboard, color_key, new_color)
+
+
+def update_tk_widgets_colors(scoreboard, color_key, new_color):
+    """
+    Actualiza los colores de widgets tk.Label directamente.
+    Esto es necesario porque tk.Label no usa ttk.Style.
+
+    Args:
+        scoreboard: Instancia de Gui_scoreboard
+        color_key: Clave del color a actualizar
+        new_color: Nuevo color en formato hexadecimal
+    """
+    # Mapeo de claves de color a widgets específicos y tipo de actualización
+    # Formato: 'color_key': [(widget_path, 'fg'|'bg'), ...]
+    color_widget_map = {
+        'display_time': [('match.labels.time', 'fg')],  # Color de texto del reloj
+        'bg_center': [('match.labels.time', 'bg')],  # Fondo del reloj
+        'text_primary': [('labels.home_team.name', 'fg'), ('labels.away_team.name', 'fg')],  # Nombres
+        'display_score': [('labels.home_team.points', 'fg'), ('labels.away_team.points', 'fg')],  # Puntajes
+        'bg_team_home': [('frames.home_team', 'bg')],  # Fondo equipo local
+        'bg_team_away': [('frames.away_team', 'bg')],  # Fondo equipo visitante
+        'bg_primary': [('root', 'bg')],  # Fondo principal
+    }
+
+    # Obtener lista de widgets a actualizar
+    widget_configs = color_widget_map.get(color_key, [])
+
+    for widget_path, config_type in widget_configs:
+        try:
+            # Navegar por el path para obtener el widget
+            widget = scoreboard
+            for attr in widget_path.split('.'):
+                widget = getattr(widget, attr)
+
+            # Actualizar el color según el tipo de configuración
+            if config_type == 'fg':
+                # Actualizar color de texto (foreground)
+                if hasattr(widget, 'configure') and hasattr(widget, 'cget'):
+                    # Verificar que el widget soporte 'fg'
+                    try:
+                        widget.cget('fg')  # Test si tiene fg
+                        widget.configure(fg=new_color)
+                    except:
+                        pass
+            elif config_type == 'bg':
+                # Actualizar color de fondo (background)
+                if hasattr(widget, 'configure'):
+                    widget.configure(bg=new_color)
+
+        except (AttributeError, tk.TclError):
+            # El widget no existe, no tiene el atributo, o no soporta la opción
+            pass
 
 
 def apply_color_changes(control_panel):
@@ -329,12 +385,15 @@ def reset_colors_to_default(control_panel):
         # Actualizar todos los colores
         for key, value in default_colors.items():
             scoreboard.modern_style.COLORS[key] = value
-            
+
             # Actualizar botones de color si existen
             if hasattr(control_panel, 'color_buttons') and key in control_panel.color_buttons:
                 control_panel.color_buttons[key].configure(bg=value)
-        
-        # Reaplicar estilos
+
+            # Actualizar widgets tk.Label directamente
+            update_tk_widgets_colors(scoreboard, key, value)
+
+        # Reaplicar estilos ttk
         scoreboard.modern_style._apply_ttk_styles()
 
         messagebox.showinfo(
