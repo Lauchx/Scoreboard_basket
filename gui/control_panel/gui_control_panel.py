@@ -14,6 +14,7 @@ from gui.control_panel.ui_components.ui_possession import buttons_change_possesi
 from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time, manage_timer, pause_resume_timer, change_text_button_timer, manage_timer
 from controller.joystick_controller import JoystickController
 from gui.control_panel.ui_components.ui_joystick import setup_joystick_ui, update_joystick_info
+from gui.control_panel.ui_components.ui_color_customization import setup_color_customization_ui
 
 
 
@@ -55,6 +56,7 @@ class Gui_control_panel():
         buttons_change_possesion(self)
         setup_teams_players(self)
         setup_joystick_ui(self)
+        setup_color_customization_ui(self)  # Panel de personalización de colores
         #self.joystick_controller.set_ui_cleanup_callback(on_disconnect_callback=update_joystick_info)
 
         # Configurar limpieza al cerrar la ventana

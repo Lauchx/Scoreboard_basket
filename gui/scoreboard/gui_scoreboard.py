@@ -4,11 +4,36 @@ from tkinter import messagebox
 from types import SimpleNamespace
 # from PIL import Image, ImageTk
 # import os -- Revisar uso.
-from gui.scoreboard.styles_scoreboard import apply_styles
-from gui.scoreboard.ui_components.ui_time  import create_time_labels
-from gui.scoreboard.ui_components.ui_teams  import create_names_labels, create_logos_labels, create_points_labels, teams_labels_grid_configure
-from gui.scoreboard.ui_components.ui_players import create_players_labels
-from gui.scoreboard.ui_components.ui_match import create_possession_labels,create_quarter_labels, setup_ui_match
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CONFIGURACIÓN DE DISEÑO
+# ═══════════════════════════════════════════════════════════════════════════
+# Cambiar a True para activar el diseño moderno profesional tipo NBA/FIBA
+# Cambiar a False para usar el diseño original
+USE_MODERN_DESIGN = True
+# ═══════════════════════════════════════════════════════════════════════════
+
+if USE_MODERN_DESIGN:
+    # Importar módulos del diseño moderno
+    from gui.scoreboard.apply_modern_design import (
+        apply_modern_design,
+        setup_ui_modern,
+        creates_home_team_modern,
+        creates_away_team_modern,
+        update_label_players_modern
+    )
+else:
+    # Importar módulos del diseño original
+    from gui.scoreboard.styles_scoreboard import apply_styles
+    from gui.scoreboard.ui_components.ui_time import create_time_labels
+    from gui.scoreboard.ui_components.ui_teams import (
+        create_names_labels, create_logos_labels,
+        create_points_labels, teams_labels_grid_configure
+    )
+    from gui.scoreboard.ui_components.ui_players import create_players_labels
+    from gui.scoreboard.ui_components.ui_match import (
+        create_possession_labels, create_quarter_labels, setup_ui_match
+    )
 class Gui_scoreboard:
     def __init__(self, root, match_state):
         """
@@ -17,25 +42,39 @@ class Gui_scoreboard:
             away_team (Team): Objeto Team compartido con Gui_control_panel.
         """
         self.root = root
-        apply_styles()
         self.root.title("Scoreboard")
-        #self.root.minsize(800,500) ### Checkear en varios dispositivos - Los números no son correctos del todo 
-        self.root.configure(bg="black")
         self.root.protocol("WM_DELETE_WINDOW", lambda: messagebox.showinfo("Info", "No podés cerrar esta ventana."))
+
+        # Aplicar estilos según configuración
+        if USE_MODERN_DESIGN:
+            apply_modern_design(self)
+        else:
+            apply_styles()
+            self.root.configure(bg="black")
+
         simpleNamespace_forUi(self)
         self.match_state = match_state
-        setup_ui(self)
+
+        # Setup UI según diseño seleccionado
+        if USE_MODERN_DESIGN:
+            setup_ui_modern(self)
+        else:
+            setup_ui(self)
+
         if not hasattr(self, "labels"):
             self.labels = SimpleNamespace(home_team=SimpleNamespace(),
                                      away_team=SimpleNamespace(),
                                      match=SimpleNamespace())
         self.home_team_labels = _nameSpace_team_for_controller(self, self.match_state.home_team.name)
         self.away_team_labels =_nameSpace_team_for_controller(self, self.match_state.away_team.name)
-        # create_quarter_labels(self, home_team_labels)
-        # create_possession_labels(self, home_team_labels)
-        # create_players_labels(self, home_team_labels)
-        creates_home_team(self)
-        creates_away_team(self)
+
+        # Crear equipos según diseño seleccionado
+        if USE_MODERN_DESIGN:
+            creates_home_team_modern(self)
+            creates_away_team_modern(self)
+        else:
+            creates_home_team(self)
+            creates_away_team(self)
     # Updates labels functions
     def update_team_logo_label(self):
         self.labels.home_team.logo.config(image=self.match_state.home_team.logo)
@@ -47,7 +86,10 @@ class Gui_scoreboard:
     def update_time_labels(self):
         minutes = self.match_state.seconds_time_left // 60
         seconds = self.match_state.seconds_time_left % 60
-        self.match.labels.time.config(text=f"{minutes:02}:{seconds:02}")
+        time_str = f"{minutes:02}:{seconds:02}"
+
+        # Actualizar el label (funciona tanto para diseño moderno como original)
+        self.match.labels.time.config(text=time_str)
 
     def update_possession_labels(self, possession):
          self.match.labels.possesion.config(text=possession)   
@@ -70,14 +112,17 @@ class Gui_scoreboard:
             self.match_state.possession = "Away"
             new_possesion = "⇨" 
             self.match.labels.possesion.config(text=str(new_possesion))
-    def update_label_players(self, player, team_contoller): 
-        team_simple_name_space = _nameSpace_team_for_controller(self, team_contoller.team.name)
-        team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}" )
-        index = team_simple_name_space.labels.players.size() - 1
-        if player.is_active:
-            team_simple_name_space.labels.players.itemconfig(index, {'fg': 'green'}) 
+    def update_label_players(self, player, team_contoller):
+        if USE_MODERN_DESIGN:
+            update_label_players_modern(self, player, team_contoller)
         else:
-            team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})   
+            team_simple_name_space = _nameSpace_team_for_controller(self, team_contoller.team.name)
+            team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}" )
+            index = team_simple_name_space.labels.players.size() - 1
+            if player.is_active:
+                team_simple_name_space.labels.players.itemconfig(index, {'fg': 'green'})
+            else:
+                team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})
 
 def simpleNamespace_forUi(self):
         #self.labels = SimpleNamespace(home_team=SimpleNamespace(),away_team=SimpleNamespace(),match=SimpleNamespace())

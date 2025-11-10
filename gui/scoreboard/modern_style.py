@@ -1,0 +1,378 @@
+"""
+Módulo de diseño visual moderno para el scoreboard de básquet.
+Estilo profesional tipo NBA/FIBA con diseño responsive y efectos digitales.
+
+Este módulo NO altera la lógica del scoreboard, solo mejora su apariencia visual.
+"""
+
+from tkinter import ttk, font as tkfont
+import tkinter as tk
+import os
+from pathlib import Path
+
+
+class ScoreboardModernStyle:
+    """
+    Clase que aplica un diseño visual moderno y profesional al scoreboard.
+    Inspirado en tableros digitales de NBA/FIBA con efectos tipo display LED.
+    """
+
+    # 📁 RUTA A LA FUENTE DIGITAL-7 ITALIC
+    DIGITAL_FONT_PATH = Path(__file__).parent.parent.parent / "assets" / "digital_7" / "digital-7 (italic).ttf"
+
+    # 🎨 PALETA DE COLORES PROFESIONAL (NBA/FIBA Style)
+    COLORS = {
+        # Fondos
+        'bg_primary': '#0A0E27',        # Azul oscuro casi negro (fondo principal)
+        'bg_secondary': '#1a1f3a',      # Azul oscuro (paneles)
+        'bg_center': '#0d1117',         # Negro azulado (panel central)
+        'bg_team_home': '#1a0f0f',      # Rojo muy oscuro (equipo local)
+        'bg_team_away': '#0f1a1a',      # Verde azulado oscuro (visitante)
+        
+        # Acentos y textos
+        'accent_neon': '#00ff41',       # Verde neón (posesión, activos)
+        'accent_cyan': '#00d9ff',       # Cian brillante (tiempo, detalles)
+        'accent_red': '#ff0844',        # Rojo neón (alertas, home)
+        'accent_orange': '#ff6b35',     # Naranja (cuarto, detalles)
+        'accent_yellow': '#ffd700',     # Dorado (highlights)
+        
+        # Textos
+        'text_primary': '#ffffff',      # Blanco puro (textos principales)
+        'text_secondary': '#b8c5d6',    # Gris azulado claro (textos secundarios)
+        'text_dim': '#6b7a8f',          # Gris medio (textos apagados)
+        
+        # Números y displays
+        'display_time': '#00d9ff',      # Cian para el reloj
+        'display_score': '#ffffff',     # Blanco para puntajes
+        'display_glow': '#0088cc',      # Azul para efecto glow
+        
+        # Bordes y efectos
+        'border_light': '#2d3748',      # Borde sutil
+        'border_bright': '#4a5568',     # Borde más visible
+        'shadow': '#000000',            # Sombra
+    }
+    
+    # 📏 TAMAÑOS BASE (se escalan proporcionalmente)
+    BASE_SIZES = {
+        'font_team_name': 48,
+        'font_score': 120,
+        'font_time': 70,  # Tamaño ajustado para que entre bien en el espacio
+        'font_quarter': 32,
+        'font_possession_arrow': 180,
+        'font_possession_text': 28,
+        'font_label': 20,
+        'font_players': 14,
+
+        'padding_main': 25,
+        'padding_team': 20,
+        'padding_center': 15,
+        'border_width': 3,
+    }
+    
+    # 🔤 FUENTES (con fallbacks profesionales)
+    FONTS = {
+        # Fuentes digitales profesionales tipo 7 segmentos (con múltiples fallbacks)
+        # Orbitron es una fuente moderna tipo digital que viene con Windows 10+
+        'digital': ('Orbitron', 'Consolas', 'Courier New', 'monospace'),
+
+        # Fuentes para números grandes (puntajes)
+        'score': ('Impact', 'Arial Black', 'Helvetica', 'bold'),
+
+        # Fuentes para textos
+        'display': ('Segoe UI', 'Roboto', 'Arial', 'Helvetica', 'sans-serif'),
+        'condensed': ('Segoe UI Semibold', 'Arial Narrow', 'Arial', 'sans-serif'),
+    }
+    
+    def __init__(self, root):
+        """
+        Inicializa el sistema de estilos modernos.
+
+        Args:
+            root: Ventana raíz del scoreboard
+        """
+        self.root = root
+        self.style = ttk.Style()
+        self.scale_factor = 1.0
+
+        # Cargar fuente Digital-7 Italic personalizada
+        self.digital_font_family = self._load_digital_font()
+
+        # Configurar tema base
+        self._setup_theme()
+
+        # Aplicar estilos ttk
+        self._apply_ttk_styles()
+
+        # Configurar responsive
+        self._setup_responsive()
+
+    def _load_digital_font(self):
+        """
+        Carga la fuente Digital-7 Italic desde el archivo TTF en el sistema Windows.
+        Usa la API de Windows para registrar la fuente temporalmente.
+
+        Returns:
+            str: Nombre de la familia de fuente cargada, o fallback si falla
+        """
+        try:
+            # Verificar que el archivo existe
+            if not self.DIGITAL_FONT_PATH.exists():
+                print(f"⚠️ Advertencia: No se encontró la fuente en {self.DIGITAL_FONT_PATH}")
+                return 'Consolas'  # Fallback
+
+            font_path_str = str(self.DIGITAL_FONT_PATH.absolute())
+
+            # Método 1: Cargar la fuente en Windows usando ctypes (más confiable)
+            try:
+                import ctypes
+                from ctypes import wintypes
+
+                # Cargar gdi32.dll
+                gdi32 = ctypes.WinDLL('gdi32', use_last_error=True)
+
+                # Definir la función AddFontResourceExW
+                AddFontResourceEx = gdi32.AddFontResourceExW
+                AddFontResourceEx.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.LPVOID]
+                AddFontResourceEx.restype = ctypes.c_int
+
+                # FR_PRIVATE = 0x10 (fuente privada, no se instala permanentemente)
+                FR_PRIVATE = 0x10
+
+                # Cargar la fuente
+                result = AddFontResourceEx(font_path_str, FR_PRIVATE, 0)
+
+                if result > 0:
+                    print(f"✅ Fuente Digital-7 Italic cargada en Windows desde {self.DIGITAL_FONT_PATH.name}")
+
+                    # Notificar a Windows que las fuentes han cambiado
+                    HWND_BROADCAST = 0xFFFF
+                    WM_FONTCHANGE = 0x001D
+                    user32 = ctypes.WinDLL('user32', use_last_error=True)
+                    user32.SendMessageW(HWND_BROADCAST, WM_FONTCHANGE, 0, 0)
+
+                    # Guardar referencia para poder descargar la fuente al cerrar
+                    self.loaded_font_path = font_path_str
+
+                    return 'Digital-7'
+                else:
+                    print(f"⚠️ AddFontResourceEx retornó {result}, intentando método alternativo...")
+
+            except Exception as e:
+                print(f"⚠️ Error al cargar fuente con ctypes: {e}")
+
+            # Método 2: Intentar con pyglet como fallback
+            try:
+                from pyglet import font as pyglet_font
+                pyglet_font.add_file(font_path_str)
+                print(f"✅ Fuente Digital-7 Italic cargada con pyglet desde {self.DIGITAL_FONT_PATH.name}")
+                return 'Digital-7'
+            except Exception as e:
+                print(f"⚠️ Error al cargar fuente con pyglet: {e}")
+
+            # Si todo falla, usar fallback
+            print(f"⚠️ No se pudo cargar la fuente Digital-7, usando Consolas como fallback")
+            return 'Consolas'
+
+        except Exception as e:
+            print(f"⚠️ Error general al cargar fuente Digital-7 Italic: {e}")
+            return 'Consolas'  # Fallback
+
+    def _setup_theme(self):
+        """Configura el tema base del scoreboard."""
+        # Usar tema clam como base (más personalizable)
+        available_themes = self.style.theme_names()
+        if 'clam' in available_themes:
+            self.style.theme_use('clam')
+        
+        # Configurar colores del tema
+        self.style.configure('.', 
+                           background=self.COLORS['bg_primary'],
+                           foreground=self.COLORS['text_primary'],
+                           bordercolor=self.COLORS['border_light'],
+                           darkcolor=self.COLORS['bg_secondary'],
+                           lightcolor=self.COLORS['border_bright'])
+    
+    def _apply_ttk_styles(self):
+        """Aplica todos los estilos ttk personalizados."""
+        
+        # ═══════════════════════════════════════════════════════════
+        # FRAMES - Contenedores principales
+        # ═══════════════════════════════════════════════════════════
+        
+        # Frame del equipo local (HOME)
+        self.style.configure("HomeTeam.TFrame",
+                           background=self.COLORS['bg_team_home'],
+                           relief='flat',
+                           borderwidth=self.BASE_SIZES['border_width'])
+        
+        # Frame del equipo visitante (AWAY)
+        self.style.configure("AwayTeam.TFrame",
+                           background=self.COLORS['bg_team_away'],
+                           relief='flat',
+                           borderwidth=self.BASE_SIZES['border_width'])
+        
+        # Frame central (tiempo, posesión, cuarto)
+        self.style.configure("CenterPanel.TFrame",
+                           background=self.COLORS['bg_center'],
+                           relief='flat',
+                           borderwidth=self.BASE_SIZES['border_width'])
+        
+        # ═══════════════════════════════════════════════════════════
+        # LABELS - Textos y displays
+        # ═══════════════════════════════════════════════════════════
+        
+        # Nombre del equipo
+        self.style.configure("TeamName.TLabel",
+                           font=(self.FONTS['condensed'][0], self.BASE_SIZES['font_team_name'], 'bold'),
+                           foreground=self.COLORS['text_primary'],
+                           background=self.COLORS['bg_secondary'],
+                           anchor='center',
+                           padding=(10, 5))
+        
+        # Puntaje (números grandes)
+        self.style.configure("Score.TLabel",
+                           font=(self.FONTS['score'][0], self.BASE_SIZES['font_score'], 'bold'),
+                           foreground=self.COLORS['display_score'],
+                           background=self.COLORS['bg_secondary'],
+                           anchor='center')
+        
+        # Reloj/Tiempo (estilo digital profesional)
+        self.style.configure("Time.TLabel",
+                           font=(self.FONTS['digital'][0], self.BASE_SIZES['font_time'], 'bold'),
+                           foreground=self.COLORS['display_time'],
+                           background=self.COLORS['bg_center'],
+                           anchor='center',
+                           padding=(15, 10))
+
+        # Reloj digital con estilo mejorado usando Digital-7 Italic
+        self.style.configure("DigitalTime.TLabel",
+                           font=(self.digital_font_family, self.BASE_SIZES['font_time'], 'italic'),
+                           foreground=self.COLORS['display_time'],
+                           background=self.COLORS['bg_center'],
+                           anchor='center',
+                           padding=(20, 15),
+                           relief='flat')
+        
+        # Cuarto/Period
+        self.style.configure("Quarter.TLabel",
+                           font=(self.FONTS['display'][0], self.BASE_SIZES['font_quarter'], 'bold'),
+                           foreground=self.COLORS['accent_orange'],
+                           background=self.COLORS['bg_center'],
+                           anchor='center')
+        
+        # Flecha de posesión
+        self.style.configure("Possession.TLabel",
+                           font=(self.FONTS['display'][0], self.BASE_SIZES['font_possession_arrow'], 'bold'),
+                           foreground=self.COLORS['accent_neon'],
+                           background=self.COLORS['bg_center'],
+                           anchor='center')
+        
+        # Texto "POSESION"
+        self.style.configure("PossessionText.TLabel",
+                           font=(self.FONTS['condensed'][0], self.BASE_SIZES['font_possession_text'], 'bold'),
+                           foreground=self.COLORS['text_secondary'],
+                           background=self.COLORS['bg_center'],
+                           anchor='center')
+        
+        # Labels generales
+        self.style.configure("Info.TLabel",
+                           font=(self.FONTS['display'][0], self.BASE_SIZES['font_label']),
+                           foreground=self.COLORS['text_secondary'],
+                           background=self.COLORS['bg_secondary'])
+    
+    def _setup_responsive(self):
+        """Configura el sistema responsive para redimensionamiento."""
+        # Bind para detectar cambios de tamaño
+        self.root.bind('<Configure>', self._on_window_resize)
+        
+        # Tamaño mínimo recomendado
+        self.root.minsize(1000, 600)
+    
+    def _on_window_resize(self, event):
+        """
+        Callback para manejar el redimensionamiento de la ventana.
+        Escala los elementos proporcionalmente.
+        """
+        # Solo procesar eventos de la ventana principal
+        if event.widget != self.root:
+            return
+        
+        # Calcular factor de escala basado en el ancho
+        base_width = 1200  # Ancho de referencia
+        current_width = event.width
+        new_scale = current_width / base_width
+        
+        # Limitar el rango de escala
+        new_scale = max(0.6, min(new_scale, 2.0))
+        
+        # Solo actualizar si hay cambio significativo
+        if abs(new_scale - self.scale_factor) > 0.05:
+            self.scale_factor = new_scale
+            self._update_scaled_styles()
+    
+    def _update_scaled_styles(self):
+        """Actualiza los tamaños de fuente según el factor de escala."""
+        scale = self.scale_factor
+
+        # Actualizar fuentes de los estilos
+        self.style.configure("TeamName.TLabel",
+                           font=(self.FONTS['condensed'][0],
+                                int(self.BASE_SIZES['font_team_name'] * scale), 'bold'))
+
+        self.style.configure("Score.TLabel",
+                           font=(self.FONTS['score'][0],
+                                int(self.BASE_SIZES['font_score'] * scale), 'bold'))
+
+        self.style.configure("Time.TLabel",
+                           font=(self.FONTS['digital'][0],
+                                int(self.BASE_SIZES['font_time'] * scale), 'bold'))
+
+        self.style.configure("DigitalTime.TLabel",
+                           font=(self.digital_font_family,
+                                int(self.BASE_SIZES['font_time'] * scale), 'italic'))
+
+        self.style.configure("Quarter.TLabel",
+                           font=(self.FONTS['display'][0],
+                                int(self.BASE_SIZES['font_quarter'] * scale), 'bold'))
+
+        self.style.configure("Possession.TLabel",
+                           font=(self.FONTS['display'][0],
+                                int(self.BASE_SIZES['font_possession_arrow'] * scale), 'bold'))
+
+        self.style.configure("PossessionText.TLabel",
+                           font=(self.FONTS['condensed'][0],
+                                int(self.BASE_SIZES['font_possession_text'] * scale), 'bold'))
+
+        self.style.configure("Info.TLabel",
+                           font=(self.FONTS['display'][0],
+                                int(self.BASE_SIZES['font_label'] * scale)))
+    
+    def get_player_listbox_config(self):
+        """
+        Retorna la configuración de estilo para el Listbox de jugadores.
+        
+        Returns:
+            dict: Configuración de estilo para tk.Listbox
+        """
+        return {
+            'bg': self.COLORS['bg_secondary'],
+            'fg': self.COLORS['text_secondary'],
+            'font': (self.FONTS['display'][0], 
+                    int(self.BASE_SIZES['font_players'] * self.scale_factor)),
+            'selectbackground': self.COLORS['accent_cyan'],
+            'selectforeground': self.COLORS['bg_primary'],
+            'borderwidth': 0,
+            'highlightthickness': 1,
+            'highlightbackground': self.COLORS['border_light'],
+            'highlightcolor': self.COLORS['accent_cyan'],
+            'activestyle': 'none'
+        }
+    
+    def get_active_player_color(self):
+        """Retorna el color para jugadores activos."""
+        return self.COLORS['accent_neon']
+    
+    def get_inactive_player_color(self):
+        """Retorna el color para jugadores inactivos."""
+        return self.COLORS['text_dim']
+
