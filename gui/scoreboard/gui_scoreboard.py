@@ -79,6 +79,21 @@ class Gui_scoreboard:
         else:
             team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})   
 
+    def refresh_player_list(self, team_controller):
+        """Update the complete player list for a team"""
+        team_simple_name_space = _nameSpace_team_for_controller(self, team_controller.team.name)
+        # Clear current list
+        team_simple_name_space.labels.players.delete(0, tk.END)
+        # Add all players
+        for player in team_controller.team.players:
+            team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}")
+            index = team_simple_name_space.labels.players.size() - 1
+            if player.is_active:
+                team_simple_name_space.labels.players.itemconfig(index, {'fg': 'green'})
+            else:
+                team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})
+        print(f"Lista de jugadores actualizada - Equipo: {team_controller.team.name}")
+
 def simpleNamespace_forUi(self):
         #self.labels = SimpleNamespace(home_team=SimpleNamespace(),away_team=SimpleNamespace(),match=SimpleNamespace())
         self.frames = SimpleNamespace(teams=SimpleNamespace()) 
@@ -127,3 +142,5 @@ def creates_away_team(self):
     create_points_labels(self.away_team.frames, self.labels.away_team, self.match_state.away_team.points)
     #ui_players
     create_players_labels(self.away_team, False)
+
+    

@@ -5,5 +5,8 @@ class Player:
         self.point = 0
         self.foul = 0
         self.is_active = is_active
+        
+    def get_display_text(self):
+        return f"#{self.jersey_number}"
 
    
