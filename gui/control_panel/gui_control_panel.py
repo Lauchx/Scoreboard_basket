@@ -9,12 +9,13 @@ from gui.scoreboard.gui_scoreboard import Gui_scoreboard
 from types import SimpleNamespace
 from model.team import Team
 from gui.control_panel.ui_components.ui_teams import ui_teams
-from gui.control_panel.ui_components.ui_logo import buttons_logo 
+from gui.control_panel.ui_components.ui_logo import buttons_logo
 from gui.control_panel.ui_components.ui_possession import buttons_change_possesion, toggle_possession
 from gui.control_panel.ui_components.ui_time import setup_ui_control_time_match, buttons_for_match_time, manage_timer, pause_resume_timer, change_text_button_timer, manage_timer
 from controller.joystick_controller import JoystickController
 from gui.control_panel.ui_components.ui_joystick import setup_joystick_ui, update_joystick_info
 from gui.control_panel.ui_components.ui_color_customization import setup_color_customization_ui
+from gui.control_panel.control_panel_styles import apply_control_panel_styles
 
 
 
@@ -22,8 +23,11 @@ class Gui_control_panel():
     def __init__(self, root):
         self.root = root
         self.root.title("Consola de Control")
-        self.root.configure(bg="gray")  
+        self.root.configure(bg="#F5F5F5")  # Fondo gris claro en lugar de "gray"
         self.root.minsize(800,300)
+
+        # Aplicar estilos personalizados al panel de control
+        apply_control_panel_styles(self.root)
         simpleNamespace_forUi(self)
         self.home_team_controller = Team_controller(Team("","Equipo Local",0,0,[],3))
         self.away_team_controller = Team_controller(Team("","Equipo Visitante",0,0,[],3))

@@ -56,7 +56,7 @@ class ScoreboardModernStyle:
     BASE_SIZES = {
         'font_team_name': 48,
         'font_score': 120,
-        'font_time': 70,  # Tamaño ajustado para que entre bien en el espacio
+        'font_time': 100,  # Aumentado de 70 a 100 (43% más grande) para mejor visibilidad
         'font_quarter': 32,
         'font_possession_arrow': 180,
         'font_possession_text': 28,
@@ -67,6 +67,7 @@ class ScoreboardModernStyle:
         'padding_team': 20,
         'padding_center': 15,
         'border_width': 3,
+        'time_border_width': 2,  # Borde para el reloj
     }
     
     # 🔤 FUENTES (con fallbacks profesionales)
@@ -221,25 +222,25 @@ class ScoreboardModernStyle:
         # LABELS - Textos y displays
         # ═══════════════════════════════════════════════════════════
         
-        # Nombre del equipo
+        # Nombre del equipo - TEXTO BLANCO sobre fondo oscuro para máxima visibilidad
         self.style.configure("TeamName.TLabel",
                            font=(self.FONTS['condensed'][0], self.BASE_SIZES['font_team_name'], 'bold'),
-                           foreground=self.COLORS['text_primary'],
+                           foreground='#FFFFFF',  # Blanco puro para máximo contraste
                            background=self.COLORS['bg_secondary'],
                            anchor='center',
                            padding=(10, 5))
-        
-        # Puntaje (números grandes)
+
+        # Puntaje (números grandes) - BLANCO sobre fondo oscuro
         self.style.configure("Score.TLabel",
                            font=(self.FONTS['score'][0], self.BASE_SIZES['font_score'], 'bold'),
-                           foreground=self.COLORS['display_score'],
+                           foreground='#FFFFFF',  # Blanco puro para máximo contraste
                            background=self.COLORS['bg_secondary'],
                            anchor='center')
-        
-        # Reloj/Tiempo (estilo digital profesional)
+
+        # Reloj/Tiempo (estilo digital profesional) - CIAN BRILLANTE sobre fondo oscuro
         self.style.configure("Time.TLabel",
                            font=(self.FONTS['digital'][0], self.BASE_SIZES['font_time'], 'bold'),
-                           foreground=self.COLORS['display_time'],
+                           foreground=self.COLORS['display_time'],  # Cian brillante
                            background=self.COLORS['bg_center'],
                            anchor='center',
                            padding=(15, 10))
@@ -247,37 +248,37 @@ class ScoreboardModernStyle:
         # Reloj digital con estilo mejorado usando Digital-7 Italic
         self.style.configure("DigitalTime.TLabel",
                            font=(self.digital_font_family, self.BASE_SIZES['font_time'], 'italic'),
-                           foreground=self.COLORS['display_time'],
+                           foreground=self.COLORS['display_time'],  # Cian brillante
                            background=self.COLORS['bg_center'],
                            anchor='center',
                            padding=(20, 15),
                            relief='flat')
-        
-        # Cuarto/Period
+
+        # Cuarto/Period - NARANJA BRILLANTE sobre fondo oscuro
         self.style.configure("Quarter.TLabel",
                            font=(self.FONTS['display'][0], self.BASE_SIZES['font_quarter'], 'bold'),
-                           foreground=self.COLORS['accent_orange'],
+                           foreground=self.COLORS['accent_orange'],  # Naranja brillante
                            background=self.COLORS['bg_center'],
                            anchor='center')
-        
-        # Flecha de posesión
+
+        # Flecha de posesión - VERDE NEÓN sobre fondo oscuro
         self.style.configure("Possession.TLabel",
                            font=(self.FONTS['display'][0], self.BASE_SIZES['font_possession_arrow'], 'bold'),
-                           foreground=self.COLORS['accent_neon'],
+                           foreground=self.COLORS['accent_neon'],  # Verde neón
                            background=self.COLORS['bg_center'],
                            anchor='center')
-        
-        # Texto "POSESION"
+
+        # Texto "POSESION" - BLANCO sobre fondo oscuro
         self.style.configure("PossessionText.TLabel",
                            font=(self.FONTS['condensed'][0], self.BASE_SIZES['font_possession_text'], 'bold'),
-                           foreground=self.COLORS['text_secondary'],
+                           foreground='#FFFFFF',  # Blanco puro para máximo contraste
                            background=self.COLORS['bg_center'],
                            anchor='center')
-        
-        # Labels generales
+
+        # Labels generales - BLANCO sobre fondo oscuro
         self.style.configure("Info.TLabel",
                            font=(self.FONTS['display'][0], self.BASE_SIZES['font_label']),
-                           foreground=self.COLORS['text_secondary'],
+                           foreground='#FFFFFF',  # Blanco puro para máximo contraste
                            background=self.COLORS['bg_secondary'])
     
     def _setup_responsive(self):
@@ -350,29 +351,30 @@ class ScoreboardModernStyle:
     def get_player_listbox_config(self):
         """
         Retorna la configuración de estilo para el Listbox de jugadores.
-        
+        Configurado para máxima visibilidad: texto blanco sobre fondo oscuro.
+
         Returns:
             dict: Configuración de estilo para tk.Listbox
         """
         return {
-            'bg': self.COLORS['bg_secondary'],
-            'fg': self.COLORS['text_secondary'],
-            'font': (self.FONTS['display'][0], 
+            'bg': self.COLORS['bg_secondary'],  # Fondo oscuro
+            'fg': '#FFFFFF',  # Texto BLANCO para máximo contraste
+            'font': (self.FONTS['display'][0],
                     int(self.BASE_SIZES['font_players'] * self.scale_factor)),
-            'selectbackground': self.COLORS['accent_cyan'],
-            'selectforeground': self.COLORS['bg_primary'],
+            'selectbackground': self.COLORS['accent_cyan'],  # Fondo de selección cian
+            'selectforeground': '#000000',  # Texto negro cuando está seleccionado
             'borderwidth': 0,
             'highlightthickness': 1,
             'highlightbackground': self.COLORS['border_light'],
             'highlightcolor': self.COLORS['accent_cyan'],
             'activestyle': 'none'
         }
-    
+
     def get_active_player_color(self):
-        """Retorna el color para jugadores activos."""
-        return self.COLORS['accent_neon']
-    
+        """Retorna el color para jugadores activos (verde neón brillante)."""
+        return self.COLORS['accent_neon']  # Verde neón para jugadores en cancha
+
     def get_inactive_player_color(self):
-        """Retorna el color para jugadores inactivos."""
-        return self.COLORS['text_dim']
+        """Retorna el color para jugadores inactivos (blanco para visibilidad)."""
+        return '#FFFFFF'  # Blanco en lugar de gris para mejor visibilidad
 
