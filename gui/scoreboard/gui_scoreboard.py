@@ -100,7 +100,12 @@ class Gui_scoreboard:
 
     def update_quarter_labels(self, number):
         self.match_state.quarter += number
-        self.match.labels.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
+        if USE_MODERN_DESIGN:
+            # En diseño moderno, solo actualizar el número (sin "Cuarto:")
+            self.match.labels.quarter.config(text=str(self.match_state.quarter))
+        else:
+            # En diseño original, mostrar "Cuarto: X"
+            self.match.labels.quarter.config(text=f"Cuarto: {self.match_state.quarter}")
 
     def update_possession_labels(self):
         current_possesion = self.match_state.possession

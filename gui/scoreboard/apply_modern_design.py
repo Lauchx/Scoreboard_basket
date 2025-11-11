@@ -56,22 +56,22 @@ def apply_modern_design(scoreboard_instance):
 def setup_ui_modern(scoreboard_instance):
     """
     Configura el UI con diseño moderno (reemplaza setup_ui original).
-    
+
     Args:
         scoreboard_instance: Instancia de Gui_scoreboard
     """
     # Configurar grid de la ventana principal (responsive)
     for column in range(3):
         scoreboard_instance.root.grid_columnconfigure(column, weight=1, uniform="scoreboard")
-    
+
     scoreboard_instance.root.grid_rowconfigure(0, weight=1)
     scoreboard_instance.root.grid_rowconfigure(1, weight=0)
-    
+
     # Crear componentes del panel central con estilo moderno
     setup_ui_match_modern(scoreboard_instance)
     create_time_labels_modern(scoreboard_instance)
     create_possession_labels_modern(scoreboard_instance)
-    create_quarter_labels_modern(scoreboard_instance)
+    create_quarter_labels_modern(scoreboard_instance, scoreboard_instance.modern_style)
 
 
 def creates_home_team_modern(scoreboard_instance):
@@ -98,18 +98,19 @@ def creates_home_team_modern(scoreboard_instance):
     
     # Crear componentes UI con estilo moderno
     create_names_labels_modern(
-        scoreboard_instance.home_team.frames, 
-        scoreboard_instance.labels.home_team, 
+        scoreboard_instance.home_team.frames,
+        scoreboard_instance.labels.home_team,
         scoreboard_instance.match_state.home_team.name
     )
     create_logos_labels_modern(
-        scoreboard_instance.home_team.frames, 
+        scoreboard_instance.home_team.frames,
         scoreboard_instance.labels.home_team
     )
     create_points_labels_modern(
-        scoreboard_instance.home_team.frames, 
-        scoreboard_instance.labels.home_team, 
-        scoreboard_instance.match_state.home_team.points
+        scoreboard_instance.home_team.frames,
+        scoreboard_instance.labels.home_team,
+        scoreboard_instance.match_state.home_team.points,
+        scoreboard_instance.modern_style
     )
     
     # Crear lista de jugadores con estilo moderno
@@ -144,18 +145,19 @@ def creates_away_team_modern(scoreboard_instance):
     
     # Crear componentes UI con estilo moderno
     create_names_labels_modern(
-        scoreboard_instance.away_team.frames, 
-        scoreboard_instance.labels.away_team, 
+        scoreboard_instance.away_team.frames,
+        scoreboard_instance.labels.away_team,
         scoreboard_instance.match_state.away_team.name
     )
     create_logos_labels_modern(
-        scoreboard_instance.away_team.frames, 
+        scoreboard_instance.away_team.frames,
         scoreboard_instance.labels.away_team
     )
     create_points_labels_modern(
-        scoreboard_instance.away_team.frames, 
-        scoreboard_instance.labels.away_team, 
-        scoreboard_instance.match_state.away_team.points
+        scoreboard_instance.away_team.frames,
+        scoreboard_instance.labels.away_team,
+        scoreboard_instance.match_state.away_team.points,
+        scoreboard_instance.modern_style
     )
     
     # Crear lista de jugadores con estilo moderno

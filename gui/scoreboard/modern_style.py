@@ -68,6 +68,7 @@ class ScoreboardModernStyle:
         'padding_center': 15,
         'border_width': 3,
         'time_border_width': 2,  # Borde para el reloj
+        'score_border_width': 2,  # Borde para los puntajes
     }
     
     # 🔤 FUENTES (con fallbacks profesionales)
