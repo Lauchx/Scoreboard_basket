@@ -27,12 +27,18 @@ def create_names_labels_modern(team_frame, team_labels, team_name):
 def create_logos_labels_modern(team_frame, team_labels):
     """
     Crea el label para el logo del equipo con estilo moderno.
+    El logo se centra en su espacio asignado.
 
     Args:
         team_frame: Frame contenedor del equipo
         team_labels: Namespace para almacenar referencias a labels
     """
-    team_labels.logo = ttk.Label(team_frame, style="Info.TLabel")
+    # Usar tk.Label para mejor control del centrado de la imagen
+    team_labels.logo = tk.Label(
+        team_frame,
+        bg='#1a1a2e',  # Fondo oscuro (mismo que Info.TLabel)
+        anchor='center'  # Centrar el contenido
+    )
     team_labels.logo.grid(row=0, column=1, padx=2, pady=2, sticky="nsew")  # Padding mínimo para columna compacta
 
 
