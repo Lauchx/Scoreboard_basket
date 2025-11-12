@@ -21,7 +21,7 @@ def create_names_labels_modern(team_frame, team_labels, team_name):
         text=team_name,
         style="TeamName.TLabel"
     )
-    team_labels.name.grid(row=1, column=1, padx=5, pady=(3, 5), sticky="nsew")  # Reducido padding
+    team_labels.name.grid(row=1, column=1, padx=2, pady=(2, 3), sticky="nsew")  # Padding mínimo para columna compacta
 
 
 def create_logos_labels_modern(team_frame, team_labels):
@@ -33,7 +33,7 @@ def create_logos_labels_modern(team_frame, team_labels):
         team_labels: Namespace para almacenar referencias a labels
     """
     team_labels.logo = ttk.Label(team_frame, style="Info.TLabel")
-    team_labels.logo.grid(row=0, column=1, padx=5, pady=3, sticky="nsew")  # Reducido padding
+    team_labels.logo.grid(row=0, column=1, padx=2, pady=2, sticky="nsew")  # Padding mínimo para columna compacta
 
 
 def create_points_labels_modern(team_frame, team_labels, points_team, modern_style):
@@ -64,8 +64,8 @@ def create_points_labels_modern(team_frame, team_labels, points_team, modern_sty
         fg='#FFFFFF',  # Texto blanco
         bg=colors['bg_secondary'],  # Fondo oscuro
         anchor='center',
-        padx=10,  # Reducido de 20 a 10
-        pady=8,   # Reducido de 15 a 8
+        padx=5,   # Reducido de 10 a 5 para columna más compacta
+        pady=5,   # Reducido de 8 a 5 para columna más compacta
         # Borde blanco alrededor del puntaje (igual que el reloj)
         highlightbackground='#ffffff',
         highlightcolor='#ffffff',
@@ -73,20 +73,22 @@ def create_points_labels_modern(team_frame, team_labels, points_team, modern_sty
         relief='solid',
         borderwidth=border_width
     )
-    team_labels.points.grid(row=2, column=1, padx=5, pady=(5, 3), sticky="nsew")  # Reducido padding
+    team_labels.points.grid(row=2, column=1, padx=2, pady=(2, 2), sticky="nsew")  # Padding mínimo para columna compacta
 
 
 def teams_labels_grid_configure(team_frame):
     """
     Configura el grid del frame del equipo para layout responsive.
-    
+    Columna 0 (jugadores) tiene más espacio que columna 1 (info equipo).
+
     Args:
         team_frame: Frame contenedor del equipo
     """
-    # Configurar columnas con pesos para responsive
-    for column in range(3):
-        team_frame.grid_columnconfigure(column, weight=1)
-    
+    # Configurar columnas con pesos para dar más espacio a jugadores
+    team_frame.grid_columnconfigure(0, weight=3)  # Columna jugadores - MÁS ESPACIO
+    team_frame.grid_columnconfigure(1, weight=1)  # Columna info equipo - MENOS ESPACIO
+    team_frame.grid_columnconfigure(2, weight=0)  # Columna vacía (si existe)
+
     # Configurar filas con pesos para responsive
     for row in range(3):
         team_frame.grid_rowconfigure(row, weight=1)

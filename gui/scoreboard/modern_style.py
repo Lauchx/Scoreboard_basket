@@ -55,8 +55,8 @@ class ScoreboardModernStyle:
     # 📏 TAMAÑOS BASE (se escalan proporcionalmente)
     # Reducidos para dar más espacio horizontal a las columnas de jugadores
     BASE_SIZES = {
-        'font_team_name': 32,      # Reducido de 48 a 32 (33% más pequeño)
-        'font_score': 80,          # Reducido de 120 a 80 (33% más pequeño)
+        'font_team_name': 24,      # Reducido de 32 a 24 (25% más pequeño) para columna más compacta
+        'font_score': 60,          # Reducido de 80 a 60 (25% más pequeño) para columna más compacta
         'font_time': 100,          # MANTENER GRANDE - No se reduce
         'font_quarter': 24,        # Reducido de 32 a 24 (25% más pequeño)
         'font_possession_arrow': 120,  # Reducido de 180 a 120 (33% más pequeño)
