@@ -21,7 +21,7 @@ def create_names_labels_modern(team_frame, team_labels, team_name):
         text=team_name,
         style="TeamName.TLabel"
     )
-    team_labels.name.grid(row=1, column=1, padx=10, pady=(5, 10), sticky="nsew")
+    team_labels.name.grid(row=1, column=1, padx=5, pady=(3, 5), sticky="nsew")  # Reducido padding
 
 
 def create_logos_labels_modern(team_frame, team_labels):
@@ -33,7 +33,7 @@ def create_logos_labels_modern(team_frame, team_labels):
         team_labels: Namespace para almacenar referencias a labels
     """
     team_labels.logo = ttk.Label(team_frame, style="Info.TLabel")
-    team_labels.logo.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
+    team_labels.logo.grid(row=0, column=1, padx=5, pady=3, sticky="nsew")  # Reducido padding
 
 
 def create_points_labels_modern(team_frame, team_labels, points_team, modern_style):
@@ -64,8 +64,8 @@ def create_points_labels_modern(team_frame, team_labels, points_team, modern_sty
         fg='#FFFFFF',  # Texto blanco
         bg=colors['bg_secondary'],  # Fondo oscuro
         anchor='center',
-        padx=20,
-        pady=15,
+        padx=10,  # Reducido de 20 a 10
+        pady=8,   # Reducido de 15 a 8
         # Borde blanco alrededor del puntaje (igual que el reloj)
         highlightbackground='#ffffff',
         highlightcolor='#ffffff',
@@ -73,7 +73,7 @@ def create_points_labels_modern(team_frame, team_labels, points_team, modern_sty
         relief='solid',
         borderwidth=border_width
     )
-    team_labels.points.grid(row=2, column=1, padx=10, pady=(10, 5), sticky="nsew")
+    team_labels.points.grid(row=2, column=1, padx=5, pady=(5, 3), sticky="nsew")  # Reducido padding
 
 
 def teams_labels_grid_configure(team_frame):

@@ -61,8 +61,11 @@ def setup_ui_modern(scoreboard_instance):
         scoreboard_instance: Instancia de Gui_scoreboard
     """
     # Configurar grid de la ventana principal (responsive)
-    for column in range(3):
-        scoreboard_instance.root.grid_columnconfigure(column, weight=1, uniform="scoreboard")
+    # Columnas de equipos (0 y 2) tienen más peso para mostrar jugadores
+    # Columna central (1) tiene menos peso para ser más compacta
+    scoreboard_instance.root.grid_columnconfigure(0, weight=3)  # Equipo local - MÁS ESPACIO
+    scoreboard_instance.root.grid_columnconfigure(1, weight=1)  # Centro - MENOS ESPACIO
+    scoreboard_instance.root.grid_columnconfigure(2, weight=3)  # Equipo visitante - MÁS ESPACIO
 
     scoreboard_instance.root.grid_rowconfigure(0, weight=1)
     scoreboard_instance.root.grid_rowconfigure(1, weight=0)
@@ -77,20 +80,20 @@ def setup_ui_modern(scoreboard_instance):
 def creates_home_team_modern(scoreboard_instance):
     """
     Crea el panel del equipo local con diseño moderno.
-    
+
     Args:
         scoreboard_instance: Instancia de Gui_scoreboard
     """
     from tkinter import ttk
-    
-    # Crear frame con estilo moderno
+
+    # Crear frame con estilo moderno (padding reducido para dar más espacio a jugadores)
     scoreboard_instance.home_team.frames = ttk.Frame(
-        scoreboard_instance.root, 
-        style="HomeTeam.TFrame", 
-        padding=(20, 15)
+        scoreboard_instance.root,
+        style="HomeTeam.TFrame",
+        padding=(10, 10)  # Reducido de (20, 15) a (10, 10)
     )
     scoreboard_instance.home_team.frames.grid(
-        row=0, column=0, sticky="nsew", padx=(20, 10), pady=20
+        row=0, column=0, sticky="nsew", padx=(10, 5), pady=10  # Reducido padding
     )
     
     # Configurar grid
@@ -124,20 +127,20 @@ def creates_home_team_modern(scoreboard_instance):
 def creates_away_team_modern(scoreboard_instance):
     """
     Crea el panel del equipo visitante con diseño moderno.
-    
+
     Args:
         scoreboard_instance: Instancia de Gui_scoreboard
     """
     from tkinter import ttk
-    
-    # Crear frame con estilo moderno
+
+    # Crear frame con estilo moderno (padding reducido para dar más espacio a jugadores)
     scoreboard_instance.away_team.frames = ttk.Frame(
-        scoreboard_instance.root, 
-        style="AwayTeam.TFrame", 
-        padding=(20, 15)
+        scoreboard_instance.root,
+        style="AwayTeam.TFrame",
+        padding=(10, 10)  # Reducido de (20, 15) a (10, 10)
     )
     scoreboard_instance.away_team.frames.grid(
-        row=0, column=2, sticky="nsew", padx=(10, 20), pady=20
+        row=0, column=2, sticky="nsew", padx=(5, 10), pady=10  # Reducido padding
     )
     
     # Configurar grid

@@ -53,22 +53,23 @@ class ScoreboardModernStyle:
     }
     
     # 📏 TAMAÑOS BASE (se escalan proporcionalmente)
+    # Reducidos para dar más espacio horizontal a las columnas de jugadores
     BASE_SIZES = {
-        'font_team_name': 48,
-        'font_score': 120,
-        'font_time': 100,  # Aumentado de 70 a 100 (43% más grande) para mejor visibilidad
-        'font_quarter': 32,
-        'font_possession_arrow': 180,
-        'font_possession_text': 28,
-        'font_label': 20,
-        'font_players': 14,
+        'font_team_name': 32,      # Reducido de 48 a 32 (33% más pequeño)
+        'font_score': 80,          # Reducido de 120 a 80 (33% más pequeño)
+        'font_time': 100,          # MANTENER GRANDE - No se reduce
+        'font_quarter': 24,        # Reducido de 32 a 24 (25% más pequeño)
+        'font_possession_arrow': 120,  # Reducido de 180 a 120 (33% más pequeño)
+        'font_possession_text': 20,    # Reducido de 28 a 20 (29% más pequeño)
+        'font_label': 16,          # Reducido de 20 a 16 (20% más pequeño)
+        'font_players': 13,        # Reducido de 14 a 13 (ligeramente más pequeño)
 
-        'padding_main': 25,
-        'padding_team': 20,
-        'padding_center': 15,
-        'border_width': 3,
-        'time_border_width': 2,  # Borde para el reloj
-        'score_border_width': 2,  # Borde para los puntajes
+        'padding_main': 15,        # Reducido de 25 a 15 (40% menos padding)
+        'padding_team': 10,        # Reducido de 20 a 10 (50% menos padding)
+        'padding_center': 10,      # Reducido de 15 a 10 (33% menos padding)
+        'border_width': 2,         # Reducido de 3 a 2 (más delgado)
+        'time_border_width': 2,    # Borde para el reloj (mantener)
+        'score_border_width': 2,   # Borde para los puntajes (mantener)
     }
     
     # 🔤 FUENTES (con fallbacks profesionales)

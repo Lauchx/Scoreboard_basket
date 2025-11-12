@@ -39,8 +39,8 @@ def create_time_labels_modern(self):
         fg=fg_color,
         bg=bg_color,
         anchor='center',
-        padx=25,
-        pady=20,
+        padx=10,  # Reducido de 20 a 10 para columna central más compacta
+        pady=12,  # Reducido de 15 a 12
         # Borde blanco alrededor del reloj
         highlightbackground='#ffffff',  # Color del borde: blanco
         highlightcolor='#ffffff',       # Color del borde cuando tiene foco: blanco
@@ -52,5 +52,5 @@ def create_time_labels_modern(self):
     print(f"✅ Reloj creado con fuente Digital-7 Italic (tamaño: {font_size}, borde: {border_width}px)")
 
     # {minutes:02}:{seconds:02} -> (:02) agrega dos dígitos si el número es menor a 10
-    self.match.labels.time.grid(row=0, column=0, sticky="nsew", pady=(10, 10), padx=10)
+    self.match.labels.time.grid(row=0, column=0, sticky="nsew", pady=(5, 5), padx=2)  # Padding horizontal mínimo
 

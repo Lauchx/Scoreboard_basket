@@ -31,7 +31,7 @@ def create_quarter_labels_modern(self, modern_style):
         relief='solid',
         borderwidth=2
     )
-    quarter_frame.grid(row=1, column=0, sticky="nsew", pady=(10, 5), padx=10)
+    quarter_frame.grid(row=1, column=0, sticky="nsew", pady=(5, 3), padx=2)  # Padding horizontal mínimo
 
     # Configurar grid del frame
     quarter_frame.grid_rowconfigure(0, weight=3)  # Número (más grande)
@@ -48,7 +48,7 @@ def create_quarter_labels_modern(self, modern_style):
         bg=colors['bg_center'],
         anchor='center'
     )
-    self.match.labels.quarter_number.grid(row=0, column=0, sticky="nsew", pady=(10, 0))
+    self.match.labels.quarter_number.grid(row=0, column=0, sticky="nsew", pady=(5, 0))  # Reducido padding
 
     # Label del texto "cuarto" (pequeño, abajo)
     font_size_text = int(sizes['font_label'] * modern_style.scale_factor)
@@ -60,7 +60,7 @@ def create_quarter_labels_modern(self, modern_style):
         bg=colors['bg_center'],
         anchor='center'
     )
-    self.match.labels.quarter_text.grid(row=1, column=0, sticky="nsew", pady=(0, 10))
+    self.match.labels.quarter_text.grid(row=1, column=0, sticky="nsew", pady=(0, 5))  # Reducido padding
 
     # Guardar referencia al frame para actualizaciones
     self.match.labels.quarter = self.match.labels.quarter_number  # Para compatibilidad con update
@@ -96,12 +96,14 @@ def create_possession_labels_modern(self):
 def setup_ui_match_modern(self):
     """
     Configura el frame central del partido con estilo moderno.
-    
+    Padding horizontal mínimo para dar máximo espacio a las columnas de jugadores.
+
     Args:
         self: Instancia de Gui_scoreboard
     """
-    self.frames.match = ttk.Frame(self.root, style="CenterPanel.TFrame", padding=(20, 15))
-    self.frames.match.grid(row=0, column=1, sticky="nsew", padx=10, pady=20)
+    # Padding horizontal muy reducido (5px) para columna central compacta
+    self.frames.match = ttk.Frame(self.root, style="CenterPanel.TFrame", padding=(5, 10))
+    self.frames.match.grid(row=0, column=1, sticky="nsew", padx=2, pady=10)
     
     # Configurar grid responsive
     self.frames.match.grid_columnconfigure(0, weight=1)
