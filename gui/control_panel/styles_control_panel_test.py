@@ -14,19 +14,20 @@ def apply_styles_control_panel_test():
     style.configure("PanelTestLeft.TFrame", background="#f0f0f0")     # Panel lateral izquierdo
     # Panel de tiempo (cronómetro principal)
     style.configure("PanelTestTime.TFrame", borderwidth=2, relief="ridge", padding=6)
-    style.configure("PanelTestTime.TLabel", font=("Arial", 64, "bold"), foreground="red", background="black")  # Número grande
-    style.configure("PanelTestTimeTitle.TLabel", font=("Arial", 16, "bold"), foreground="white", background="black")  # Título
+    style.configure("PanelTestTime.TLabel", font=("Arial", 72, "bold"), foreground="red", background="black")  # Aumentado para responsividad
+    style.configure("PanelTestTimeTitle.TLabel", font=("Arial", 18, "bold"), foreground="white", background="black")  # Aumentado
     # Pestañas (Notebook)
     style.configure("TNotebook", background="#f0f0f0", borderwidth=0)
     style.configure("TNotebook.Tab", font=("Arial", 11, "bold"), padding=8)
+    
+    # Pestañas internas (más pequeñas para Local/Visitante)
+    style.configure("Compact.TNotebook", background="#f0f0f0", borderwidth=0)
+    style.configure("Compact.TNotebook.Tab", font=("Arial", 9, "bold"), padding=4)
     # Botones de control del tiempo (Iniciar, Pausar, Reiniciar)
     style.configure("ControlPanel.Button.TButton", font=("Arial", 12, "bold"), padding=8)
-    style.map("ControlPanel.Button.TButton",
-              foreground=[('active', 'white')],
-              background=[('active', '#4CAF50'), ('!active', '#2E7D32')])
-    style.map("ControlPanel.Button.TButton",
-              background=[('disabled', '#dddddd')],
-              foreground=[('disabled', '#888888')])
+    """  style.map("ControlPanel.Button.TButton",
+                background=[('disabled', '#dddddd')],
+                foreground=[('disabled', '#888888')]) """
     # Botones pequeños auxiliares (+ / -) 
     style.configure("ControlPanel.Plus.TButton",
                     font=("Arial", 10, "bold"),
@@ -48,41 +49,34 @@ def apply_styles_control_panel_test():
     style.configure("PanelTestScore.TFrame", background="black", borderwidth=2, relief="ridge", padding=6)
 
     style.configure("PanelTestScoreTitle.TLabel",
-                font=("Arial", 14, "bold"),
+                font=("Arial", 18, "bold"),
                 foreground="white",
                 background="black")
 
     style.configure("PanelTestScore.TLabel",
-                font=("Arial", 48, "bold"),
+                font=("Arial", 64, "bold"),
                 foreground="white",
                 background="black")
     
     # Panel de faltas (local y visitante)
     style.configure("PanelFouls.TFrame",
-        background="black",
         borderwidth=1,
         relief="ridge",
         padding=4
     )
 
     style.configure("PanelFoulsTitle.TLabel",
-        font=("Arial", 14, "bold"),
+        font=("Arial", 10, "bold"),
         foreground="black",
-        background="gray"  
+        background="#e0e0e0"
     )
 
     style.configure("PanelFouls.TLabel",
-        font=("Arial", 36, "bold"),
-        foreground="white",
-        background="black"
+        font=("Arial", 60, "bold"),
+        foreground="black",
     )
     
-    style.configure("ControlPanel.Button.TButton",
-        font=("Arial", 12, "bold"),
-        padding=8
-    )
-    
-    #boton borrar faltas
+    # Botón borrar faltas
     style.configure("ControlPanel.ClearFouls.TButton",
         font=("Arial", 12, "bold"),
         padding=8
@@ -99,26 +93,26 @@ def apply_styles_control_panel_test():
     )
 
 ### ESTILOS LEFT ##
-    # Estilos compactos para panel izquierdo (Jugadores)
+    # Estilos escalables para panel izquierdo (Jugadores y Equipos)
     style.configure("PlayerForm.TLabel",
-        font=("Arial", 10),
+        font=("Arial", 9),
         foreground="black",
         background="#f0f0f0"
     )
 
     style.configure("PlayerForm.TEntry",
-        font=("Arial", 10),
-        padding=4
-    )
-
-    style.configure("PlayerForm.TCombobox",
-        font=("Arial", 10),
+        font=("Arial", 9),
         padding=2
     )
 
+    style.configure("PlayerForm.TCombobox",
+        font=("Arial", 9),
+        padding=1
+    )
+
     style.configure("PlayerForm.TButton",
-        font=("Arial", 10, "bold"),
-        padding=6
+        font=("Arial", 9, "bold"),
+        padding=3
     )
 
     style.map("PlayerForm.TButton",
@@ -129,4 +123,13 @@ def apply_styles_control_panel_test():
     style.map("PlayerForm.TButton",
         background=[('disabled', '#cccccc')],
         foreground=[('disabled', '#888888')],
+    )
+
+    # Estilo compacto para Treeview de jugadores
+    style.configure("Compact.Treeview",
+        font=("Arial", 8),
+        rowheight=16
+    )
+    style.configure("Compact.Treeview.Heading",
+        font=("Arial", 8, "bold")
     )

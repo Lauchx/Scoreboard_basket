@@ -31,12 +31,15 @@ class Gui_control_panel_test:
         # Fila 1 - Panel de tiempo (cronómetro principal)
         self.time_container = ttk.Frame(self.right_frame, style="PanelTestTime.TFrame")
         self.time_container.grid(row=0, column=0, sticky="nsew", padx=6, pady=6)
+        self.time_container.grid_rowconfigure(0, weight=0)
+        self.time_container.grid_rowconfigure(1, weight=1)
+        self.time_container.grid_columnconfigure(0, weight=1)
 
-        self.label_tiempo = ttk.Label(self.time_container, text="TIEMPO", style="PanelTestTimeTitle.TLabel")
-        self.label_tiempo.pack(side="top", fill="x", pady=(2, 0))
+        self.label_tiempo = ttk.Label(self.time_container, text="TIEMPO", style="PanelTestTimeTitle.TLabel", anchor="center")
+        self.label_tiempo.grid(row=0, column=0, sticky="ew", pady=(2, 0))
 
-        self.time_label = ttk.Label(self.time_container, text="00:00", style="PanelTestTime.TLabel")
-        self.time_label.pack(side="top", fill='both', expand=True, pady=(0, 2))
+        self.time_label = ttk.Label(self.time_container, text="00:00", style="PanelTestTime.TLabel", anchor="center")
+        self.time_label.grid(row=1, column=0, sticky="nsew", pady=(0, 2))
 
         # Fila 1 - Panel de cuarto (quarter)
         self.quarter_panel = ttk.Frame(self.right_frame, style="PanelTestQuarter.TFrame")
@@ -84,9 +87,13 @@ class Gui_control_panel_test:
         # Fila 2 - Panel de puntuación LOCAL
         self.local_score_panel = ttk.Frame(self.right_frame, style="PanelTestScore.TFrame")
         self.local_score_panel.grid(row=1, column=0, sticky="nsew", padx=6, pady=6)
+        self.local_score_panel.grid_rowconfigure(0, weight=0)
+        self.local_score_panel.grid_rowconfigure(1, weight=1)
+        self.local_score_panel.grid_rowconfigure(2, weight=0)
+        self.local_score_panel.grid_columnconfigure(0, weight=1)
 
-        self.local_score_title = ttk.Label(self.local_score_panel, text="LOCAL", style="PanelTestScoreTitle.TLabel")
-        self.local_score_title.pack(side="top", pady=(2, 0))
+        self.local_score_title = ttk.Label(self.local_score_panel, text="LOCAL", style="PanelTestScoreTitle.TLabel", anchor="center")
+        self.local_score_title.grid(row=0, column=0, sticky="ew", pady=(2, 0))
 
         try:
             home_team = getattr(self.match_state_controller.match_state, 'home_team', None)
@@ -94,11 +101,11 @@ class Gui_control_panel_test:
         except Exception:
             home_points = 0
 
-        self.local_score_label = ttk.Label(self.local_score_panel, text=str(home_points), style="PanelTestScore.TLabel")
-        self.local_score_label.pack(anchor="center", pady=(6, 4))
+        self.local_score_label = ttk.Label(self.local_score_panel, text=str(home_points), style="PanelTestScore.TLabel", anchor="center")
+        self.local_score_label.grid(row=1, column=0, sticky="nsew", pady=(6, 4))
 
         self.local_score_buttons = ttk.Frame(self.local_score_panel)
-        self.local_score_buttons.pack(side="bottom", fill="x", pady=(4, 0))
+        self.local_score_buttons.grid(row=2, column=0, sticky="ew", pady=(4, 0))
 
         self.local_buttons_inner = ttk.Frame(self.local_score_buttons)
         self.local_buttons_inner.pack(anchor="center")
@@ -124,9 +131,13 @@ class Gui_control_panel_test:
         # Fila 2 - Panel de puntuación VISITANTE
         self.visitor_score_panel = ttk.Frame(self.right_frame, style="PanelTestScore.TFrame")
         self.visitor_score_panel.grid(row=1, column=2, sticky="nsew", padx=6, pady=6)
+        self.visitor_score_panel.grid_rowconfigure(0, weight=0)
+        self.visitor_score_panel.grid_rowconfigure(1, weight=1)
+        self.visitor_score_panel.grid_rowconfigure(2, weight=0)
+        self.visitor_score_panel.grid_columnconfigure(0, weight=1)
 
-        self.visitor_score_title = ttk.Label(self.visitor_score_panel, text="VISITANTE", style="PanelTestScoreTitle.TLabel")
-        self.visitor_score_title.pack(side="top", pady=(2, 0))
+        self.visitor_score_title = ttk.Label(self.visitor_score_panel, text="VISITANTE", style="PanelTestScoreTitle.TLabel", anchor="center")
+        self.visitor_score_title.grid(row=0, column=0, sticky="ew", pady=(2, 0))
 
         try:
             away_team = getattr(self.match_state_controller.match_state, 'away_team', None)
@@ -134,11 +145,11 @@ class Gui_control_panel_test:
         except Exception:
             away_points = 0
 
-        self.visitor_score_label = ttk.Label(self.visitor_score_panel, text=str(away_points), style="PanelTestScore.TLabel")
-        self.visitor_score_label.pack(anchor="center", pady=(6, 4))
+        self.visitor_score_label = ttk.Label(self.visitor_score_panel, text=str(away_points), style="PanelTestScore.TLabel", anchor="center")
+        self.visitor_score_label.grid(row=1, column=0, sticky="nsew", pady=(6, 4))
 
         self.visitor_score_buttons = ttk.Frame(self.visitor_score_panel)
-        self.visitor_score_buttons.pack(side="bottom", fill="x", pady=(4, 0))
+        self.visitor_score_buttons.grid(row=2, column=0, sticky="ew", pady=(4, 0))
 
         self.visitor_buttons_inner = ttk.Frame(self.visitor_score_buttons)
         self.visitor_buttons_inner.pack(anchor="center")
