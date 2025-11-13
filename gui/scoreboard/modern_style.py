@@ -50,6 +50,11 @@ class ScoreboardModernStyle:
         'border_light': '#2d3748',      # Borde sutil
         'border_bright': '#4a5568',     # Borde más visible
         'shadow': '#000000',            # Sombra
+
+        # Timeouts (tiempos muertos)
+        'timeout_available': '#FF0000',  # Rojo brillante (timeout disponible)
+        'timeout_used': '#404040',       # Gris oscuro (timeout usado)
+        'bg_team_info': '#1a1a2e',       # Fondo para info de equipo
     }
     
     # 📏 TAMAÑOS BASE (se escalan proporcionalmente)

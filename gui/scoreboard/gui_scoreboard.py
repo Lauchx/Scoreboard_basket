@@ -34,6 +34,9 @@ else:
     from gui.scoreboard.ui_components.ui_match import (
         create_possession_labels, create_quarter_labels, setup_ui_match
     )
+    from gui.scoreboard.ui_components.ui_timeouts import (
+        create_timeout_indicators, update_timeout_indicators
+    )
 class Gui_scoreboard:
     def __init__(self, root, match_state):
         """
@@ -111,12 +114,37 @@ class Gui_scoreboard:
         current_possesion = self.match_state.possession
         if current_possesion == "Away":
             self.match_state.possession = "Home"
-            new_possesion = "⇦"  
+            new_possesion = "⇦"
             self.match.labels.possesion.config(text=str(new_possesion))
         else:
             self.match_state.possession = "Away"
-            new_possesion = "⇨" 
+            new_possesion = "⇨"
             self.match.labels.possesion.config(text=str(new_possesion))
+
+    def update_timeout_labels(self):
+        """
+        Actualiza la visualización de los indicadores de timeout para ambos equipos.
+        """
+        if USE_MODERN_DESIGN:
+            from gui.scoreboard.ui_components.ui_timeouts_modern import update_timeout_indicators_modern
+
+            # Actualizar equipo local
+            home_states = self.match_state.home_team.timeout_manager.get_timeout_states()
+            update_timeout_indicators_modern(self.labels.home_team, home_states)
+
+            # Actualizar equipo visitante
+            away_states = self.match_state.away_team.timeout_manager.get_timeout_states()
+            update_timeout_indicators_modern(self.labels.away_team, away_states)
+        else:
+            # Diseño original
+            # Actualizar equipo local
+            home_states = self.match_state.home_team.timeout_manager.get_timeout_states()
+            update_timeout_indicators(self.labels.home_team, home_states)
+
+            # Actualizar equipo visitante
+            away_states = self.match_state.away_team.timeout_manager.get_timeout_states()
+            update_timeout_indicators(self.labels.away_team, away_states)
+
     def update_label_players(self, player, team_contoller):
         if USE_MODERN_DESIGN:
             update_label_players_modern(self, player, team_contoller)
@@ -165,6 +193,8 @@ def creates_home_team(self):
     create_points_labels(self.home_team.frames, self.labels.home_team, self.match_state.home_team.points)
     #ui_players
     create_players_labels(self.home_team, True)
+    #ui_timeouts
+    create_timeout_indicators(self.home_team.frames, self.labels.home_team)
    
 
 def creates_away_team(self):
@@ -177,3 +207,5 @@ def creates_away_team(self):
     create_points_labels(self.away_team.frames, self.labels.away_team, self.match_state.away_team.points)
     #ui_players
     create_players_labels(self.away_team, False)
+    #ui_timeouts
+    create_timeout_indicators(self.away_team.frames, self.labels.away_team)

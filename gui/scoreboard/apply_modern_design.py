@@ -29,6 +29,7 @@ from gui.scoreboard.ui_components.ui_match_modern import (
     setup_ui_match_modern
 )
 from gui.scoreboard.ui_components.ui_players_modern import create_players_labels_modern
+from gui.scoreboard.ui_components.ui_timeouts_modern import create_timeout_indicators_modern
 
 
 def apply_modern_design(scoreboard_instance):
@@ -118,8 +119,15 @@ def creates_home_team_modern(scoreboard_instance):
     
     # Crear lista de jugadores con estilo moderno
     create_players_labels_modern(
-        scoreboard_instance.home_team, 
+        scoreboard_instance.home_team,
         True,  # is_home_team
+        scoreboard_instance.modern_style
+    )
+
+    # Crear indicadores de timeouts (3 círculos debajo del puntaje)
+    create_timeout_indicators_modern(
+        scoreboard_instance.home_team.frames,
+        scoreboard_instance.labels.home_team,
         scoreboard_instance.modern_style
     )
 
@@ -165,8 +173,15 @@ def creates_away_team_modern(scoreboard_instance):
     
     # Crear lista de jugadores con estilo moderno
     create_players_labels_modern(
-        scoreboard_instance.away_team, 
+        scoreboard_instance.away_team,
         False,  # is_home_team
+        scoreboard_instance.modern_style
+    )
+
+    # Crear indicadores de timeouts (3 círculos debajo del puntaje)
+    create_timeout_indicators_modern(
+        scoreboard_instance.away_team.frames,
+        scoreboard_instance.labels.away_team,
         scoreboard_instance.modern_style
     )
 

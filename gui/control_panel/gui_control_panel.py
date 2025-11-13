@@ -16,6 +16,7 @@ from controller.joystick_controller import JoystickController
 from gui.control_panel.ui_components.ui_joystick import setup_joystick_ui, update_joystick_info
 from gui.control_panel.ui_components.ui_color_customization import setup_color_customization_ui
 from gui.control_panel.control_panel_styles import apply_control_panel_styles
+from gui.control_panel.ui_components.ui_timeouts import setup_timeout_controls
 
 
 
@@ -59,6 +60,11 @@ class Gui_control_panel():
 
         buttons_change_possesion(self)
         setup_teams_players(self)
+
+        # Configurar controles de timeouts para ambos equipos
+        setup_timeout_controls(self, self.home_team, self.home_team_controller, 0)
+        setup_timeout_controls(self, self.away_team, self.away_team_controller, 1)
+
         setup_joystick_ui(self)
         setup_color_customization_ui(self)  # Panel de personalización de colores
         #self.joystick_controller.set_ui_cleanup_callback(on_disconnect_callback=update_joystick_info)
