@@ -111,8 +111,8 @@ class ScoreboardModernStyle:
 
     def _load_digital_font(self):
         """
-        Carga la fuente Digital-7 Italic desde el archivo TTF en el sistema Windows.
-        Usa la API de Windows para registrar la fuente temporalmente.
+        Carga la fuente Digital-7 Italic desde el archivo TTF.
+        Usa múltiples métodos para máxima compatibilidad sin requerir permisos de administrador.
 
         Returns:
             str: Nombre de la familia de fuente cargada, o fallback si falla
@@ -125,7 +125,24 @@ class ScoreboardModernStyle:
 
             font_path_str = str(self.DIGITAL_FONT_PATH.absolute())
 
-            # Método 1: Cargar la fuente en Windows usando ctypes (más confiable)
+            # Método 1: Verificar si la fuente Digital-7 ya está disponible
+            # Verificar en la lista de fuentes del sistema
+            try:
+                available_fonts = tkfont.families()
+                # Buscar variantes de Digital-7 en las fuentes disponibles
+                digital_fonts = [f for f in available_fonts if 'digital' in f.lower() or 'Digital' in f]
+
+                if digital_fonts:
+                    # La fuente ya está disponible en el sistema
+                    print(f"✅ Fuente Digital-7 ya disponible en el sistema: {digital_fonts}")
+                    return 'Digital-7 Italic'  # Retornar el nombre que usa ui_time_modern.py
+                else:
+                    # La fuente no está en la lista, intentar cargarla
+                    print("⚠️ Fuente Digital-7 no encontrada en el sistema, intentando cargarla...")
+            except Exception as e:
+                print(f"⚠️ Error al verificar fuentes disponibles: {e}")
+
+            # Método 2: Cargar con ctypes (Windows) - SIN SendMessageW para evitar permisos
             try:
                 import ctypes
                 from ctypes import wintypes
@@ -145,39 +162,41 @@ class ScoreboardModernStyle:
                 result = AddFontResourceEx(font_path_str, FR_PRIVATE, 0)
 
                 if result > 0:
-                    print(f"✅ Fuente Digital-7 Italic cargada en Windows desde {self.DIGITAL_FONT_PATH.name}")
+                    print(f"✅ Fuente Digital-7 Italic cargada desde {self.DIGITAL_FONT_PATH.name}")
 
-                    # Notificar a Windows que las fuentes han cambiado
-                    HWND_BROADCAST = 0xFFFF
-                    WM_FONTCHANGE = 0x001D
-                    user32 = ctypes.WinDLL('user32', use_last_error=True)
-                    user32.SendMessageW(HWND_BROADCAST, WM_FONTCHANGE, 0, 0)
+                    # NO usar SendMessageW - puede requerir permisos de administrador
+                    # La fuente funcionará sin la notificación broadcast
 
                     # Guardar referencia para poder descargar la fuente al cerrar
                     self.loaded_font_path = font_path_str
 
-                    return 'Digital-7'
+                    return 'Digital-7 Italic'
                 else:
                     print(f"⚠️ AddFontResourceEx retornó {result}, intentando método alternativo...")
 
             except Exception as e:
                 print(f"⚠️ Error al cargar fuente con ctypes: {e}")
+                print(f"   Esto puede ocurrir por permisos. Intentando método alternativo...")
 
-            # Método 2: Intentar con pyglet como fallback
+            # Método 3: Intentar con pyglet como fallback
             try:
                 from pyglet import font as pyglet_font
                 pyglet_font.add_file(font_path_str)
                 print(f"✅ Fuente Digital-7 Italic cargada con pyglet desde {self.DIGITAL_FONT_PATH.name}")
-                return 'Digital-7'
+                return 'Digital-7 Italic'
+            except ImportError:
+                print(f"⚠️ pyglet no está instalado, saltando este método")
             except Exception as e:
                 print(f"⚠️ Error al cargar fuente con pyglet: {e}")
 
             # Si todo falla, usar fallback
             print(f"⚠️ No se pudo cargar la fuente Digital-7, usando Consolas como fallback")
+            print(f"   La aplicación funcionará normalmente con la fuente alternativa")
             return 'Consolas'
 
         except Exception as e:
             print(f"⚠️ Error general al cargar fuente Digital-7 Italic: {e}")
+            print(f"   Usando fuente Consolas como alternativa")
             return 'Consolas'  # Fallback
 
     def _setup_theme(self):
