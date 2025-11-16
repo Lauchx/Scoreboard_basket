@@ -32,8 +32,9 @@ def create_timeout_indicators_modern(team_frame, team_labels, modern_style):
     
     # Obtener colores del modern_style
     bg_color = modern_style.COLORS['bg_team_info']
-    available_color = modern_style.COLORS.get('timeout_available', '#FF0000')  # Rojo
-    used_color = modern_style.COLORS.get('timeout_used', '#404040')  # Gris oscuro
+    available_color = modern_style.COLORS.get('timeout_available', '#00FF00')  # Verde (disponible)
+    used_color = modern_style.COLORS.get('timeout_used', '#FF0000')  # Rojo (usado)
+    not_allowed_color = modern_style.COLORS.get('timeout_not_allowed', '#808080')  # Gris (no permitido)
     
     # Tamaño de los círculos
     circle_size = 20  # Diámetro del círculo en píxeles
@@ -52,7 +53,7 @@ def create_timeout_indicators_modern(team_frame, team_labels, modern_style):
         )
         canvas.grid(row=0, column=i+1, padx=circle_spacing, pady=5)
         
-        # Dibujar el círculo (inicialmente disponible = rojo)
+        # Dibujar el círculo (inicialmente disponible = verde)
         circle_id = canvas.create_oval(
             2, 2,  # x1, y1
             circle_size-2, circle_size-2,  # x2, y2
@@ -60,45 +61,49 @@ def create_timeout_indicators_modern(team_frame, team_labels, modern_style):
             outline='#FFFFFF',  # Borde blanco
             width=2
         )
-        
-        # Guardar referencia al canvas y al círculo
+
+        # Guardar referencia al canvas y al círculo con los 3 colores posibles
         team_labels.timeout_circles.append({
             'canvas': canvas,
             'circle_id': circle_id,
-            'available_color': available_color,
-            'used_color': used_color
+            'available_color': available_color,      # Verde
+            'used_color': used_color,                # Rojo
+            'not_allowed_color': not_allowed_color   # Gris
         })
     
     print(f"✅ Indicadores de timeout creados (3 círculos)")
 
 
-def update_timeout_indicators_modern(team_labels, timeout_states):
+def update_timeout_indicators_modern(team_labels, timeout_manager):
     """
-    Actualiza el color de los círculos de timeout según su estado.
-    
+    Actualiza el color de los círculos de timeout según su estado visual.
+
     Args:
         team_labels: SimpleNamespace con los labels del equipo (debe tener timeout_circles)
-        timeout_states: Lista de 3 booleanos (True = usado, False = disponible)
+        timeout_manager: Instancia de TimeoutManager del equipo
     """
     if not hasattr(team_labels, 'timeout_circles'):
         return
-    
-    for i, state_used in enumerate(timeout_states):
-        if i >= len(team_labels.timeout_circles):
-            break
-        
+
+    for i in range(len(team_labels.timeout_circles)):
         circle_info = team_labels.timeout_circles[i]
         canvas = circle_info['canvas']
         circle_id = circle_info['circle_id']
-        
-        # Elegir color según estado
-        if state_used:
-            # Timeout usado: gris oscuro
+
+        # Obtener el estado visual del timeout desde el TimeoutManager
+        visual_state = timeout_manager.get_timeout_visual_state(i)
+
+        # Elegir color según estado visual
+        if visual_state == 'used':
+            # Timeout usado: rojo
             color = circle_info['used_color']
-        else:
-            # Timeout disponible: rojo
+        elif visual_state == 'available':
+            # Timeout disponible y permitido: verde
             color = circle_info['available_color']
-        
+        else:  # 'not_allowed'
+            # Timeout no permitido en este periodo: gris
+            color = circle_info['not_allowed_color']
+
         # Actualizar el color del círculo
         canvas.itemconfig(circle_id, fill=color)
 
@@ -133,15 +138,15 @@ def setup_timeout_ui_modern(scoreboard_instance):
 def update_timeout_display(scoreboard_instance):
     """
     Actualiza la visualización de timeouts para ambos equipos.
-    
+
     Args:
         scoreboard_instance: Instancia de Gui_scoreboard
     """
     # Actualizar equipo local
-    home_states = scoreboard_instance.match_state.home_team.timeout_manager.get_timeout_states()
-    update_timeout_indicators_modern(scoreboard_instance.labels.home_team, home_states)
-    
+    home_manager = scoreboard_instance.match_state.home_team.timeout_manager
+    update_timeout_indicators_modern(scoreboard_instance.labels.home_team, home_manager)
+
     # Actualizar equipo visitante
-    away_states = scoreboard_instance.match_state.away_team.timeout_manager.get_timeout_states()
-    update_timeout_indicators_modern(scoreboard_instance.labels.away_team, away_states)
+    away_manager = scoreboard_instance.match_state.away_team.timeout_manager
+    update_timeout_indicators_modern(scoreboard_instance.labels.away_team, away_manager)
 

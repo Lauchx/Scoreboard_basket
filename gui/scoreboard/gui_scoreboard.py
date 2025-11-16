@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from types import SimpleNamespace
+from gui.scoreboard.time_formatter import TimeFormatter
 # from PIL import Image, ImageTk
 # import os -- Revisar uso.
 
@@ -58,6 +59,9 @@ class Gui_scoreboard:
         simpleNamespace_forUi(self)
         self.match_state = match_state
 
+        # Inicializar el formateador de tiempo para el último minuto
+        self.time_formatter = TimeFormatter()
+
         # Setup UI según diseño seleccionado
         if USE_MODERN_DESIGN:
             setup_ui_modern(self)
@@ -86,13 +90,27 @@ class Gui_scoreboard:
         self.labels.home_team.points.config(text=str(self.match_state.home_team.points))
         self.labels.away_team.points.config(text=str(self.match_state.away_team.points))
 
-    def update_time_labels(self):
-        minutes = self.match_state.seconds_time_left // 60
-        seconds = self.match_state.seconds_time_left % 60
-        time_str = f"{minutes:02}:{seconds:02}"
+    def update_time_labels(self, milliseconds=0):
+        """
+        Actualiza el display del tiempo con formato automático según tiempo restante.
 
-        # Actualizar el label (funciona tanto para diseño moderno como original)
-        self.match.labels.time.config(text=time_str)
+        Args:
+            milliseconds (int): Milésimas de segundo (0-999) para formato SS:ms
+        """
+        total_seconds = self.match_state.seconds_time_left
+
+        # Obtener información de display del formateador
+        display_info = self.time_formatter.get_display_info(total_seconds, milliseconds)
+
+        # Actualizar el texto del tiempo
+        self.match.labels.time.config(text=display_info['text'])
+
+        # Actualizar el color del borde si cambió de modo
+        if display_info['should_update_border']:
+            self.match.labels.time.config(
+                highlightbackground=display_info['border_color'],
+                highlightcolor=display_info['border_color']
+            )
 
     def update_possession_labels(self, possession):
          self.match.labels.possesion.config(text=possession)   
@@ -102,7 +120,13 @@ class Gui_scoreboard:
         self.labels.away_team.name.config(text=self.match_state.away_team.name)
 
     def update_quarter_labels(self, number):
-        self.match_state.quarter += number
+        # Validar que el cuarto no baje de 1
+        new_quarter = self.match_state.quarter + number
+        if new_quarter < 1:
+            print(f"⚠️ No se puede disminuir el cuarto por debajo de 1")
+            return  # Ignorar la acción
+
+        self.match_state.quarter = new_quarter
         if USE_MODERN_DESIGN:
             # En diseño moderno, solo actualizar el número (sin "Cuarto:")
             self.match.labels.quarter.config(text=str(self.match_state.quarter))
@@ -128,22 +152,24 @@ class Gui_scoreboard:
         if USE_MODERN_DESIGN:
             from gui.scoreboard.ui_components.ui_timeouts_modern import update_timeout_indicators_modern
 
-            # Actualizar equipo local
-            home_states = self.match_state.home_team.timeout_manager.get_timeout_states()
-            update_timeout_indicators_modern(self.labels.home_team, home_states)
+            # Actualizar equipo local (pasar el timeout_manager completo)
+            home_manager = self.match_state.home_team.timeout_manager
+            update_timeout_indicators_modern(self.labels.home_team, home_manager)
 
-            # Actualizar equipo visitante
-            away_states = self.match_state.away_team.timeout_manager.get_timeout_states()
-            update_timeout_indicators_modern(self.labels.away_team, away_states)
+            # Actualizar equipo visitante (pasar el timeout_manager completo)
+            away_manager = self.match_state.away_team.timeout_manager
+            update_timeout_indicators_modern(self.labels.away_team, away_manager)
         else:
             # Diseño original
+            from gui.scoreboard.ui_components.ui_timeouts import update_timeout_indicators
+
             # Actualizar equipo local
-            home_states = self.match_state.home_team.timeout_manager.get_timeout_states()
-            update_timeout_indicators(self.labels.home_team, home_states)
+            home_manager = self.match_state.home_team.timeout_manager
+            update_timeout_indicators(self.labels.home_team, home_manager)
 
             # Actualizar equipo visitante
-            away_states = self.match_state.away_team.timeout_manager.get_timeout_states()
-            update_timeout_indicators(self.labels.away_team, away_states)
+            away_manager = self.match_state.away_team.timeout_manager
+            update_timeout_indicators(self.labels.away_team, away_manager)
 
     def update_label_players(self, player, team_contoller):
         if USE_MODERN_DESIGN:

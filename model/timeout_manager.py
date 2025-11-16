@@ -167,17 +167,36 @@ class TimeoutManager:
     def is_timeout_available(self, timeout_index):
         """
         Verifica si un timeout específico está disponible para usar.
-        
+
         Args:
             timeout_index (int): Índice del timeout (0, 1, o 2)
-            
+
         Returns:
             bool: True si está disponible, False si está usado o índice inválido
         """
         if timeout_index < 0 or timeout_index >= self.MAX_DISPLAY_TIMEOUTS:
             return False
-        
+
         return not self.used_timeouts[timeout_index]
+
+    def is_timeout_allowed_in_period(self, timeout_index):
+        """
+        Verifica si un timeout específico está permitido en el periodo actual.
+        Un timeout puede estar disponible (no usado) pero no permitido si excede
+        el límite del periodo.
+
+        Args:
+            timeout_index (int): Índice del timeout (0, 1, o 2)
+
+        Returns:
+            bool: True si está permitido en este periodo, False si no
+        """
+        if timeout_index < 0 or timeout_index >= self.MAX_DISPLAY_TIMEOUTS:
+            return False
+
+        max_allowed = self.get_max_allowed_for_period()
+        # El timeout está permitido si su índice es menor que el máximo permitido
+        return timeout_index < max_allowed
     
     def reset_for_period(self, new_quarter):
         """
@@ -225,10 +244,36 @@ class TimeoutManager:
         """
         return self.used_timeouts.copy()
     
+    def get_timeout_visual_state(self, timeout_index):
+        """
+        Retorna el estado visual de un timeout para la UI.
+
+        Args:
+            timeout_index (int): Índice del timeout (0, 1, o 2)
+
+        Returns:
+            str: Estado visual del timeout:
+                - 'used': Timeout ya usado (rojo)
+                - 'available': Timeout disponible y permitido en este periodo (verde)
+                - 'not_allowed': Timeout no permitido en este periodo (gris)
+        """
+        if timeout_index < 0 or timeout_index >= self.MAX_DISPLAY_TIMEOUTS:
+            return 'not_allowed'
+
+        # Si está usado, mostrar como usado (rojo)
+        if self.used_timeouts[timeout_index]:
+            return 'used'
+
+        # Si no está usado, verificar si está permitido en este periodo
+        if self.is_timeout_allowed_in_period(timeout_index):
+            return 'available'
+        else:
+            return 'not_allowed'
+
     def get_display_info(self):
         """
         Retorna información para mostrar en la UI.
-        
+
         Returns:
             dict: Diccionario con información de display:
                 - 'states': Lista de estados [True/False]
@@ -239,7 +284,7 @@ class TimeoutManager:
         """
         max_allowed = self.get_max_allowed_for_period()
         used = self.get_used_count()
-        
+
         return {
             'states': self.get_timeout_states(),
             'available': self.get_available_count(),

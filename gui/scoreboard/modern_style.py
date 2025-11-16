@@ -52,8 +52,9 @@ class ScoreboardModernStyle:
         'shadow': '#000000',            # Sombra
 
         # Timeouts (tiempos muertos)
-        'timeout_available': '#FF0000',  # Rojo brillante (timeout disponible)
-        'timeout_used': '#404040',       # Gris oscuro (timeout usado)
+        'timeout_available': '#00FF00',  # Verde brillante (timeout disponible y permitido)
+        'timeout_used': '#FF0000',       # Rojo brillante (timeout ya usado)
+        'timeout_not_allowed': '#808080',  # Gris (timeout no permitido en este periodo)
         'bg_team_info': '#1a1a2e',       # Fondo para info de equipo
     }
     

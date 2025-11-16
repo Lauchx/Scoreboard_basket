@@ -29,10 +29,11 @@ def create_timeout_indicators(team_frame, team_labels):
     # Crear lista para almacenar los canvas de los círculos
     team_labels.timeout_circles = []
     
-    # Colores para el diseño original
+    # Colores para el diseño original (mismo esquema que moderno)
     bg_color = 'black'
-    available_color = '#FF0000'  # Rojo
-    used_color = '#808080'  # Gris
+    available_color = '#00FF00'  # Verde (disponible)
+    used_color = '#FF0000'  # Rojo (usado)
+    not_allowed_color = '#808080'  # Gris (no permitido)
     
     # Tamaño de los círculos
     circle_size = 20  # Diámetro del círculo en píxeles
@@ -51,7 +52,7 @@ def create_timeout_indicators(team_frame, team_labels):
         )
         canvas.grid(row=0, column=i+1, padx=circle_spacing, pady=5)
         
-        # Dibujar el círculo (inicialmente disponible = rojo)
+        # Dibujar el círculo (inicialmente disponible = verde)
         circle_id = canvas.create_oval(
             2, 2,  # x1, y1
             circle_size-2, circle_size-2,  # x2, y2
@@ -59,45 +60,49 @@ def create_timeout_indicators(team_frame, team_labels):
             outline='#FFFFFF',  # Borde blanco
             width=2
         )
-        
-        # Guardar referencia al canvas y al círculo
+
+        # Guardar referencia al canvas y al círculo con los 3 colores posibles
         team_labels.timeout_circles.append({
             'canvas': canvas,
             'circle_id': circle_id,
-            'available_color': available_color,
-            'used_color': used_color
+            'available_color': available_color,      # Verde
+            'used_color': used_color,                # Rojo
+            'not_allowed_color': not_allowed_color   # Gris
         })
     
     print(f"✅ Indicadores de timeout creados (3 círculos) - diseño original")
 
 
-def update_timeout_indicators(team_labels, timeout_states):
+def update_timeout_indicators(team_labels, timeout_manager):
     """
-    Actualiza el color de los círculos de timeout según su estado.
-    
+    Actualiza el color de los círculos de timeout según su estado visual.
+
     Args:
         team_labels: SimpleNamespace con los labels del equipo (debe tener timeout_circles)
-        timeout_states: Lista de 3 booleanos (True = usado, False = disponible)
+        timeout_manager: Instancia de TimeoutManager del equipo
     """
     if not hasattr(team_labels, 'timeout_circles'):
         return
-    
-    for i, state_used in enumerate(timeout_states):
-        if i >= len(team_labels.timeout_circles):
-            break
-        
+
+    for i in range(len(team_labels.timeout_circles)):
         circle_info = team_labels.timeout_circles[i]
         canvas = circle_info['canvas']
         circle_id = circle_info['circle_id']
-        
-        # Elegir color según estado
-        if state_used:
-            # Timeout usado: gris
+
+        # Obtener el estado visual del timeout desde el TimeoutManager
+        visual_state = timeout_manager.get_timeout_visual_state(i)
+
+        # Elegir color según estado visual
+        if visual_state == 'used':
+            # Timeout usado: rojo
             color = circle_info['used_color']
-        else:
-            # Timeout disponible: rojo
+        elif visual_state == 'available':
+            # Timeout disponible y permitido: verde
             color = circle_info['available_color']
-        
+        else:  # 'not_allowed'
+            # Timeout no permitido en este periodo: gris
+            color = circle_info['not_allowed_color']
+
         # Actualizar el color del círculo
         canvas.itemconfig(circle_id, fill=color)
 

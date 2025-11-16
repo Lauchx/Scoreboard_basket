@@ -32,6 +32,7 @@ def create_time_labels_modern(self):
     # Crear label con tk.Label (no ttk) para mejor soporte de fuentes personalizadas
     # Usar 'Digital-7 Italic' como nombre de familia (así es como Windows la registra)
     # Agregar borde blanco (highlightthickness) para destacar el reloj
+    # IMPORTANTE: width=5 para mantener ancho fijo (5 caracteres: "MM:SS" o "SS.ms")
     self.match.labels.time = tk.Label(
         self.frames.match,
         text=f"{minutes:02}:{seconds:02}",
@@ -39,6 +40,7 @@ def create_time_labels_modern(self):
         fg=fg_color,
         bg=bg_color,
         anchor='center',
+        width=5,  # ANCHO FIJO: 5 caracteres para evitar que cambie de tamaño
         padx=10,  # Reducido de 20 a 10 para columna central más compacta
         pady=12,  # Reducido de 15 a 12
         # Borde blanco alrededor del reloj

@@ -63,9 +63,9 @@ def setup_ui_modern(scoreboard_instance):
     """
     # Configurar grid de la ventana principal (responsive)
     # Columnas de equipos (0 y 2) tienen más peso para mostrar jugadores
-    # Columna central (1) tiene menos peso para ser más compacta
+    # Columna central (1) tiene ancho fijo para evitar que el reloj "salte"
     scoreboard_instance.root.grid_columnconfigure(0, weight=3)  # Equipo local - MÁS ESPACIO
-    scoreboard_instance.root.grid_columnconfigure(1, weight=1)  # Centro - MENOS ESPACIO
+    scoreboard_instance.root.grid_columnconfigure(1, weight=0, minsize=280)  # Centro - ANCHO FIJO (280px)
     scoreboard_instance.root.grid_columnconfigure(2, weight=3)  # Equipo visitante - MÁS ESPACIO
 
     scoreboard_instance.root.grid_rowconfigure(0, weight=1)

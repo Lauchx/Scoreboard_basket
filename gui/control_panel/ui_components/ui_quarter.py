@@ -11,12 +11,18 @@ def add_quarter(self):
     self.scoreboard_window.update_quarter_labels(1)
     # Actualizar los timeouts para el nuevo cuarto
     update_timeouts_for_quarter_change(self)
+    # Reiniciar el formateador de tiempo (nuevo cuarto = formato normal)
+    self.scoreboard_window.time_formatter.reset()
+    self.scoreboard_window.update_time_labels()
 
 
 def substract_quarter(self):
     self.scoreboard_window.update_quarter_labels(-1)
     # Actualizar los timeouts para el nuevo cuarto
     update_timeouts_for_quarter_change(self)
+    # Reiniciar el formateador de tiempo (nuevo cuarto = formato normal)
+    self.scoreboard_window.time_formatter.reset()
+    self.scoreboard_window.update_time_labels()
 
 
 def update_timeouts_for_quarter_change(self):
