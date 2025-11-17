@@ -36,8 +36,14 @@ def setup_ui_team(self, team_simple_name_space,team_controller,column):
     team_simple_name_space.frames.team.labelFrame = ttk.LabelFrame(self.parent.frames.teams, text=f"{team_controller.team.name}")
     team_simple_name_space.frames.team.labelFrame.grid(row=0, column=column, padx=10, pady=10, sticky="nsew")
     ttk.Label(team_simple_name_space.frames.team.labelFrame, text="Nombre:").grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+    # Crear Entry con valor inicial del nombre del equipo
     team_simple_name_space.frames.team.entry.name = ttk.Entry(team_simple_name_space.frames.team.labelFrame)
     team_simple_name_space.frames.team.entry.name.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+
+    # Insertar el nombre actual del equipo como placeholder
+    team_simple_name_space.frames.team.entry.name.insert(0, team_controller.team.name)
+
     team_simple_name_space.frames.team.labelFrame.grid_columnconfigure(1, weight=1)
     ttk.Button(team_simple_name_space.frames.team.labelFrame, text="Actualizar Nombre:", command=lambda: update_team_name(self, team_simple_name_space, team_controller)).grid(row=0, column=6, columnspan=2, padx=5, pady=5, sticky="nsew")
     
