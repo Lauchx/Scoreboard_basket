@@ -199,7 +199,7 @@ class Gui_control_panel_test:
         self.btn_borrar_puntos.pack(side="top", pady=6)
         self.btn_cambiar_posesion.pack(side="top", pady=6)
 
-        # 🔽 Flecha abajo
+        # Flecha abajo
         self.possession_indicator = ttk.Frame(self.action_panel)
         self.possession_indicator.grid(row=1, column=0, sticky="ew", pady=(0, 10))
         self.possession_indicator.grid_columnconfigure(0, weight=1)
@@ -208,20 +208,17 @@ class Gui_control_panel_test:
             self.possession_indicator,
             text="⇨",  # Valor inicial
             style="PanelTestScore.TLabel",
-            anchor="center"  # Asegura que el texto esté centrado
+            anchor="center"  
         )
         self.possession_label.pack(fill="x", expand=True)
 
-        # Inicializar valores visuales
         self.update_time_label()
         
         # Fila 3 - Panel de faltas LOCAL
-
-        # Contenedor general (sin fondo negro)
+        # Contenedor general
         self.local_fouls_container = ttk.Frame(self.right_frame)
         self.local_fouls_container.grid(row=2, column=0, sticky="nsew", padx=6, pady=6)
 
-        # Título fuera del fondo negro
         self.local_fouls_title = ttk.Label(
             self.local_fouls_container,
             text="FALTAS LOCAL",
@@ -229,7 +226,6 @@ class Gui_control_panel_test:
         )
         self.local_fouls_title.pack(side="top", pady=(2, 0))
 
-        # Subpanel negro más chico
         self.local_fouls_panel = ttk.Frame(self.local_fouls_container, style="PanelFouls.TFrame")
         self.local_fouls_panel.pack(fill="x", expand=False, pady=(4, 0), ipadx=4, ipady=4)
 
@@ -273,12 +269,10 @@ class Gui_control_panel_test:
         self.local_fouls_plus_btn.pack(side='left', padx=4)
         
         # Fila 3 - Panel de faltas VISITANTE
-
-        # Contenedor general (sin fondo negro)
+        # Contenedor general 
         self.visitor_fouls_container = ttk.Frame(self.right_frame)
         self.visitor_fouls_container.grid(row=2, column=2, sticky="nsew", padx=6, pady=6)
 
-        # Título fuera del fondo negro
         self.visitor_fouls_title = ttk.Label(
             self.visitor_fouls_container,
             text="FALTAS VISITANTE",
@@ -286,7 +280,6 @@ class Gui_control_panel_test:
         )
         self.visitor_fouls_title.pack(side="top", pady=(2, 0))
 
-        # Subpanel negro más chico
         self.visitor_fouls_panel = ttk.Frame(self.visitor_fouls_container, style="PanelFouls.TFrame")
         self.visitor_fouls_panel.pack(fill="x", expand=False, pady=(4, 0), ipadx=4, ipady=4)
 
@@ -339,12 +332,10 @@ class Gui_control_panel_test:
         self.clear_fouls_button = ttk.Button(
             self.clear_fouls_inner,
             text="Borrar faltas",
-            style="ControlPanel.ClearFouls.TButton",  # Estilo exclusivo
+            style="ControlPanel.ClearFouls.TButton",  
             command=lambda: None
         )
         self.clear_fouls_button.pack(side="top", pady=6)
-
-        ##codigo##
 
     def update_time_label(self, force=False):
         try:

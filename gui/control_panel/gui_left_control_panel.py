@@ -16,9 +16,7 @@ def setup_left_panel(self):
     self.tab_ajustes = ttk.Frame(self.notebook)
     self.notebook.add(self.tab_ajustes, text="Ajustes")
 
-
 def setup_tab_equipos(self):
-    """Configura la pestaña de equipos con notebook interno para Local/Visitante"""
     inner_notebook = ttk.Notebook(self.tab_equipos, style="Compact.TNotebook")
     inner_notebook.pack(fill="both", expand=True, padx=2, pady=2)
 
@@ -34,8 +32,6 @@ def setup_tab_equipos(self):
 
 
 def setup_team_form(self, parent_frame, team_type):
-    """Configura el formulario compacto para carga de datos de equipo (Local o Visitante)"""
-    # Frame contenedor superior para el formulario
     form_panel = ttk.Frame(parent_frame, padding=3)
     form_panel.pack(fill="x", padx=2, pady=2)
 
