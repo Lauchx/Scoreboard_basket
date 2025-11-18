@@ -147,7 +147,7 @@ def apply_control_panel_styles(root):
     style.configure("TFrame",
                    background='#F5F5F5')  # Fondo gris muy claro
     
-    print("✅ Estilos del panel de control aplicados correctamente")
+    print("[OK] Estilos del panel de control aplicados correctamente")
     
     return style
 

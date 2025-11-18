@@ -82,7 +82,7 @@ class JoystickController:
             detected_type = self._detect_controller_type(controller_name)
             self._set_controller_type(detected_type)
 
-            print(f"✅ Conectado a: {controller_name}")
+            print(f"[OK] Conectado a: {controller_name}")
             print(f"   Tipo detectado: {detected_type.value}")
             print(f"   Botones: {self.joystick.get_numbuttons()}")
             print(f"   Ejes: {self.joystick.get_numaxes()}")
@@ -148,7 +148,7 @@ class JoystickController:
             callback_function: Función a ejecutar cuando se presione el botón
         """
         self.callbacks[action] = callback_function
-        print(f"📋 Callback asignado: {action}")
+        print(f"[*] Callback asignado: {action}")
 
     def set_action_config(self, action_config: dict):
         """
@@ -398,13 +398,13 @@ class JoystickController:
             if action in self.callbacks:
                 try:
                     self.callbacks[action]()
-                    print(f"✅ Acción ejecutada: {action}")
+                    print(f"[OK] Acción ejecutada: {action}")
                 except Exception as e:
                     print(f"❌ Error ejecutando acción {action}: {e}")
             else:
-                print(f"⚠️ No hay callback para la acción: {action}")
+                print(f"[!] No hay callback para la acción: {action}")
         else:
-            print(f"⚠️ Botón {button_id} no mapeado")
+            print(f"[!] Botón {button_id} no mapeado")
 
     def _handle_axes(self):
         """

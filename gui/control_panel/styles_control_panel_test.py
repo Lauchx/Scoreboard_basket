@@ -14,47 +14,47 @@ def apply_styles_control_panel_test():
     style.configure("PanelTestLeft.TFrame", background="#f0f0f0")     # Panel lateral izquierdo
     # Panel de tiempo (cronómetro principal)
     style.configure("PanelTestTime.TFrame", borderwidth=2, relief="ridge", padding=6)
-    style.configure("PanelTestTime.TLabel", font=("Arial", 72, "bold"), foreground="red", background="black")  # Aumentado para responsividad
-    style.configure("PanelTestTimeTitle.TLabel", font=("Arial", 18, "bold"), foreground="white", background="black")  # Aumentado
+    style.configure("PanelTestTime.TLabel", font=("Arial", 48, "bold"), foreground="red", background="black")
+    style.configure("PanelTestTimeTitle.TLabel", font=("Arial", 12, "bold"), foreground="white", background="black")
     # Pestañas (Notebook)
     style.configure("TNotebook", background="#f0f0f0", borderwidth=0)
-    style.configure("TNotebook.Tab", font=("Arial", 11, "bold"), padding=8)
+    style.configure("TNotebook.Tab", font=("Arial", 9, "bold"), padding=8)
     
     # Pestañas internas (más pequeñas para Local/Visitante)
     style.configure("Compact.TNotebook", background="#f0f0f0", borderwidth=0)
-    style.configure("Compact.TNotebook.Tab", font=("Arial", 9, "bold"), padding=4)
+    style.configure("Compact.TNotebook.Tab", font=("Arial", 7, "bold"), padding=4)
     # Botones de control del tiempo (Iniciar, Pausar, Reiniciar)
-    style.configure("ControlPanel.Button.TButton", font=("Arial", 12, "bold"), padding=8)
+    style.configure("ControlPanel.Button.TButton", font=("Arial", 10, "bold"), padding=8)
     """  style.map("ControlPanel.Button.TButton",
                 background=[('disabled', '#dddddd')],
                 foreground=[('disabled', '#888888')]) """
     # Botones pequeños auxiliares (+ / -) 
     style.configure("ControlPanel.Plus.TButton",
-                    font=("Arial", 10, "bold"),
+                    font=("Arial", 8, "bold"),
                     padding=4,
                     foreground="black",
                     background="#69E36D") 
 
     style.configure("ControlPanel.Minus.TButton",
-                    font=("Arial", 10, "bold"),
+                    font=("Arial", 8, "bold"),
                     padding=4,
                     foreground="black",
                     background="#FB8484") 
     # Contador de cuarto (cuadro con número y título)
     style.configure("PanelTestQuarter.TFrame", borderwidth=1, relief="ridge", padding=4)
-    style.configure("PanelTestQuarterTitle.TLabel", font=("Arial", 10, "bold"))  # Título del cuarto
-    style.configure("PanelTestQuarter.TLabel", font=("Arial", 60, "bold"))       # Número del cuarto
+    style.configure("PanelTestQuarterTitle.TLabel", font=("Arial", 7, "bold"))
+    style.configure("PanelTestQuarter.TLabel", font=("Arial", 40, "bold"))
  
     # Puntos de local y visitante
     style.configure("PanelTestScore.TFrame", background="black", borderwidth=2, relief="ridge", padding=6)
 
     style.configure("PanelTestScoreTitle.TLabel",
-                font=("Arial", 18, "bold"),
+                font=("Arial", 12, "bold"),
                 foreground="white",
                 background="black")
 
     style.configure("PanelTestScore.TLabel",
-                font=("Arial", 64, "bold"),
+                font=("Arial", 42, "bold"),
                 foreground="white",
                 background="black")
     
@@ -66,19 +66,19 @@ def apply_styles_control_panel_test():
     )
 
     style.configure("PanelFoulsTitle.TLabel",
-        font=("Arial", 10, "bold"),
+        font=("Arial", 7, "bold"),
         foreground="black",
         background="#e0e0e0"
     )
 
     style.configure("PanelFouls.TLabel",
-        font=("Arial", 60, "bold"),
+        font=("Arial", 40, "bold"),
         foreground="black",
     )
     
     # Botón borrar faltas
     style.configure("ControlPanel.ClearFouls.TButton",
-        font=("Arial", 12, "bold"),
+        font=("Arial", 10, "bold"),
         padding=8
     )
 
@@ -127,9 +127,9 @@ def apply_styles_control_panel_test():
 
     # Estilo compacto para Treeview de jugadores
     style.configure("Compact.Treeview",
-        font=("Arial", 8),
+        font=("Arial", 10),
         rowheight=16
     )
     style.configure("Compact.Treeview.Heading",
-        font=("Arial", 8, "bold")
+        font=("Arial", 10, "bold")
     )

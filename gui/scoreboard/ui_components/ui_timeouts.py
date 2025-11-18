@@ -70,7 +70,7 @@ def create_timeout_indicators(team_frame, team_labels):
             'not_allowed_color': not_allowed_color   # Gris
         })
     
-    print(f"✅ Indicadores de timeout creados (3 círculos) - diseño original")
+    print(f"[OK] Indicadores de timeout creados (3 círculos) - diseño original")
 
 
 def update_timeout_indicators(team_labels, timeout_manager):

@@ -76,7 +76,7 @@ def setup_timeout_controls(parent_instance, team_simple_namespace, team_controll
     period_info.grid(row=2, column=0, columnspan=4, pady=(5, 0), sticky="w")
     team_simple_namespace.timeout_period_info = period_info
     
-    print(f"✅ Controles de timeout creados para {team_controller.team.name}")
+    print(f"[OK] Controles de timeout creados para {team_controller.team.name}")
 
 
 def toggle_timeout(timeout_index, team_controller, parent_instance):

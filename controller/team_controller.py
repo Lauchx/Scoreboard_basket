@@ -6,7 +6,17 @@ class Team_controller:
         self.team.points += 1
 
     def substract_point(self):
-        self.team.points -= 1
+        # No permitir puntos negativos
+        if self.team.points > 0:
+            self.team.points -= 1
+
+    def add_foul(self):
+        self.team.fouls += 1
+
+    def substract_foul(self):
+        # No permitir faltas negativas
+        if self.team.fouls > 0:
+            self.team.fouls -= 1
 
     def change_name(self, name):
         self.team.name = name

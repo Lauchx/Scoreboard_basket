@@ -123,7 +123,7 @@ class Gui_scoreboard:
         # Validar que el cuarto no baje de 1
         new_quarter = self.match_state.quarter + number
         if new_quarter < 1:
-            print(f"⚠️ No se puede disminuir el cuarto por debajo de 1")
+            print(f"[!] No se puede disminuir el cuarto por debajo de 1")
             return  # Ignorar la acción
 
         self.match_state.quarter = new_quarter
@@ -170,6 +170,14 @@ class Gui_scoreboard:
             # Actualizar equipo visitante
             away_manager = self.match_state.away_team.timeout_manager
             update_timeout_indicators(self.labels.away_team, away_manager)
+
+    def update_fouls_labels(self):
+        """
+        Actualiza la visualización de las faltas para ambos equipos.
+        Placeholder para futura implementación de UI de faltas.
+        """
+        # Por ahora es un stub que permite sincronización futura con UI
+        pass
 
     def update_label_players(self, player, team_contoller):
         if USE_MODERN_DESIGN:
