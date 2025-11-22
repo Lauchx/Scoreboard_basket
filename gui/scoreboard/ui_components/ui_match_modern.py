@@ -68,29 +68,24 @@ def create_quarter_labels_modern(self, modern_style):
 
 def create_possession_labels_modern(self):
     """
-    Crea los labels de posesión con estilo moderno (flecha grande + texto).
-    Centrados horizontalmente.
+    Crea el label de posesión con estilo moderno (SOLO FLECHA, sin texto).
+    REDUCIDO AL MÍNIMO ABSOLUTO para dar máximo espacio a la grilla de faltas.
+    Centrado horizontalmente y colocado en la parte inferior.
 
     Args:
         self: Instancia de Gui_scoreboard
     """
-    # Flecha de posesión (grande, estilo neón) - CENTRADA
+    # Flecha de posesión (REDUCIDA AL MÍNIMO ABSOLUTO, solo flecha sin texto) - CENTRADA
     self.match.labels.possesion = ttk.Label(
         self.frames.match,
         text="-",
         style="Possession.TLabel",
         anchor='center'  # Centrado horizontal
     )
-    self.match.labels.possesion.grid(row=2, column=0, sticky="nsew")
+    # Padding vertical MÍNIMO ABSOLUTO (0px arriba, 0px abajo) - SIN MÁRGENES
+    self.match.labels.possesion.grid(row=3, column=0, sticky="", pady=0)
 
-    # Texto "POSESION" - CENTRADO
-    self.match.labels.possesion_text = ttk.Label(
-        self.frames.match,
-        text="POSESIÓN",
-        style="PossessionText.TLabel",
-        anchor='center'  # Centrado horizontal
-    )
-    self.match.labels.possesion_text.grid(row=3, column=0, sticky="nsew", pady=(10, 0))
+    # NO crear el texto "POSESIÓN" - solo la flecha según requerimiento del usuario
 
 
 def setup_ui_match_modern(self):
@@ -98,18 +93,27 @@ def setup_ui_match_modern(self):
     Configura el frame central del partido con estilo moderno.
     Padding horizontal mínimo para dar máximo espacio a las columnas de jugadores.
 
+    Estructura de filas:
+    - Row 0: Tiempo (reloj)
+    - Row 1: Cuarto
+    - Row 2: Grilla de faltas y BONUS (2x3)
+    - Row 3: Flecha de posesión (solo flecha, sin texto, reducida)
+
     Args:
         self: Instancia de Gui_scoreboard
     """
     # Padding horizontal muy reducido (5px) para columna central compacta
     self.frames.match = ttk.Frame(self.root, style="CenterPanel.TFrame", padding=(5, 10))
     self.frames.match.grid(row=0, column=1, sticky="nsew", padx=2, pady=10)
-    
+
     # Configurar grid responsive
     self.frames.match.grid_columnconfigure(0, weight=1)
-    
-    # Pesos de las filas: tiempo (2), cuarto (1), posesión (3), texto posesión (1)
-    row_weights = (2, 1, 3, 1)
+
+    # Pesos de las filas: tiempo (10), cuarto (4), faltas (22), posesión flecha (0 - mínimo espacio)
+    # Proporción: 10:4:22:0 = tiempo:cuarto:faltas:posesión
+    # La posesión con weight=0 usa solo el espacio mínimo necesario
+    # Faltas aumentadas de 18 a 22 para dar más espacio vertical
+    row_weights = (10, 4, 22, 0)
     for index, weight in enumerate(row_weights):
         self.frames.match.grid_rowconfigure(index, weight=weight)
 

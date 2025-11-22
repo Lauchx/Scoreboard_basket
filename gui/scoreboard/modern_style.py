@@ -62,7 +62,7 @@ class ScoreboardModernStyle:
     # Reducidos para dar más espacio horizontal a las columnas de jugadores
     BASE_SIZES = {
         'font_team_name': 24,      # Reducido de 32 a 24 (25% más pequeño) para columna más compacta
-        'font_score': 60,          # Reducido de 80 a 60 (25% más pequeño) para columna más compacta
+        'font_score': 80,          # AUMENTADO de 60 a 80 para mayor visibilidad
         'font_time': 100,          # MANTENER GRANDE - No se reduce
         'font_quarter': 24,        # Reducido de 32 a 24 (25% más pequeño)
         'font_possession_arrow': 120,  # Reducido de 180 a 120 (33% más pequeño)
@@ -402,6 +402,6 @@ class ScoreboardModernStyle:
         return self.COLORS['accent_neon']  # Verde neón para jugadores en cancha
 
     def get_inactive_player_color(self):
-        """Retorna el color para jugadores inactivos (blanco para visibilidad)."""
-        return '#FFFFFF'  # Blanco en lugar de gris para mejor visibilidad
+        """Retorna el color para jugadores inactivos (configurable desde la pestaña Configuración)."""
+        return self.COLORS['text_dim']  # Color configurable para jugadores en el banco
 

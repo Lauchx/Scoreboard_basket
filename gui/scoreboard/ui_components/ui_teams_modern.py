@@ -10,16 +10,27 @@ from tkinter import ttk
 def create_names_labels_modern(team_frame, team_labels, team_name):
     """
     Crea el label del nombre del equipo con estilo moderno.
+    Ancho fijo de 12 caracteres para mantener columnas uniformes.
 
     Args:
         team_frame: Frame contenedor del equipo
         team_labels: Namespace para almacenar referencias a labels
         team_name: Nombre del equipo
     """
-    team_labels.name = ttk.Label(
+    # Truncar nombre a 12 caracteres máximo
+    display_name = team_name[:12] if len(team_name) > 12 else team_name
+
+    # Usar tk.Label para poder especificar width fijo
+    team_labels.name = tk.Label(
         team_frame,
-        text=team_name,
-        style="TeamName.TLabel"
+        text=display_name,
+        font=('Arial Narrow', 24, 'bold'),  # Fuente condensada para más caracteres
+        fg='#FFFFFF',  # Blanco
+        bg='#1a1a2e',  # Fondo oscuro
+        anchor='center',
+        width=12,  # ANCHO FIJO: 12 caracteres
+        padx=5,
+        pady=5
     )
     team_labels.name.grid(row=1, column=1, padx=2, pady=(2, 3), sticky="nsew")  # Padding mínimo para columna compacta
 

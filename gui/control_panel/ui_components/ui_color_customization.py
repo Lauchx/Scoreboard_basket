@@ -333,6 +333,39 @@ def update_tk_widgets_colors(scoreboard, color_key, new_color):
             # El widget no existe, no tiene el atributo, o no soporta la opción
             pass
 
+    # Actualizar colores de jugadores si se cambió accent_neon o text_dim
+    if color_key in ['accent_neon', 'text_dim']:
+        update_player_colors(scoreboard)
+
+
+def update_player_colors(scoreboard):
+    """
+    Actualiza los colores de todos los jugadores en el scoreboard.
+    Se llama cuando se cambian los colores de jugadores activos o inactivos.
+
+    Args:
+        scoreboard: Instancia de Gui_scoreboard
+    """
+    try:
+        # Obtener los controladores de equipos desde el control panel
+        # Necesitamos acceder a través de la ventana principal
+        if hasattr(scoreboard, 'control_panel'):
+            control_panel = scoreboard.control_panel
+
+            # Actualizar jugadores del equipo local
+            if hasattr(control_panel, 'home_team_controller'):
+                for player in control_panel.home_team_controller.team.players:
+                    scoreboard.update_label_players(player, control_panel.home_team_controller)
+
+            # Actualizar jugadores del equipo visitante
+            if hasattr(control_panel, 'away_team_controller'):
+                for player in control_panel.away_team_controller.team.players:
+                    scoreboard.update_label_players(player, control_panel.away_team_controller)
+
+            print(f"✅ Colores de jugadores actualizados")
+    except Exception as e:
+        print(f"⚠️ Error al actualizar colores de jugadores: {e}")
+
 
 def apply_color_changes(control_panel):
     """

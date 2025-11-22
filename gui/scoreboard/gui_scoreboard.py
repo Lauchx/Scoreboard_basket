@@ -171,16 +171,34 @@ class Gui_scoreboard:
             away_manager = self.match_state.away_team.timeout_manager
             update_timeout_indicators(self.labels.away_team, away_manager)
 
+    def update_fouls_labels(self):
+        """
+        Actualiza la visualización de faltas y BONUS para ambos equipos.
+        """
+        if USE_MODERN_DESIGN:
+            from gui.scoreboard.ui_components.ui_fouls_modern import update_fouls_display_modern
+            update_fouls_display_modern(self)
+        # TODO: Implementar versión para diseño original si es necesario
+
     def update_label_players(self, player, team_contoller):
         if USE_MODERN_DESIGN:
             update_label_players_modern(self, player, team_contoller)
         else:
             team_simple_name_space = _nameSpace_team_for_controller(self, team_contoller.team.name)
-            team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}" )
+            # Mostrar jugador con número de faltas
+            player_text = f"{player.jersey_number} - {player.name} ({player.foul}F)"
+            team_simple_name_space.labels.players.insert(tk.END, player_text)
             index = team_simple_name_space.labels.players.size() - 1
-            if player.is_active:
+
+            # Determinar color según estado
+            if player.is_suspended:
+                # ROJO: Jugador suspendido
+                team_simple_name_space.labels.players.itemconfig(index, {'fg': 'red'})
+            elif player.is_active:
+                # VERDE: Jugador activo
                 team_simple_name_space.labels.players.itemconfig(index, {'fg': 'green'})
             else:
+                # NEGRO: Jugador inactivo
                 team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})
 
 def simpleNamespace_forUi(self):

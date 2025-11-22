@@ -11,6 +11,8 @@ def add_quarter(self):
     self.scoreboard_window.update_quarter_labels(1)
     # Actualizar los timeouts para el nuevo cuarto
     update_timeouts_for_quarter_change(self)
+    # Actualizar las faltas para el nuevo cuarto (resetear contador de equipo y bonus)
+    update_fouls_for_quarter_change(self)
     # Reiniciar el formateador de tiempo (nuevo cuarto = formato normal)
     self.scoreboard_window.time_formatter.reset()
     self.scoreboard_window.update_time_labels()
@@ -20,6 +22,8 @@ def substract_quarter(self):
     self.scoreboard_window.update_quarter_labels(-1)
     # Actualizar los timeouts para el nuevo cuarto
     update_timeouts_for_quarter_change(self)
+    # Actualizar las faltas para el nuevo cuarto (resetear contador de equipo y bonus)
+    update_fouls_for_quarter_change(self)
     # Reiniciar el formateador de tiempo (nuevo cuarto = formato normal)
     self.scoreboard_window.time_formatter.reset()
     self.scoreboard_window.update_time_labels()
@@ -39,3 +43,31 @@ def update_timeouts_for_quarter_change(self):
 
     # Sincronizar los checkbuttons con el estado actual
     sync_timeout_checkbuttons(self)
+
+
+def update_fouls_for_quarter_change(self):
+    """
+    Actualiza las faltas cuando cambia el cuarto.
+    Resetea el contador de faltas del equipo y el estado de BONUS.
+    Las faltas de jugadores NO se resetean.
+    """
+    # Obtener el cuarto actual del match_state
+    current_quarter = self.match_state_controller.match_state.quarter
+
+    # Resetear faltas del equipo local
+    self.home_team_controller.update_foul_quarter(current_quarter)
+
+    # Resetear faltas del equipo visitante
+    self.away_team_controller.update_foul_quarter(current_quarter)
+
+    # Actualizar display en el scoreboard
+    self.scoreboard_window.update_fouls_labels()
+
+    # Actualizar display en el panel de control (si existe la pestaña de faltas)
+    if hasattr(self.home_team, 'fouls') and hasattr(self.home_team.fouls, 'status'):
+        self.home_team.fouls.status.update_status()
+
+    if hasattr(self.away_team, 'fouls') and hasattr(self.away_team.fouls, 'status'):
+        self.away_team.fouls.status.update_status()
+
+    print(f"✅ Faltas reseteadas para el cuarto {current_quarter}")

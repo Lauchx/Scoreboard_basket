@@ -197,7 +197,8 @@ def change_time(self):
 
 def setup_ui_control_time_match(self):
     self.frames.match.time = ttk.LabelFrame(self.frames.match, text="Tiempo",)
-    self.frames.match.time.grid(row=0, column=0, padx=10, pady=10, sticky="nsew", columnspan=2)
+    # Colocar arriba (row=1) cerca de los botones de puntos (row=0)
+    self.frames.match.time.grid(row=1, column=0, padx=10, pady=(5, 10), sticky="nsew", columnspan=2)
     buttons_change_quarter(self)
     setup_ui_time(self)
 

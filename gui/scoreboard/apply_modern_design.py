@@ -74,8 +74,14 @@ def setup_ui_modern(scoreboard_instance):
     # Crear componentes del panel central con estilo moderno
     setup_ui_match_modern(scoreboard_instance)
     create_time_labels_modern(scoreboard_instance)
-    create_possession_labels_modern(scoreboard_instance)
     create_quarter_labels_modern(scoreboard_instance, scoreboard_instance.modern_style)
+
+    # Importar y crear grilla de faltas y BONUS
+    from gui.scoreboard.ui_components.ui_fouls_modern import create_fouls_grid_modern
+    create_fouls_grid_modern(scoreboard_instance, scoreboard_instance.modern_style)
+
+    # Crear posesión (ahora va después de las faltas, solo flecha)
+    create_possession_labels_modern(scoreboard_instance)
 
 
 def creates_home_team_modern(scoreboard_instance):
@@ -188,33 +194,48 @@ def creates_away_team_modern(scoreboard_instance):
 
 def update_label_players_modern(scoreboard_instance, player, team_controller):
     """
-    Actualiza la lista de jugadores con colores modernos para activos/inactivos.
-    
+    Actualiza la lista COMPLETA de jugadores con colores modernos para activos/inactivos/suspendidos.
+    NO inserta nuevos jugadores, sino que refresca toda la lista.
+
+    Colores:
+    - Verde: Jugador activo en cancha
+    - Blanco: Jugador inactivo (en banca)
+    - Rojo: Jugador suspendido (5 faltas o falta antideportiva)
+
     Args:
         scoreboard_instance: Instancia de Gui_scoreboard
-        player: Objeto Player
+        player: Objeto Player (no usado, se mantiene por compatibilidad)
         team_controller: Controlador del equipo
     """
     import tkinter as tk
     from gui.scoreboard.gui_scoreboard import _nameSpace_team_for_controller
-    
+
     team_simple_name_space = _nameSpace_team_for_controller(
-        scoreboard_instance, 
+        scoreboard_instance,
         team_controller.team.name
     )
-    
-    team_simple_name_space.labels.players.insert(
-        tk.END, 
-        f"{player.jersey_number} - {player.name}"
-    )
-    
-    index = team_simple_name_space.labels.players.size() - 1
-    
-    # Usar colores del estilo moderno
-    if player.is_active:
-        color = scoreboard_instance.modern_style.get_active_player_color()
-    else:
-        color = scoreboard_instance.modern_style.get_inactive_player_color()
-    
-    team_simple_name_space.labels.players.itemconfig(index, {'fg': color})
+
+    # Limpiar la lista actual
+    team_simple_name_space.labels.players.delete(0, tk.END)
+
+    # Reconstruir la lista completa con todos los jugadores
+    for player_obj in team_controller.team.players:
+        # Insertar jugador con número de faltas
+        player_text = f"{player_obj.jersey_number} - {player_obj.name} ({player_obj.foul}F)"
+        team_simple_name_space.labels.players.insert(tk.END, player_text)
+
+        index = team_simple_name_space.labels.players.size() - 1
+
+        # Determinar color según estado del jugador
+        if player_obj.is_suspended:
+            # ROJO: Jugador suspendido (5 faltas o falta antideportiva)
+            color = '#FF0000'
+        elif player_obj.is_active:
+            # VERDE: Jugador activo en cancha
+            color = scoreboard_instance.modern_style.get_active_player_color()
+        else:
+            # BLANCO: Jugador inactivo (en banca)
+            color = scoreboard_instance.modern_style.get_inactive_player_color()
+
+        team_simple_name_space.labels.players.itemconfig(index, {'fg': color})
 

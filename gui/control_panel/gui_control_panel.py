@@ -104,8 +104,10 @@ def setup_teams_players(self):
     setup_team_players(self, self.away_team_controller)
 
 def initialize_gui_scoreboard(self):
-    
+
     self.scoreboard_window = Gui_scoreboard(tk.Toplevel(self.root),self.match_state_controller.match_state)
+    # Agregar referencia al control panel para actualizar colores de jugadores
+    self.scoreboard_window.control_panel = self
 
 def setup_ui(self):
     self.is_active_timer = None
@@ -139,7 +141,10 @@ def grid_config(self):
     self.frames.teams.grid_columnconfigure(0, weight=1)
     self.frames.teams.grid_columnconfigure(1, weight=1)
 
-    self.frames.match.grid_rowconfigure(0, weight=1)
+    # Row 0: Equipos (sin peso, altura mínima pegada a botones)
+    # Row 1: Tiempo (con peso, se expande)
+    self.frames.match.grid_rowconfigure(0, weight=0)  # Equipos: altura mínima
+    self.frames.match.grid_rowconfigure(1, weight=1)  # Tiempo: se expande
     self.frames.match.grid_columnconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(1, weight=1)
 
