@@ -17,6 +17,7 @@ def setup_left_panel(self):
     # Pestaña de Ajustes
     self.tab_ajustes = ttk.Frame(self.notebook)
     self.notebook.add(self.tab_ajustes, text="Ajustes")
+    setup_tab_ajustes(self)
 
 def setup_tab_equipos(self):
     inner_notebook = ttk.Notebook(self.tab_equipos, style="Compact.TNotebook")
@@ -126,3 +127,106 @@ def setup_team_form(self, parent_frame, team_type):
     # Cargar jugadores existentes
     for player in team_controller.team.players:
         player_tree.insert("", "end", values=(player.jerseyNumber, player.name))
+
+
+def setup_tab_ajustes(self):
+    """Configura la pestaña de ajustes con personalización de colores"""
+    # Crear un canvas con scrollbar para permitir scroll vertical
+    canvas = tk.Canvas(self.tab_ajustes, bg="white", highlightthickness=0)
+    scrollbar = ttk.Scrollbar(self.tab_ajustes, orient="vertical", command=canvas.yview)
+    
+    # Frame scrolleable dentro del canvas
+    scrollable_frame = ttk.Frame(canvas)
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+    
+    # Insertar el frame dentro del canvas
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+    
+    # Permitir scroll con rueda del ratón
+    def _on_mousewheel(event):
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    
+    canvas.bind_all("<MouseWheel>", _on_mousewheel)
+    
+    # Pack canvas y scrollbar
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+    
+    # Botón de Joystick primero
+    button_joystick_frame = ttk.Frame(scrollable_frame)
+    button_joystick_frame.pack(fill="x", padx=10, pady=(10, 15))
+    
+    ttk.Button(
+        button_joystick_frame,
+        text="🎮 Configuración de Joystick",
+        command=lambda: open_joystick_config_window(self)
+    ).pack(fill="both", expand=True, ipady=8)
+    
+    # Agregar contenido de personalización de colores
+    from gui.control_panel.ui_components.ui_color_customization import setup_color_customization_ui_left
+    setup_color_customization_ui_left(self, scrollable_frame)
+
+
+def open_joystick_config_window(control_panel_test):
+    """
+    Abre una ventana emergente con la configuración del joystick.
+    
+    Args:
+        control_panel_test: Instancia de Gui_control_panel_test
+    """
+    # Obtener el joystick_controller del panel principal
+    if not hasattr(control_panel_test, 'main_panel') or control_panel_test.main_panel is None:
+        return
+    
+    main_panel = control_panel_test.main_panel
+    if not hasattr(main_panel, 'joystick_controller'):
+        return
+    
+    # Crear ventana emergente
+    joystick_window = tk.Toplevel(control_panel_test.root)
+    joystick_window.title("🎮 Configuración de Joystick")
+    joystick_window.geometry("600x500")
+    
+    # Importar la función de setup del joystick
+    from gui.control_panel.ui_components.ui_joystick import (
+        create_joystick_info_section,
+        create_joystick_controls_section,
+        create_joystick_config_section,
+        create_joystick_log_section,
+        update_joystick_info
+    )
+    
+    # Crear un namespace simulado para compatibilidad
+    class JoystickWindowNamespace:
+        pass
+    
+    joystick_ns = JoystickWindowNamespace()
+    joystick_ns.frames = tk.Frame.__new__(tk.Frame)
+    joystick_ns.frames.joystick = ttk.Frame(joystick_window)
+    joystick_ns.frames.joystick.grid_rowconfigure(0, weight=0)
+    joystick_ns.frames.joystick.grid_rowconfigure(1, weight=0)
+    joystick_ns.frames.joystick.grid_rowconfigure(2, weight=0)
+    joystick_ns.frames.joystick.grid_rowconfigure(3, weight=1)
+    joystick_ns.frames.joystick.grid_columnconfigure(0, weight=1)
+    joystick_ns.frames.joystick.pack(fill="both", expand=True)
+    
+    # Copiar atributos necesarios del main_panel
+    joystick_ns.joystick_controller = main_panel.joystick_controller
+    joystick_ns.notebook = joystick_window  # Para compatibilidad
+    
+    # Crear secciones de joystick
+    create_joystick_info_section(joystick_ns)
+    create_joystick_controls_section(joystick_ns)
+    create_joystick_config_section(joystick_ns)
+    create_joystick_log_section(joystick_ns)
+    
+    # Actualizar información
+    update_joystick_info(joystick_ns)
+    
+    # Permitir que la ventana sea modal si se desea
+    joystick_window.transient(control_panel_test.root)
+    joystick_window.grab_set()
