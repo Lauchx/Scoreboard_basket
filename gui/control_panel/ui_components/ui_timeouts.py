@@ -10,20 +10,22 @@ import tkinter as tk
 def setup_timeout_controls(parent_instance, team_simple_namespace, team_controller, column):
     """
     Crea los controles de timeouts para un equipo en el panel de control.
-    
+    Ahora se coloca en la pestaña "Partido" entre los botones de puntos y la gestión del tiempo.
+
     Args:
         parent_instance: Instancia de Gui_control_panel
         team_simple_namespace: SimpleNamespace del equipo (home_team o away_team)
         team_controller: Controlador del equipo (Team_controller)
         column: Columna donde colocar los controles (0 = local, 1 = visitante)
     """
-    # Crear un LabelFrame para los controles de timeout
+    # Crear un LabelFrame para los controles de timeout en la pestaña "Partido"
     timeout_frame = ttk.LabelFrame(
-        parent_instance.frames.teams,
+        parent_instance.frames.match,
         text=f"Tiempos Muertos - {team_controller.team.name}",
         padding=(10, 10)
     )
-    timeout_frame.grid(row=2, column=column, padx=10, pady=(0, 10), sticky="nsew")
+    # Row 1: Timeouts (entre los botones de puntos en row 0 y el tiempo en row 2)
+    timeout_frame.grid(row=1, column=column, padx=10, pady=(5, 5), sticky="nsew")
     
     # Configurar grid del frame
     timeout_frame.grid_columnconfigure(0, weight=1)

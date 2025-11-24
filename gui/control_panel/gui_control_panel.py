@@ -141,10 +141,12 @@ def grid_config(self):
     self.frames.teams.grid_columnconfigure(0, weight=1)
     self.frames.teams.grid_columnconfigure(1, weight=1)
 
-    # Row 0: Equipos (sin peso, altura mínima pegada a botones)
-    # Row 1: Tiempo (con peso, se expande)
-    self.frames.match.grid_rowconfigure(0, weight=0)  # Equipos: altura mínima
-    self.frames.match.grid_rowconfigure(1, weight=1)  # Tiempo: se expande
+    # Row 0: Botones de puntos (sin peso, altura mínima)
+    # Row 1: Timeouts (sin peso, altura mínima)
+    # Row 2: Tiempo (con peso, se expande)
+    self.frames.match.grid_rowconfigure(0, weight=0)  # Botones de puntos: altura mínima
+    self.frames.match.grid_rowconfigure(1, weight=0)  # Timeouts: altura mínima
+    self.frames.match.grid_rowconfigure(2, weight=1)  # Tiempo: se expande
     self.frames.match.grid_columnconfigure(0, weight=1)
     self.frames.match.grid_columnconfigure(1, weight=1)
 

@@ -31,7 +31,7 @@ def create_fouls_grid_modern(self, modern_style):
     # Crear frame contenedor para la grilla de faltas
     fouls_frame = tk.Frame(
         self.frames.match,
-        bg=colors['bg_center']
+        bg=colors['bg_fouls_bonus']  # Fondo configurable del sector de faltas y BONUS
     )
     fouls_frame.grid(row=2, column=0, sticky="nsew", pady=(5, 5), padx=2)
     
@@ -54,9 +54,9 @@ def create_fouls_grid_modern(self, modern_style):
     # ═══════════════════════════════════════════════════════════
     
     # Frame para BONUS HOME
-    home_bonus_frame = tk.Frame(fouls_frame, bg=colors['bg_center'])
+    home_bonus_frame = tk.Frame(fouls_frame, bg=colors['bg_fouls_bonus'])
     home_bonus_frame.grid(row=0, column=0, sticky="n", padx=2, pady=2)  # sticky="n" para alinear arriba
-    
+
     # Label "BONUS"
     font_size_bonus = int(sizes['font_label'] * modern_style.scale_factor * 0.8)
     home_bonus_label = tk.Label(
@@ -64,17 +64,17 @@ def create_fouls_grid_modern(self, modern_style):
         text="BONUS",
         font=(fonts['display'][0], font_size_bonus, 'bold'),
         fg='#FFFFFF',
-        bg=colors['bg_center'],
+        bg=colors['bg_fouls_bonus'],
         anchor='center'
     )
     home_bonus_label.pack(side='left', padx=(5, 2))
-    
+
     # LED indicador de BONUS (círculo)
     home_bonus_canvas = tk.Canvas(
         home_bonus_frame,
         width=20,
         height=20,
-        bg=colors['bg_center'],
+        bg=colors['bg_fouls_bonus'],
         highlightthickness=0
     )
     home_bonus_canvas.pack(side='left', padx=(2, 5))
@@ -98,7 +98,7 @@ def create_fouls_grid_modern(self, modern_style):
         text="Faltas",
         font=(fonts['display'][0], font_size_text),
         fg='#FFFFFF',
-        bg=colors['bg_center'],
+        bg=colors['bg_fouls_bonus'],
         anchor='center'
     )
     home_fouls_text.grid(row=1, column=0, sticky="nsew", padx=2, pady=2)
@@ -110,8 +110,8 @@ def create_fouls_grid_modern(self, modern_style):
         fouls_frame,
         text="0",
         font=(fonts['display'][0], font_size_counter, 'bold'),
-        fg=colors['accent_orange'],
-        bg=colors['bg_center'],
+        fg=colors['display_fouls'],  # Color configurable del número de faltas
+        bg=colors['bg_fouls_bonus'],
         anchor='center'
     )
     home_fouls_counter.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
@@ -123,26 +123,26 @@ def create_fouls_grid_modern(self, modern_style):
     # ═══════════════════════════════════════════════════════════
     
     # Frame para BONUS AWAY
-    away_bonus_frame = tk.Frame(fouls_frame, bg=colors['bg_center'])
+    away_bonus_frame = tk.Frame(fouls_frame, bg=colors['bg_fouls_bonus'])
     away_bonus_frame.grid(row=0, column=1, sticky="n", padx=2, pady=2)  # sticky="n" para alinear arriba
-    
+
     # Label "BONUS"
     away_bonus_label = tk.Label(
         away_bonus_frame,
         text="BONUS",
         font=(fonts['display'][0], font_size_bonus, 'bold'),
         fg='#FFFFFF',
-        bg=colors['bg_center'],
+        bg=colors['bg_fouls_bonus'],
         anchor='center'
     )
     away_bonus_label.pack(side='left', padx=(5, 2))
-    
+
     # LED indicador de BONUS (círculo)
     away_bonus_canvas = tk.Canvas(
         away_bonus_frame,
         width=20,
         height=20,
-        bg=colors['bg_center'],
+        bg=colors['bg_fouls_bonus'],
         highlightthickness=0
     )
     away_bonus_canvas.pack(side='left', padx=(2, 5))
@@ -165,7 +165,7 @@ def create_fouls_grid_modern(self, modern_style):
         text="Faltas",
         font=(fonts['display'][0], font_size_text),
         fg='#FFFFFF',
-        bg=colors['bg_center'],
+        bg=colors['bg_fouls_bonus'],
         anchor='center'
     )
     away_fouls_text.grid(row=1, column=1, sticky="nsew", padx=2, pady=2)
@@ -175,8 +175,8 @@ def create_fouls_grid_modern(self, modern_style):
         fouls_frame,
         text="0",
         font=(fonts['display'][0], font_size_counter, 'bold'),
-        fg=colors['accent_orange'],
-        bg=colors['bg_center'],
+        fg=colors['display_fouls'],  # Color configurable del número de faltas
+        bg=colors['bg_fouls_bonus'],
         anchor='center'
     )
     away_fouls_counter.grid(row=2, column=1, sticky="nsew", padx=2, pady=2)

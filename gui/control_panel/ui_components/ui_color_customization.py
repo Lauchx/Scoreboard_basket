@@ -64,19 +64,52 @@ def setup_color_customization_ui(control_panel):
     create_color_picker(control_panel, color_frame, row, 0,
                        "Fondo Principal:", "bg_primary",
                        "Color de fondo principal del tablero")
-    
+
     create_color_picker(control_panel, color_frame, row, 2,
                        "Fondo Panel Central:", "bg_center",
                        "Color del panel central (tiempo, posesión)")
     row += 1
-    
+
     create_color_picker(control_panel, color_frame, row, 0,
                        "Fondo Equipo Local:", "bg_team_home",
                        "Color de fondo del equipo local")
-    
+
     create_color_picker(control_panel, color_frame, row, 2,
                        "Fondo Equipo Visitante:", "bg_team_away",
                        "Color de fondo del equipo visitante")
+    row += 1
+
+    # === FONDOS DE SECCIONES ESPECÍFICAS ===
+    ttk.Label(color_frame, text="FONDOS DE SECCIONES", font=('Arial', 10, 'bold')).grid(
+        row=row, column=0, columnspan=4, sticky="w", pady=(15, 5)
+    )
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Cuarto:", "bg_quarter",
+                       "Color de fondo del sector de cuarto")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Faltas/BONUS:", "bg_fouls_bonus",
+                       "Color de fondo del sector de faltas y BONUS")
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Puntajes:", "bg_score",
+                       "Color de fondo del sector de puntajes")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Nombres:", "bg_team_name",
+                       "Color de fondo del sector de nombres de equipo")
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Logos:", "bg_logo",
+                       "Color de fondo del sector de logos")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Jugadores:", "bg_players",
+                       "Color de fondo del sector de jugadores")
     row += 1
     
     # === TEXTOS Y NÚMEROS ===
@@ -97,10 +130,15 @@ def setup_color_customization_ui(control_panel):
     create_color_picker(control_panel, color_frame, row, 0,
                        "Reloj/Tiempo:", "display_time",
                        "Color del reloj del partido")
-    
+
     create_color_picker(control_panel, color_frame, row, 2,
-                       "Cuarto:", "accent_orange",
+                       "Cuarto:", "display_quarter",
                        "Color del indicador de cuarto")
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Número de Faltas:", "display_fouls",
+                       "Color de los números de faltas de equipo")
     row += 1
     
     # === JUGADORES ===
@@ -299,9 +337,42 @@ def update_tk_widgets_colors(scoreboard, color_key, new_color):
         'bg_center': [('match.labels.time', 'bg')],  # Fondo del reloj
         'text_primary': [('labels.home_team.name', 'fg'), ('labels.away_team.name', 'fg')],  # Nombres
         'display_score': [('labels.home_team.points', 'fg'), ('labels.away_team.points', 'fg')],  # Puntajes
+        'display_quarter': [('match.labels.quarter_number', 'fg')],  # Color del número de cuarto
+        'display_fouls': [
+            ('match.labels.fouls.home.counter', 'fg'),
+            ('match.labels.fouls.away.counter', 'fg')
+        ],  # Color de los números de faltas
         'bg_team_home': [('frames.home_team', 'bg')],  # Fondo equipo local
         'bg_team_away': [('frames.away_team', 'bg')],  # Fondo equipo visitante
         'bg_primary': [('root', 'bg')],  # Fondo principal
+
+        # Fondos de secciones específicas
+        'bg_quarter': [
+            ('match.labels.quarter_number', 'bg'),
+            ('match.labels.quarter_text', 'bg')
+        ],
+        'bg_fouls_bonus': [
+            ('match.labels.fouls.home.counter', 'bg'),
+            ('match.labels.fouls.away.counter', 'bg'),
+            ('match.labels.fouls.home.bonus_canvas', 'bg'),
+            ('match.labels.fouls.away.bonus_canvas', 'bg')
+        ],
+        'bg_score': [
+            ('labels.home_team.points', 'bg'),
+            ('labels.away_team.points', 'bg')
+        ],
+        'bg_team_name': [
+            ('labels.home_team.name', 'bg'),
+            ('labels.away_team.name', 'bg')
+        ],
+        'bg_logo': [
+            ('labels.home_team.logo', 'bg'),
+            ('labels.away_team.logo', 'bg')
+        ],
+        'bg_players': [
+            ('home_team.labels.players', 'bg'),
+            ('away_team.labels.players', 'bg')
+        ],
     }
 
     # Obtener lista de widgets a actualizar
@@ -336,6 +407,43 @@ def update_tk_widgets_colors(scoreboard, color_key, new_color):
     # Actualizar colores de jugadores si se cambió accent_neon o text_dim
     if color_key in ['accent_neon', 'text_dim']:
         update_player_colors(scoreboard)
+
+    # Actualizar frames contenedores de secciones específicas
+    if color_key == 'bg_quarter':
+        # Actualizar el frame contenedor del cuarto
+        try:
+            quarter_frame = scoreboard.match.labels.quarter_number.master
+            quarter_frame.configure(bg=new_color)
+        except:
+            pass
+
+    elif color_key == 'bg_fouls_bonus':
+        # Actualizar frames y labels de la sección de faltas
+        try:
+            # Frame principal de faltas
+            fouls_frame = scoreboard.match.labels.fouls.home.counter.master
+            fouls_frame.configure(bg=new_color)
+
+            # Frames de BONUS
+            if hasattr(scoreboard.match.labels.fouls.home, 'bonus_canvas'):
+                bonus_home_frame = scoreboard.match.labels.fouls.home.bonus_canvas.master
+                bonus_home_frame.configure(bg=new_color)
+
+            if hasattr(scoreboard.match.labels.fouls.away, 'bonus_canvas'):
+                bonus_away_frame = scoreboard.match.labels.fouls.away.bonus_canvas.master
+                bonus_away_frame.configure(bg=new_color)
+
+            # Labels de texto "Faltas"
+            for child in fouls_frame.winfo_children():
+                if isinstance(child, tk.Label) and child.cget('text') == 'Faltas':
+                    child.configure(bg=new_color)
+                elif isinstance(child, tk.Frame):
+                    # Actualizar labels dentro de frames (BONUS)
+                    for subchild in child.winfo_children():
+                        if isinstance(subchild, tk.Label):
+                            subchild.configure(bg=new_color)
+        except:
+            pass
 
 
 def update_player_colors(scoreboard):

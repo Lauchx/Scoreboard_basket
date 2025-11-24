@@ -28,24 +28,34 @@ class ScoreboardModernStyle:
         'bg_center': '#0d1117',         # Negro azulado (panel central)
         'bg_team_home': '#1a0f0f',      # Rojo muy oscuro (equipo local)
         'bg_team_away': '#0f1a1a',      # Verde azulado oscuro (visitante)
-        
+
+        # Fondos de secciones específicas (configurables)
+        'bg_quarter': '#0d1117',        # Fondo del sector de cuarto
+        'bg_fouls_bonus': '#0d1117',    # Fondo del sector de faltas y BONUS
+        'bg_score': '#1a1f3a',          # Fondo del sector de puntajes
+        'bg_team_name': '#1a1a2e',      # Fondo del sector de nombres de equipo
+        'bg_logo': '#1a1f3a',           # Fondo del sector de logos
+        'bg_players': '#1a1f3a',        # Fondo del sector de jugadores
+
         # Acentos y textos
         'accent_neon': '#00ff41',       # Verde neón (posesión, activos)
         'accent_cyan': '#00d9ff',       # Cian brillante (tiempo, detalles)
         'accent_red': '#ff0844',        # Rojo neón (alertas, home)
         'accent_orange': '#ff6b35',     # Naranja (cuarto, detalles)
         'accent_yellow': '#ffd700',     # Dorado (highlights)
-        
+
         # Textos
         'text_primary': '#ffffff',      # Blanco puro (textos principales)
         'text_secondary': '#b8c5d6',    # Gris azulado claro (textos secundarios)
         'text_dim': '#6b7a8f',          # Gris medio (textos apagados)
-        
+
         # Números y displays
         'display_time': '#00d9ff',      # Cian para el reloj
         'display_score': '#ffffff',     # Blanco para puntajes
         'display_glow': '#0088cc',      # Azul para efecto glow
-        
+        'display_fouls': '#ff6b35',     # Naranja para números de faltas (configurable)
+        'display_quarter': '#ff6b35',   # Naranja para número de cuarto (configurable)
+
         # Bordes y efectos
         'border_light': '#2d3748',      # Borde sutil
         'border_bright': '#4a5568',     # Borde más visible
@@ -384,7 +394,7 @@ class ScoreboardModernStyle:
             dict: Configuración de estilo para tk.Listbox
         """
         return {
-            'bg': self.COLORS['bg_secondary'],  # Fondo oscuro
+            'bg': self.COLORS['bg_players'],  # Fondo configurable del sector de jugadores
             'fg': '#FFFFFF',  # Texto BLANCO para máximo contraste
             'font': (self.FONTS['display'][0],
                     int(self.BASE_SIZES['font_players'] * self.scale_factor)),

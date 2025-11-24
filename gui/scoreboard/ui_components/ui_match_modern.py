@@ -24,7 +24,7 @@ def create_quarter_labels_modern(self, modern_style):
     # Crear un Frame contenedor para el cuarto con borde
     quarter_frame = tk.Frame(
         self.frames.match,
-        bg=colors['bg_center'],
+        bg=colors['bg_quarter'],  # Fondo configurable del sector de cuarto
         highlightbackground='#ffffff',  # Borde blanco
         highlightcolor='#ffffff',
         highlightthickness=2,
@@ -44,8 +44,8 @@ def create_quarter_labels_modern(self, modern_style):
         quarter_frame,
         text=str(self.match_state.quarter),
         font=(fonts['display'][0], font_size_number, 'bold'),
-        fg=colors['accent_orange'],  # Naranja brillante
-        bg=colors['bg_center'],
+        fg=colors['display_quarter'],  # Color configurable del número de cuarto
+        bg=colors['bg_quarter'],  # Fondo configurable
         anchor='center'
     )
     self.match.labels.quarter_number.grid(row=0, column=0, sticky="nsew", pady=(5, 0))  # Reducido padding
@@ -57,7 +57,7 @@ def create_quarter_labels_modern(self, modern_style):
         text="cuarto",
         font=(fonts['display'][0], font_size_text),
         fg='#FFFFFF',  # Blanco
-        bg=colors['bg_center'],
+        bg=colors['bg_quarter'],  # Fondo configurable
         anchor='center'
     )
     self.match.labels.quarter_text.grid(row=1, column=0, sticky="nsew", pady=(0, 5))  # Reducido padding
