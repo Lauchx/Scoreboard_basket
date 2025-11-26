@@ -75,34 +75,84 @@ def setup_team_form(self, parent_frame, team_type):
     dorsal_combo.grid(row=2, column=1, sticky="w", padx=2, pady=1)
     setattr(self, f"{team_type}_dorsal_combobox", dorsal_combo)
 
-    # Titular (BooleanVar para checkbox)
+    # Titular
     is_active_var = tk.BooleanVar(value=False)
     setattr(self, f"{team_type}_is_active_var", is_active_var)
     ttk.Checkbutton(form_panel, text="Titular", variable=is_active_var, style="PlayerForm.TCheckbutton").grid(row=2, column=2, sticky="w", padx=2, pady=1)
 
+    # Funciones para agregar y eliminar jugadores
     def add_player_action():
-        player_name = player_entry.get()
-        player_jersey = dorsal_combo.get()
+        player_name = player_entry.get().strip()
+        player_jersey = dorsal_combo.get().strip()
         player_is_active = is_active_var.get()
-        if player_name.strip():
-            player = Player(player_name, player_jersey, player_is_active)
-            team_controller.add_player_in_team(player)
-            # Agregar a la lista visual
-            tree = getattr(self, f"{team_type}_players_tree")
-            tree.insert("", "end", values=(player_jersey, player_name))
-            # Actualizar marcador si está disponible
-            if hasattr(self, 'main_panel') and self.main_panel is not None:
-                if hasattr(self.main_panel, 'scoreboard_window'):
+        
+        if not player_name:
+            return
+
+        if not player_jersey.isdigit():
+            return
+
+        jersey_int = int(player_jersey)
+        
+        # Verificar duplicados
+        existing = [int(p.jersey_number) for p in team_controller.team.players]
+        if jersey_int in existing:
+            return
+
+        player = Player(player_name, jersey_int, player_is_active)
+        team_controller.add_player_in_team(player)
+        
+        # Actualizar treeview (reconstruir para mantener orden)
+        tree = getattr(self, f"{team_type}_players_tree")
+        for item in tree.get_children():
+            tree.delete(item)
+            
+        for p in team_controller.team.players:
+            tree.insert("", "end", values=(p.jersey_number, p.name))
+
+        # Actualizar marcador si está disponible
+        if hasattr(self, 'main_panel') and self.main_panel is not None:
+            if hasattr(self.main_panel, 'scoreboard_window'):
+                if hasattr(self.main_panel.scoreboard_window, 'refresh_player_list'):
+                    self.main_panel.scoreboard_window.refresh_player_list(team_controller)
+                else:
                     self.main_panel.scoreboard_window.update_label_players(player, team_controller)
-            # Limpiar entrada
-            player_entry.delete(0, tk.END)
-            dorsal_combo.set("0")
-            is_active_var.set(False)
+                    
+        # Limpiar entrada
+        player_entry.delete(0, tk.END)
+        dorsal_combo.set("0")
+        is_active_var.set(False)
 
-    # Botón Añadir en la columna 3
-    ttk.Button(form_panel, text="Añadir", style="PlayerForm.TButton", command=add_player_action).grid(row=2, column=3, padx=2, pady=1)
+    def remove_player_action():
+        tree = getattr(self, f"{team_type}_players_tree")
+        selected_item = tree.selection()
+        if not selected_item:
+            return
+            
+        # Obtener datos del item seleccionado
+        item = tree.item(selected_item)
+        jersey_number = item['values'][0]
+        
+        # Eliminar del modelo
+        team_controller.remove_player(jersey_number)
+        
+        # Actualizar treeview
+        tree.delete(selected_item)
+        
+        # Actualizar marcador
+        if hasattr(self, 'main_panel') and self.main_panel is not None:
+            if hasattr(self.main_panel, 'scoreboard_window'):
+                if hasattr(self.main_panel.scoreboard_window, 'refresh_player_list'):
+                    self.main_panel.scoreboard_window.refresh_player_list(team_controller)
 
-    # Configurar columnas para que se expandan adecuadamente
+    # Botones de acción
+    buttons_frame = ttk.Frame(form_panel)
+    buttons_frame.grid(row=2, column=3, padx=2, pady=1)
+    
+    ttk.Button(buttons_frame, text="Añadir", style="PlayerForm.TButton", command=add_player_action).pack(side="left", padx=1)
+    ttk.Button(buttons_frame, text="Eliminar", style="PlayerForm.TButton", command=remove_player_action).pack(side="left", padx=1)
+
+    # Configurar columnas
     form_panel.columnconfigure(1, weight=1)
 
     # Frame para la lista de jugadores
@@ -126,7 +176,7 @@ def setup_team_form(self, parent_frame, team_type):
     
     # Cargar jugadores existentes
     for player in team_controller.team.players:
-        player_tree.insert("", "end", values=(player.jerseyNumber, player.name))
+        player_tree.insert("", "end", values=(player.jersey_number, player.name))
 
 
 def setup_tab_ajustes(self):

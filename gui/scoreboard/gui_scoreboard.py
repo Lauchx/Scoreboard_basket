@@ -209,6 +209,26 @@ class Gui_scoreboard:
                 # NEGRO: Jugador inactivo
                 team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})
 
+    def refresh_player_list(self, team_controller):
+        """
+        Refresca la lista completa de jugadores en el scoreboard.
+        """
+        if USE_MODERN_DESIGN:
+            # En diseño moderno, update_label_players ya refresca toda la lista
+            # Pasamos None como player ya que no se usa en la lógica moderna de refresco
+            from gui.scoreboard.apply_modern_design import update_label_players_modern
+            # Creamos un dummy player si es necesario, o modificamos update_label_players_modern para aceptar None
+            # Revisando apply_modern_design.py, usa player_obj del loop, el argumento player no se usa excepto compatibilidad
+            update_label_players_modern(self, None, team_controller)
+        else:
+            # Diseño original: Limpiar y reconstruir
+            team_simple_name_space = _nameSpace_team_for_controller(self, team_controller.team.name)
+            if hasattr(team_simple_name_space.labels, 'players'):
+                team_simple_name_space.labels.players.delete(0, tk.END)
+                
+                for player in team_controller.team.players:
+                    self.update_label_players(player, team_controller)
+
 def simpleNamespace_forUi(self):
         #self.labels = SimpleNamespace(home_team=SimpleNamespace(),away_team=SimpleNamespace(),match=SimpleNamespace())
         self.frames = SimpleNamespace(teams=SimpleNamespace()) 

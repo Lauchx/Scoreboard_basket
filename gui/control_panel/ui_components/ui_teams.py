@@ -58,4 +58,13 @@ class ui_teams:
         # Deprecated: functionality moved to setup_score_panel
         pass
 
+def update_player_combo(team_simple_name_space, team_controller):
+    """
+    Actualiza el combobox de selección de dorsal, eliminando los números ya usados.
+    """
+    if hasattr(team_simple_name_space.frames.team.combobox, 'jerseyNumber'):
+        used_numbers = [int(p.jersey_number) for p in team_controller.team.players]
+        available_numbers = [str(i) for i in range(100) if i not in used_numbers]
+        team_simple_name_space.frames.team.combobox.jerseyNumber['values'] = available_numbers
+
 

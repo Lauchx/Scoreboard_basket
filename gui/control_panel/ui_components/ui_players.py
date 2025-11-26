@@ -3,6 +3,8 @@ from tkinter import ttk
 from types import SimpleNamespace
 from model.player import Player
 
+from tkinter import messagebox
+
 def setup_team_players(self, team_controller):
     team_simple_name_space = _nameSpace_for_controller(self,team_controller) ### Llama al name space del equipo correspondiente
     team_simple_name_space.player.name_var   = tk.StringVar(value="")
@@ -40,13 +42,41 @@ def button_add_player(self, team_controller, team_simple_name_space):
 def add_player(self, team_controller, team_simple_name_space):
     # llamaría al metodo del team_contorler que se encarga de agregar el jugador
     # team_controller.add_player()
-    player_name = team_simple_name_space.player.name_var.get()
-    player_jersey_number = team_simple_name_space.player.jerseyNumber_var.get()
+    player_name = team_simple_name_space.player.name_var.get().strip()
+    player_jersey_number = team_simple_name_space.player.jerseyNumber_var.get().strip()
     player_is_active = team_simple_name_space.player.is_active_var.get()
-    player = Player(player_name,player_jersey_number,player_is_active)
+
+    # Validaciones: dorsal no vacío y numérico
+    if not player_jersey_number:
+        messagebox.showwarning("Dorsal inválido", "El número de dorsal no puede estar vacío.")
+        return
+    if not player_jersey_number.isdigit():
+        messagebox.showwarning("Dorsal inválido", "El número de dorsal debe ser un número entero.")
+        return
+
+    jersey_int = int(player_jersey_number)
+
+    # Verificar duplicados en el equipo
+    existing = [int(p.jersey_number) for p in team_controller.team.players]
+    if jersey_int in existing:
+        messagebox.showwarning("Dorsal duplicado", f"El número #{jersey_int} ya está en uso en el equipo.")
+        return
+
+    # Crear jugador con dorsal como entero
+    player = Player(player_name, jersey_int, player_is_active)
     team_controller.add_player_in_team(player)
     team_controller.show_team_players()
-    self.scoreboard_window.update_label_players(player, team_controller)
+
+    # Actualizar el combo box de gestión de jugadores (lista ya está ordenada por controller)
+    from gui.control_panel.ui_components.ui_teams import update_player_combo
+    update_player_combo(team_simple_name_space, team_controller)
+
+    # Actualizar scoreboard con la lista ordenada
+    self.scoreboard_window.refresh_player_list(team_controller)
+
+    # Limpiar campos de entrada
+    team_simple_name_space.player.name_var.set("")
+    team_simple_name_space.player.jerseyNumber_var.set("")
 
     # Actualizar listbox de faltas si existe
     if hasattr(team_simple_name_space.player, 'fouls_listbox'):
@@ -136,6 +166,13 @@ def setup_player_fouls_controls(self, team_controller, team_simple_name_space):
         text="○ Marcar No Titular",
         command=lambda: set_player_active_ui(self, team_controller, players_listbox, False)
     ).grid(row=1, column=2, columnspan=2, sticky="ew", padx=2, pady=(5, 0))
+
+    # Botón de Eliminar Jugador
+    ttk.Button(
+        controls_frame,
+        text="🗑 Eliminar Jugador",
+        command=lambda: remove_player_ui(self, team_controller, players_listbox)
+    ).grid(row=2, column=0, columnspan=4, sticky="ew", padx=2, pady=(5, 0))
 
     # Display de estado del equipo (BONUS)
     status_frame = ttk.LabelFrame(team_simple_name_space.frames.team.labelFrame, text="Estado del Equipo")
@@ -322,4 +359,36 @@ def set_player_active_ui(self, team_controller, listbox, is_active):
 
     status_text = "Titular (Activo)" if is_active else "No Titular (Inactivo)"
     print(f"{'✓' if is_active else '○'} {player.name} marcado como {status_text}")
+
+
+def remove_player_ui(self, team_controller, listbox):
+    """
+    Elimina el jugador seleccionado.
+    """
+    selection = listbox.curselection()
+    if not selection:
+        return
+
+    player_index = selection[0]
+    player = team_controller.team.players[player_index]
+    
+    # Confirmar eliminación
+    if not messagebox.askyesno("Confirmar eliminación", f"¿Estás seguro de eliminar a {player.name} (#{player.jersey_number})?"):
+        return
+
+    # Eliminar
+    team_controller.remove_player(player.jersey_number)
+
+    # Actualizar listbox
+    populate_players_listbox_ui(team_controller, listbox)
+
+    # Actualizar combo
+    team_namespace = _nameSpace_for_controller(self, team_controller)
+    from gui.control_panel.ui_components.ui_teams import update_player_combo
+    update_player_combo(team_namespace, team_controller)
+
+    # Actualizar scoreboard
+    self.scoreboard_window.refresh_player_list(team_controller)
+
+    print(f"🗑 {player.name} eliminado")
 

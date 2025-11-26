@@ -94,3 +94,5 @@ class Player:
             'is_suspended': self.is_suspended,
             'fouls_to_suspension': fouls_to_suspension
         }
+    def get_display_text(self):
+        return f"#{self.jersey_number}"
