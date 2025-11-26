@@ -7,25 +7,27 @@ from tkinter import ttk
 import tkinter as tk
 
 
-def setup_timeout_controls(parent_instance, team_simple_namespace, team_controller, column):
+def setup_timeout_controls(parent_instance, team_simple_namespace, team_controller, parent_frame):
     """
-    Crea los controles de timeouts para un equipo en el panel de control.
-    Ahora se coloca en la pestaña "Partido" entre los botones de puntos y la gestión del tiempo.
-
+    Crea los controles de timeouts para un equipo.
+    
     Args:
         parent_instance: Instancia de Gui_control_panel
-        team_simple_namespace: SimpleNamespace del equipo (home_team o away_team)
-        team_controller: Controlador del equipo (Team_controller)
-        column: Columna donde colocar los controles (0 = local, 1 = visitante)
+        team_simple_namespace: SimpleNamespace del equipo
+        team_controller: Controlador del equipo
+        parent_frame: Frame padre donde colocar los controles
     """
-    # Crear un LabelFrame para los controles de timeout en la pestaña "Partido"
+    # Determinar columna basado en el equipo (0 para local, 2 para visitante)
+    column = 0 if team_controller == parent_instance.home_team_controller else 2
+    
+    # Crear un LabelFrame para los controles de timeout
     timeout_frame = ttk.LabelFrame(
-        parent_instance.frames.match,
-        text=f"Tiempos Muertos - {team_controller.team.name}",
-        padding=(10, 10)
+        parent_frame,
+        text=f"Tiempos Muertos",
+        padding=(5, 5)
     )
-    # Row 1: Timeouts (entre los botones de puntos en row 0 y el tiempo en row 2)
-    timeout_frame.grid(row=1, column=column, padx=10, pady=(5, 5), sticky="nsew")
+    # Colocar en la fila 3 (debajo de faltas)
+    timeout_frame.grid(row=3, column=column, padx=5, pady=5, sticky="ew")
     
     # Configurar grid del frame
     timeout_frame.grid_columnconfigure(0, weight=1)
@@ -208,14 +210,16 @@ def sync_timeout_checkbuttons(parent_instance):
         parent_instance: Instancia de Gui_control_panel
     """
     # Sincronizar equipo local
-    home_states = parent_instance.home_team_controller.get_timeout_states()
-    for i, is_used in enumerate(home_states):
-        if i < len(parent_instance.home_team.timeout_vars):
-            parent_instance.home_team.timeout_vars[i].set(is_used)
+    if hasattr(parent_instance.home_team, 'timeout_vars'):
+        home_states = parent_instance.home_team_controller.get_timeout_states()
+        for i, is_used in enumerate(home_states):
+            if i < len(parent_instance.home_team.timeout_vars):
+                parent_instance.home_team.timeout_vars[i].set(is_used)
     
     # Sincronizar equipo visitante
-    away_states = parent_instance.away_team_controller.get_timeout_states()
-    for i, is_used in enumerate(away_states):
-        if i < len(parent_instance.away_team.timeout_vars):
-            parent_instance.away_team.timeout_vars[i].set(is_used)
+    if hasattr(parent_instance.away_team, 'timeout_vars'):
+        away_states = parent_instance.away_team_controller.get_timeout_states()
+        for i, is_used in enumerate(away_states):
+            if i < len(parent_instance.away_team.timeout_vars):
+                parent_instance.away_team.timeout_vars[i].set(is_used)
 

@@ -2,85 +2,60 @@ from tkinter import ttk
 
 class ui_teams:
     def __init__(self, parent):
-        # Se inicializa con parent, ya que a diferencia de los otros componentes este es una clase. Parent en este caso es gui_control_panel.py
         self.parent = parent 
         self.home_team_controller = self.parent.match_state_controller.home_team_controller   
         self.away_team_controller = self.parent.match_state_controller.away_team_controller
+
     def setup_ui_teams(self):
-        setup_ui_team(self, self.parent.home_team, self.home_team_controller, 0 ) ## El numero es la column que toma el LabelFrame - Mejorar. 
-        setup_ui_team(self, self.parent.away_team, self.away_team_controller, 1 ) 
-        setup_ui_control_team(self,self.parent.home_team, self.home_team_controller.team.name, 0) 
-        setup_ui_control_team(self,self.parent.away_team, self.away_team_controller.team.name, 1)
-    def buttons_points(self):
-        """Crea los botones de puntos en la parte superior de cada LabelFrame de equipo."""
-        # Botones para equipo local (HOME)
-        ttk.Button(
-            self.parent.home_team.frames.match.labelFrame,
-            text="➕ Sumar Punto",
-            command=lambda: self.add_point(self.home_team_controller)
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        # Configurar paneles de puntuación en el grid 3x3 (Fila 1)
+        self.setup_score_panel("local", 0, "LOCAL", self.parent.home_team, self.home_team_controller)
+        self.setup_score_panel("visitor", 2, "VISITANTE", self.parent.away_team, self.away_team_controller)
 
-        ttk.Button(
-            self.parent.home_team.frames.match.labelFrame,
-            text="➖ Restar Punto",
-            command=lambda: self.substract_point(self.home_team_controller)
-        ).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+    def setup_score_panel(self, team_type, column, title, team_namespace, team_controller):
+        panel = ttk.Frame(self.parent.frames.match.right_frame, style="PanelTestScore.TFrame")
+        panel.grid(row=1, column=column, sticky="nsew", padx=6, pady=6)
+        panel.grid_rowconfigure(0, weight=0)
+        panel.grid_rowconfigure(1, weight=1)
+        panel.grid_rowconfigure(2, weight=0)
+        panel.grid_columnconfigure(0, weight=1)
 
-        # Botones para equipo visitante (AWAY)
-        ttk.Button(
-            self.parent.away_team.frames.match.labelFrame,
-            text="➕ Sumar Punto",
-            command=lambda: self.add_point(self.away_team_controller)
-        ).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        ttk.Label(panel, text=title, style="PanelTestScoreTitle.TLabel", anchor="center").grid(row=0, column=0, sticky="ew", pady=(2, 0))
 
-        ttk.Button(
-            self.parent.away_team.frames.match.labelFrame,
-            text="➖ Restar Punto",
-            command=lambda: self.substract_point(self.away_team_controller)
-        ).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-    # Points Functions
-    def add_point(self, team_controller):
+        # Label de puntuación
+        points = team_controller.team.points
+        score_label = ttk.Label(panel, text=str(points), style="PanelTestScore.TLabel", anchor="center")
+        score_label.grid(row=1, column=0, sticky="nsew", pady=(6, 4))
+        
+        # Guardar referencia en el namespace para actualizaciones
+        team_namespace.score_label = score_label
+
+        # Botones de puntos
+        buttons_frame = ttk.Frame(panel)
+        buttons_frame.grid(row=2, column=0, sticky="ew", pady=(4, 0))
+        buttons_inner = ttk.Frame(buttons_frame)
+        buttons_inner.pack(anchor="center")
+
+        ttk.Button(buttons_inner, text='-', width=3, style="ControlPanel.Minus.TButton", command=lambda: self.substract_point(team_controller, score_label)).pack(side='left', padx=4)
+        ttk.Button(buttons_inner, text='+', width=3, style="ControlPanel.Plus.TButton", command=lambda: self.add_point(team_controller, score_label)).pack(side='left', padx=4)
+
+
+
+    def add_point(self, team_controller, score_label):
         team_controller.add_point()
+        self.update_score_label(score_label, team_controller)
         self.parent.scoreboard_window.update_points_labels()
 
-    def substract_point(self, team_controller):
+    def substract_point(self, team_controller, score_label):
         team_controller.substract_point()
+        self.update_score_label(score_label, team_controller)
         self.parent.scoreboard_window.update_points_labels()
 
+    def update_score_label(self, score_label, team_controller):
+        if score_label.winfo_exists():
+            score_label.config(text=str(team_controller.team.points))
 
+    def buttons_points(self):
+        # Deprecated: functionality moved to setup_score_panel
+        pass
 
-def setup_ui_control_team(self,team_simple_name_space, team_name, colum):
-    team_simple_name_space.frames.match.labelFrame = ttk.LabelFrame(self.parent.frames.match, text=team_name)
-    # sticky="new" (sin 's') para que no se expanda verticalmente, solo horizontalmente
-    # pady reducido para que quede pegado a los botones
-    team_simple_name_space.frames.match.labelFrame.grid(row=0, column=colum, padx=10, pady=(10, 5), sticky="new")
-
-def setup_ui_team(self, team_simple_name_space,team_controller,column):
-    print(team_controller.team.name)
-    team_simple_name_space.frames.team.labelFrame = ttk.LabelFrame(self.parent.frames.teams, text=f"{team_controller.team.name}")
-    team_simple_name_space.frames.team.labelFrame.grid(row=0, column=column, padx=10, pady=10, sticky="nsew")
-    ttk.Label(team_simple_name_space.frames.team.labelFrame, text="Nombre:").grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-
-    # Crear Entry con valor inicial del nombre del equipo
-    # Limitar a 12 caracteres máximo usando validatecommand
-    vcmd = (self.parent.root.register(lambda text: len(text) <= 12), '%P')
-    team_simple_name_space.frames.team.entry.name = ttk.Entry(
-        team_simple_name_space.frames.team.labelFrame,
-        validate='key',
-        validatecommand=vcmd
-    )
-    team_simple_name_space.frames.team.entry.name.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
-
-    # Insertar el nombre actual del equipo como placeholder (truncado a 12 caracteres)
-    initial_name = team_controller.team.name[:12] if len(team_controller.team.name) > 12 else team_controller.team.name
-    team_simple_name_space.frames.team.entry.name.insert(0, initial_name)
-
-    team_simple_name_space.frames.team.labelFrame.grid_columnconfigure(1, weight=1)
-    ttk.Button(team_simple_name_space.frames.team.labelFrame, text="Actualizar Nombre:", command=lambda: update_team_name(self, team_simple_name_space, team_controller)).grid(row=0, column=6, columnspan=2, padx=5, pady=5, sticky="nsew")
-    
-def update_team_name(self, team_simple_name_space, team_controller):
-    new_team_name = team_simple_name_space.frames.team.entry.name.get()
-    team_controller.change_name(new_team_name)
-    self.parent.scoreboard_window.update_team_names_labels()
-    ##self.parent.frames.match.home_team.config(text=self.away_team_controller.team.name)
 
