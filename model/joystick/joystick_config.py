@@ -11,7 +11,7 @@ DEFAULT_SCOREBOARD_ACTIONS = {
     'away_add_point': AbstractButton.RIGHT_BUMPER,
     'home_subtract_point': AbstractButton.ACTION_LEFT,
     'away_subtract_point': AbstractButton.ACTION_TOP,
-    'manage_timer': AbstractButton.ACTION_BOTTOM,
-    'pause_timer': AbstractButton.SELECT,
-    'resume_timer': AbstractButton.START,
+    'manage_timer': AbstractButton.START,
+    'change_possession': AbstractButton.SELECT,
+    'None': AbstractButton.ACTION_BOTTOM,
 }

@@ -1,3 +1,4 @@
+import tkinter as tk
 from tkinter import ttk
 
 def create_names_labels(team_frame, team_labels, team_name):
@@ -5,7 +6,8 @@ def create_names_labels(team_frame, team_labels, team_name):
     team_labels.name.grid(row=1, column=1, padx=10, pady=(5, 10), sticky="nsew")
 
 def create_logos_labels(team_frame, team_labels):
-    team_labels.logo = ttk.Label(team_frame)
+    # Usar tk.Label para centrar el logo correctamente
+    team_labels.logo = tk.Label(team_frame, bg='black', anchor='center')
     team_labels.logo.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
 
 def create_points_labels(team_frame, team_labels, points_team):

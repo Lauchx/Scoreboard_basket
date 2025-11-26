@@ -1,0 +1,747 @@
+"""
+Componente UI para personalización de colores del scoreboard en tiempo real.
+Permite al usuario ajustar colores según condiciones de iluminación.
+"""
+
+import tkinter as tk
+from tkinter import ttk, colorchooser, messagebox
+
+
+def setup_color_customization_ui(control_panel):
+    """
+    Crea la interfaz de personalización de colores en la pestaña Configuración.
+    Solo se muestra si el diseño moderno está activado.
+
+    Args:
+        control_panel: Instancia de Gui_control_panel
+    """
+    # Verificar si el scoreboard tiene diseño moderno activado
+    scoreboard = control_panel.scoreboard_window
+    if not (hasattr(scoreboard, 'modern_style') and scoreboard.modern_style):
+        # Si no hay diseño moderno, mostrar mensaje informativo
+        info_frame = ttk.LabelFrame(
+            control_panel.frames.config,
+            text="ℹ️ Personalización de Colores",
+            padding=(15, 10)
+        )
+        info_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
+
+        info_label = ttk.Label(
+            info_frame,
+            text="La personalización de colores solo está disponible con el diseño moderno.\n"
+                 "Activa USE_MODERN_DESIGN = True en gui/scoreboard/gui_scoreboard.py",
+            font=('Arial', 9, 'italic'),
+            justify='center'
+        )
+        info_label.pack(pady=10)
+        return
+
+    # Frame principal para personalización de colores
+    color_frame = ttk.LabelFrame(
+        control_panel.frames.config,
+        text="🎨 Personalización de Colores del Tablero",
+        padding=(15, 10)
+    )
+    color_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
+    
+    # Instrucciones
+    instructions = ttk.Label(
+        color_frame,
+        text="Ajusta los colores del tablero según las condiciones de iluminación:",
+        font=('Arial', 9, 'italic')
+    )
+    instructions.grid(row=0, column=0, columnspan=4, pady=(0, 10), sticky="w")
+    
+    # Crear controles de color
+    row = 1
+    
+    # === FONDOS ===
+    ttk.Label(color_frame, text="FONDOS", font=('Arial', 10, 'bold')).grid(
+        row=row, column=0, columnspan=4, sticky="w", pady=(5, 5)
+    )
+    row += 1
+    
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Principal:", "bg_primary",
+                       "Color de fondo principal del tablero")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Panel Central:", "bg_center",
+                       "Color del panel central (tiempo, posesión)")
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Equipo Local:", "bg_team_home",
+                       "Color de fondo del equipo local")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Equipo Visitante:", "bg_team_away",
+                       "Color de fondo del equipo visitante")
+    row += 1
+
+    # === FONDOS DE SECCIONES ESPECÍFICAS ===
+    ttk.Label(color_frame, text="FONDOS DE SECCIONES", font=('Arial', 10, 'bold')).grid(
+        row=row, column=0, columnspan=4, sticky="w", pady=(15, 5)
+    )
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Cuarto:", "bg_quarter",
+                       "Color de fondo del sector de cuarto")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Faltas/BONUS:", "bg_fouls_bonus",
+                       "Color de fondo del sector de faltas y BONUS")
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Puntajes:", "bg_score",
+                       "Color de fondo del sector de puntajes")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Nombres:", "bg_team_name",
+                       "Color de fondo del sector de nombres de equipo")
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Fondo Logos:", "bg_logo",
+                       "Color de fondo del sector de logos")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Fondo Jugadores:", "bg_players",
+                       "Color de fondo del sector de jugadores")
+    row += 1
+    
+    # === TEXTOS Y NÚMEROS ===
+    ttk.Label(color_frame, text="TEXTOS Y NÚMEROS", font=('Arial', 10, 'bold')).grid(
+        row=row, column=0, columnspan=4, sticky="w", pady=(15, 5)
+    )
+    row += 1
+    
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Nombres de Equipos:", "text_primary",
+                       "Color de los nombres de los equipos")
+    
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Puntajes:", "display_score",
+                       "Color de los puntajes")
+    row += 1
+    
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Reloj/Tiempo:", "display_time",
+                       "Color del reloj del partido")
+
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Cuarto:", "display_quarter",
+                       "Color del indicador de cuarto")
+    row += 1
+
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Número de Faltas:", "display_fouls",
+                       "Color de los números de faltas de equipo")
+    row += 1
+    
+    # === JUGADORES ===
+    ttk.Label(color_frame, text="JUGADORES", font=('Arial', 10, 'bold')).grid(
+        row=row, column=0, columnspan=4, sticky="w", pady=(15, 5)
+    )
+    row += 1
+    
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Jugadores Activos:", "accent_neon",
+                       "Color de los jugadores en cancha")
+    
+    create_color_picker(control_panel, color_frame, row, 2,
+                       "Jugadores Inactivos:", "text_dim",
+                       "Color de los jugadores en el banco")
+    row += 1
+    
+    # === POSESIÓN ===
+    ttk.Label(color_frame, text="POSESIÓN", font=('Arial', 10, 'bold')).grid(
+        row=row, column=0, columnspan=4, sticky="w", pady=(15, 5)
+    )
+    row += 1
+    
+    create_color_picker(control_panel, color_frame, row, 0,
+                       "Flecha de Posesión:", "accent_neon",
+                       "Color de la flecha de posesión")
+    row += 1
+    
+    # Botones de acción
+    button_frame = ttk.Frame(color_frame)
+    button_frame.grid(row=row, column=0, columnspan=4, pady=(15, 5))
+    
+    # Botón para restaurar colores por defecto
+    reset_button = ttk.Button(
+        button_frame,
+        text="🔄 Restaurar Colores por Defecto",
+        command=lambda: reset_colors_to_default(control_panel)
+    )
+    reset_button.pack(side=tk.LEFT, padx=5)
+    
+    # Botón para aplicar cambios
+    apply_button = ttk.Button(
+        button_frame,
+        text="✓ Aplicar Cambios",
+        command=lambda: apply_color_changes(control_panel)
+    )
+    apply_button.pack(side=tk.LEFT, padx=5)
+    
+    # Configurar grid weights
+    color_frame.grid_columnconfigure(0, weight=1)
+    color_frame.grid_columnconfigure(1, weight=0)
+    color_frame.grid_columnconfigure(2, weight=1)
+    color_frame.grid_columnconfigure(3, weight=0)
+
+
+def create_color_picker(control_panel, parent, row, col, label_text, color_key, tooltip):
+    """
+    Crea un selector de color individual.
+    
+    Args:
+        control_panel: Instancia de Gui_control_panel
+        parent: Frame padre
+        row: Fila en el grid
+        col: Columna en el grid
+        label_text: Texto del label
+        color_key: Clave del color en el diccionario COLORS
+        tooltip: Texto de ayuda
+    """
+    # Label
+    label = ttk.Label(parent, text=label_text, font=('Arial', 9))
+    label.grid(row=row, column=col, sticky="w", padx=(5, 5), pady=3)
+    
+    # Frame para el botón de color
+    color_button_frame = tk.Frame(parent, width=90, height=25, relief=tk.RAISED, borderwidth=2)
+    color_button_frame.grid(row=row, column=col+1, padx=(0, 15), pady=3)
+    color_button_frame.grid_propagate(False)
+    
+    # Obtener color actual del scoreboard
+    current_color = get_current_color(control_panel, color_key)
+    color_button_frame.configure(bg=current_color)
+    
+    # Guardar referencia al frame del botón
+    if not hasattr(control_panel, 'color_buttons'):
+        control_panel.color_buttons = {}
+    control_panel.color_buttons[color_key] = color_button_frame
+    
+    # Bind para abrir selector de color
+    color_button_frame.bind('<Button-1>', 
+                           lambda e: open_color_picker(control_panel, color_key, color_button_frame))
+    
+    # Cursor de mano al pasar sobre el botón
+    color_button_frame.bind('<Enter>', lambda e: color_button_frame.configure(cursor='hand2'))
+    color_button_frame.bind('<Leave>', lambda e: color_button_frame.configure(cursor=''))
+
+
+def get_current_color(control_panel, color_key):
+    """
+    Obtiene el color actual del scoreboard.
+    Compatible con Gui_control_panel y Gui_control_panel_test.
+    
+    Args:
+        control_panel: Instancia de Gui_control_panel o Gui_control_panel_test
+        color_key: Clave del color
+        
+    Returns:
+        String con el color en formato hexadecimal
+    """
+    # Obtener referencia al scoreboard (compatible con ambos tipos de paneles)
+    scoreboard = None
+    
+    if hasattr(control_panel, 'scoreboard_window'):
+        # Gui_control_panel acceso directo
+        scoreboard = control_panel.scoreboard_window
+    elif hasattr(control_panel, 'main_panel') and control_panel.main_panel:
+        # Gui_control_panel_test acceso a través de main_panel
+        scoreboard = control_panel.main_panel.scoreboard_window
+    
+    if scoreboard and hasattr(scoreboard, 'modern_style') and scoreboard.modern_style:
+        return scoreboard.modern_style.COLORS.get(color_key, '#ffffff')
+    
+    # Colores por defecto si no hay diseño moderno
+    default_colors = {
+        'bg_primary': '#0A0E27',
+        'bg_center': '#0d1117',
+        'bg_team_home': '#1a0f0f',
+        'bg_team_away': '#0f1a1a',
+        'text_primary': '#ffffff',
+        'display_score': '#ffffff',
+        'display_time': '#00d9ff',
+        'accent_orange': '#ff6b35',
+        'accent_neon': '#00ff41',
+        'text_dim': '#6b7a8f',
+    }
+    
+    return default_colors.get(color_key, '#ffffff')
+
+
+def open_color_picker(control_panel, color_key, color_button_frame):
+    """
+    Abre el selector de color y actualiza el color seleccionado.
+    
+    Args:
+        control_panel: Instancia de Gui_control_panel
+        color_key: Clave del color a cambiar
+        color_button_frame: Frame del botón de color
+    """
+    # Obtener color actual
+    current_color = color_button_frame.cget('bg')
+    
+    # Abrir selector de color
+    color = colorchooser.askcolor(
+        color=current_color,
+        title=f"Seleccionar color para {color_key}"
+    )
+    
+    if color[1]:  # Si se seleccionó un color
+        new_color = color[1]
+        
+        # Actualizar el botón de color
+        color_button_frame.configure(bg=new_color)
+        
+        # Actualizar el color en el scoreboard inmediatamente
+        update_scoreboard_color(control_panel, color_key, new_color)
+
+
+def update_scoreboard_color(control_panel, color_key, new_color):
+    """
+    Actualiza un color específico en el scoreboard en tiempo real.
+    Funciona tanto con ttk.Label como con tk.Label.
+    Compatible con Gui_control_panel y Gui_control_panel_test.
+
+    Args:
+        control_panel: Instancia de Gui_control_panel o Gui_control_panel_test
+        color_key: Clave del color a actualizar
+        new_color: Nuevo color en formato hexadecimal
+    """
+    # Obtener referencia al scoreboard (compatible con ambos tipos de paneles)
+    scoreboard = None
+    
+    if hasattr(control_panel, 'scoreboard_window'):
+        # Gui_control_panel acceso directo
+        scoreboard = control_panel.scoreboard_window
+    elif hasattr(control_panel, 'main_panel') and control_panel.main_panel:
+        # Gui_control_panel_test acceso a través de main_panel
+        scoreboard = control_panel.main_panel.scoreboard_window
+    
+    if not scoreboard:
+        return
+
+    # Verificar si tiene diseño moderno
+    if hasattr(scoreboard, 'modern_style') and scoreboard.modern_style:
+        # Actualizar el color en el diccionario
+        scoreboard.modern_style.COLORS[color_key] = new_color
+
+        # Reaplicar los estilos ttk
+        scoreboard.modern_style._apply_ttk_styles()
+
+        # Actualizar widgets tk.Label directamente (como el reloj)
+        update_tk_widgets_colors(scoreboard, color_key, new_color)
+
+
+def update_tk_widgets_colors(scoreboard, color_key, new_color):
+    """
+    Actualiza los colores de widgets tk.Label directamente.
+    Esto es necesario porque tk.Label no usa ttk.Style.
+
+    Args:
+        scoreboard: Instancia de Gui_scoreboard
+        color_key: Clave del color a actualizar
+        new_color: Nuevo color en formato hexadecimal
+    """
+    # Mapeo de claves de color a widgets específicos y tipo de actualización
+    # Formato: 'color_key': [(widget_path, 'fg'|'bg'), ...]
+    color_widget_map = {
+        'display_time': [('match.labels.time', 'fg')],  # Color de texto del reloj
+        'bg_center': [('match.labels.time', 'bg')],  # Fondo del reloj
+        'text_primary': [('labels.home_team.name', 'fg'), ('labels.away_team.name', 'fg')],  # Nombres
+        'display_score': [('labels.home_team.points', 'fg'), ('labels.away_team.points', 'fg')],  # Puntajes
+        'display_quarter': [('match.labels.quarter_number', 'fg')],  # Color del número de cuarto
+        'display_fouls': [
+            ('match.labels.fouls.home.counter', 'fg'),
+            ('match.labels.fouls.away.counter', 'fg')
+        ],  # Color de los números de faltas
+        'bg_team_home': [('frames.home_team', 'bg')],  # Fondo equipo local
+        'bg_team_away': [('frames.away_team', 'bg')],  # Fondo equipo visitante
+        'bg_primary': [('root', 'bg')],  # Fondo principal
+
+        # Fondos de secciones específicas
+        'bg_quarter': [
+            ('match.labels.quarter_number', 'bg'),
+            ('match.labels.quarter_text', 'bg')
+        ],
+        'bg_fouls_bonus': [
+            ('match.labels.fouls.home.counter', 'bg'),
+            ('match.labels.fouls.away.counter', 'bg'),
+            ('match.labels.fouls.home.bonus_canvas', 'bg'),
+            ('match.labels.fouls.away.bonus_canvas', 'bg')
+        ],
+        'bg_score': [
+            ('labels.home_team.points', 'bg'),
+            ('labels.away_team.points', 'bg')
+        ],
+        'bg_team_name': [
+            ('labels.home_team.name', 'bg'),
+            ('labels.away_team.name', 'bg')
+        ],
+        'bg_logo': [
+            ('labels.home_team.logo', 'bg'),
+            ('labels.away_team.logo', 'bg')
+        ],
+        'bg_players': [
+            ('home_team.labels.players', 'bg'),
+            ('away_team.labels.players', 'bg')
+        ],
+    }
+
+    # Obtener lista de widgets a actualizar
+    widget_configs = color_widget_map.get(color_key, [])
+
+    for widget_path, config_type in widget_configs:
+        try:
+            # Navegar por el path para obtener el widget
+            widget = scoreboard
+            for attr in widget_path.split('.'):
+                widget = getattr(widget, attr)
+
+            # Actualizar el color según el tipo de configuración
+            if config_type == 'fg':
+                # Actualizar color de texto (foreground)
+                if hasattr(widget, 'configure') and hasattr(widget, 'cget'):
+                    # Verificar que el widget soporte 'fg'
+                    try:
+                        widget.cget('fg')  # Test si tiene fg
+                        widget.configure(fg=new_color)
+                    except:
+                        pass
+            elif config_type == 'bg':
+                # Actualizar color de fondo (background)
+                if hasattr(widget, 'configure'):
+                    widget.configure(bg=new_color)
+
+        except (AttributeError, tk.TclError):
+            # El widget no existe, no tiene el atributo, o no soporta la opción
+            pass
+
+    # Actualizar colores de jugadores si se cambió accent_neon o text_dim
+    if color_key in ['accent_neon', 'text_dim']:
+        update_player_colors(scoreboard)
+
+    # Actualizar frames contenedores de secciones específicas
+    if color_key == 'bg_quarter':
+        # Actualizar el frame contenedor del cuarto
+        try:
+            quarter_frame = scoreboard.match.labels.quarter_number.master
+            quarter_frame.configure(bg=new_color)
+        except:
+            pass
+
+    elif color_key == 'bg_fouls_bonus':
+        # Actualizar frames y labels de la sección de faltas
+        try:
+            # Frame principal de faltas
+            fouls_frame = scoreboard.match.labels.fouls.home.counter.master
+            fouls_frame.configure(bg=new_color)
+
+            # Frames de BONUS
+            if hasattr(scoreboard.match.labels.fouls.home, 'bonus_canvas'):
+                bonus_home_frame = scoreboard.match.labels.fouls.home.bonus_canvas.master
+                bonus_home_frame.configure(bg=new_color)
+
+            if hasattr(scoreboard.match.labels.fouls.away, 'bonus_canvas'):
+                bonus_away_frame = scoreboard.match.labels.fouls.away.bonus_canvas.master
+                bonus_away_frame.configure(bg=new_color)
+
+            # Labels de texto "Faltas"
+            for child in fouls_frame.winfo_children():
+                if isinstance(child, tk.Label) and child.cget('text') == 'Faltas':
+                    child.configure(bg=new_color)
+                elif isinstance(child, tk.Frame):
+                    # Actualizar labels dentro de frames (BONUS)
+                    for subchild in child.winfo_children():
+                        if isinstance(subchild, tk.Label):
+                            subchild.configure(bg=new_color)
+        except:
+            pass
+
+
+def update_player_colors(scoreboard):
+    """
+    Actualiza los colores de todos los jugadores en el scoreboard.
+    Se llama cuando se cambian los colores de jugadores activos o inactivos.
+
+    Args:
+        scoreboard: Instancia de Gui_scoreboard
+    """
+    try:
+        # Obtener los controladores de equipos desde el control panel
+        # Necesitamos acceder a través de la ventana principal
+        if hasattr(scoreboard, 'control_panel'):
+            control_panel = scoreboard.control_panel
+
+            # Actualizar jugadores del equipo local
+            if hasattr(control_panel, 'home_team_controller'):
+                for player in control_panel.home_team_controller.team.players:
+                    scoreboard.update_label_players(player, control_panel.home_team_controller)
+
+            # Actualizar jugadores del equipo visitante
+            if hasattr(control_panel, 'away_team_controller'):
+                for player in control_panel.away_team_controller.team.players:
+                    scoreboard.update_label_players(player, control_panel.away_team_controller)
+
+            print(f"✅ Colores de jugadores actualizados")
+    except Exception as e:
+        print(f"⚠️ Error al actualizar colores de jugadores: {e}")
+
+
+def apply_color_changes(control_panel):
+    """
+    Aplica todos los cambios de color al scoreboard.
+
+    Args:
+        control_panel: Instancia de Gui_control_panel
+    """
+    # Los cambios ya se aplican en tiempo real, este botón es opcional
+    # Podría usarse para guardar la configuración en un archivo
+    messagebox.showinfo(
+        "Colores Aplicados",
+        "Los colores se han aplicado correctamente al tablero."
+    )
+
+
+def reset_colors_to_default(control_panel):
+    """
+    Restaura todos los colores a los valores por defecto.
+    Compatible con Gui_control_panel y Gui_control_panel_test.
+    
+    Args:
+        control_panel: Instancia de Gui_control_panel o Gui_control_panel_test
+    """
+    # Obtener referencia al scoreboard (compatible con ambos tipos de paneles)
+    scoreboard = None
+    
+    if hasattr(control_panel, 'scoreboard_window'):
+        # Gui_control_panel acceso directo
+        scoreboard = control_panel.scoreboard_window
+    elif hasattr(control_panel, 'main_panel') and control_panel.main_panel:
+        # Gui_control_panel_test acceso a través de main_panel
+        scoreboard = control_panel.main_panel.scoreboard_window
+    
+    if not scoreboard:
+        return
+    
+    if hasattr(scoreboard, 'modern_style') and scoreboard.modern_style:
+        # Colores por defecto
+        default_colors = {
+            'bg_primary': '#0A0E27',
+            'bg_secondary': '#1a1f3a',
+            'bg_center': '#0d1117',
+            'bg_team_home': '#1a0f0f',
+            'bg_team_away': '#0f1a1a',
+            'accent_neon': '#00ff41',
+            'accent_cyan': '#00d9ff',
+            'accent_red': '#ff0844',
+            'accent_orange': '#ff6b35',
+            'accent_yellow': '#ffd700',
+            'text_primary': '#ffffff',
+            'text_secondary': '#b8c5d6',
+            'text_dim': '#6b7a8f',
+            'display_time': '#00d9ff',
+            'display_score': '#ffffff',
+            'display_glow': '#0088cc',
+            'border_light': '#2d3748',
+            'border_bright': '#4a5568',
+            'shadow': '#000000',
+        }
+        
+        # Actualizar todos los colores
+        for key, value in default_colors.items():
+            scoreboard.modern_style.COLORS[key] = value
+
+            # Actualizar botones de color si existen
+            if hasattr(control_panel, 'color_buttons') and key in control_panel.color_buttons:
+                control_panel.color_buttons[key].configure(bg=value)
+
+            # Actualizar widgets tk.Label directamente
+            update_tk_widgets_colors(scoreboard, key, value)
+
+        # Reaplicar estilos ttk
+        scoreboard.modern_style._apply_ttk_styles()
+
+        messagebox.showinfo(
+            "Colores Restaurados",
+            "Los colores han sido restaurados a los valores por defecto."
+        )
+
+
+def setup_color_customization_ui_left(control_panel, parent_frame):
+    """
+    Crea la interfaz de personalización de colores para el panel izquierdo con layout vertical.
+    
+    Args:
+        control_panel: Instancia de Gui_control_panel_test
+        parent_frame: Frame padre donde agregar los controles
+    """
+    # Verificar si el scoreboard tiene diseño moderno activado
+    if not hasattr(control_panel, 'main_panel') or control_panel.main_panel is None:
+        # Si no hay panel principal, mostrar mensaje
+        info_label = ttk.Label(
+            parent_frame,
+            text="La personalización de colores no está disponible en esta vista.",
+            font=('Arial', 9, 'italic')
+        )
+        info_label.pack(pady=10, padx=10)
+        return
+    
+    scoreboard = control_panel.main_panel.scoreboard_window
+    if not (hasattr(scoreboard, 'modern_style') and scoreboard.modern_style):
+        # Si no hay diseño moderno, mostrar mensaje informativo
+        info_label = ttk.Label(
+            parent_frame,
+            text="La personalización de colores solo está disponible con el diseño moderno.\n"
+                 "Activa USE_MODERN_DESIGN = True en gui/scoreboard/gui_scoreboard.py",
+            font=('Arial', 9, 'italic'),
+            justify='center'
+        )
+        info_label.pack(pady=10, padx=10)
+        return
+
+    # Título
+    title = ttk.Label(
+        parent_frame,
+        text="🎨 Personalización de Colores del Tablero",
+        font=('Arial', 10, 'bold')
+    )
+    title.pack(pady=(8, 5), padx=10, anchor="w")
+    
+    # Instrucciones
+    instructions = ttk.Label(
+        parent_frame,
+        text="Ajusta los colores del tablero según las condiciones de iluminación:",
+        font=('Arial', 8, 'italic')
+    )
+    instructions.pack(pady=(0, 8), padx=10, anchor="w")
+    
+    # === FONDOS ===
+    ttk.Label(parent_frame, text="FONDOS", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Principal:", "bg_primary",
+                                "Color de fondo principal del tablero")
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Panel Central:", "bg_center",
+                                "Color del panel central (tiempo, posesión)")
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Equipo Local:", "bg_team_home",
+                                "Color de fondo del equipo local")
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Equipo Visitante:", "bg_team_away",
+                                "Color de fondo del equipo visitante")
+    
+    # === TEXTOS Y NÚMEROS ===
+    ttk.Label(parent_frame, text="TEXTOS Y NÚMEROS", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Nombres de Equipos:", "text_primary",
+                                "Color de los nombres de los equipos")
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Puntajes:", "display_score",
+                                "Color de los puntajes")
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Reloj/Tiempo:", "display_time",
+                                "Color del reloj del partido")
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Cuarto:", "accent_orange",
+                                "Color del indicador de cuarto")
+    
+    # === JUGADORES ===
+    ttk.Label(parent_frame, text="JUGADORES", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Jugadores Activos:", "accent_neon",
+                                "Color de los jugadores en cancha")
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Jugadores Inactivos:", "text_dim",
+                                "Color de los jugadores en el banco")
+    
+    # === POSESIÓN ===
+    ttk.Label(parent_frame, text="POSESIÓN", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
+    
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Flecha de Posesión:", "accent_neon",
+                                "Color de la flecha de posesión")
+    
+    # Botones de acción
+    button_frame = ttk.Frame(parent_frame)
+    button_frame.pack(pady=(10, 8), padx=10, fill="x")
+    
+    # Botón para restaurar colores por defecto
+    reset_button = ttk.Button(
+        button_frame,
+        text="🔄 Restaurar",
+        command=lambda: reset_colors_to_default(control_panel)
+    )
+    reset_button.pack(side=tk.LEFT, padx=3, fill="both", expand=True)
+    
+    # Botón para aplicar cambios
+    apply_button = ttk.Button(
+        button_frame,
+        text="✓ Aplicar",
+        command=lambda: apply_color_changes(control_panel)
+    )
+    apply_button.pack(side=tk.LEFT, padx=3, fill="both", expand=True)
+
+
+def create_color_picker_vertical(control_panel, parent, label_text, color_key, tooltip):
+    """
+    Crea un selector de color individual con layout vertical compacto.
+    
+    Args:
+        control_panel: Instancia de Gui_control_panel_test
+        parent: Frame padre
+        label_text: Texto del label
+        color_key: Clave del color en el diccionario COLORS
+        tooltip: Texto de ayuda
+    """
+    # Frame contenedor más compacto
+    container = ttk.Frame(parent)
+    container.pack(fill="x", padx=8, pady=2)
+    
+    # Label
+    label = ttk.Label(container, text=label_text, font=('Arial', 8))
+    label.pack(anchor="w")
+    
+    # Frame para el botón de color (ancho original, altura reducida)
+    color_button_frame = tk.Frame(container, width=100, height=20, relief=tk.RAISED, borderwidth=1)
+    color_button_frame.pack(fill="x", pady=(1, 0))
+    color_button_frame.pack_propagate(False)
+    
+    # Obtener color actual del scoreboard
+    if control_panel.main_panel:
+        current_color = get_current_color(control_panel, color_key)
+    else:
+        current_color = "#FFFFFF"
+    
+    color_button_frame.configure(bg=current_color)
+    
+    # Guardar referencia al frame del botón
+    if not hasattr(control_panel, 'color_buttons'):
+        control_panel.color_buttons = {}
+    control_panel.color_buttons[color_key] = color_button_frame
+    
+    # Bind para abrir selector de color
+    color_button_frame.bind('<Button-1>', 
+                           lambda e: open_color_picker(control_panel, color_key, color_button_frame))
+    
+    # Cursor de mano al pasar sobre el botón
+    color_button_frame.bind('<Enter>', lambda e: color_button_frame.configure(cursor='hand2'))
+    color_button_frame.bind('<Leave>', lambda e: color_button_frame.configure(cursor=''))
+

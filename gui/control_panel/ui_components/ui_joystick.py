@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import threading
-from model.joystick_types import ControllerType, AbstractButton
-from model.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
+from model.joystick.joystick_types import AbstractButton
+from model.joystick.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
 
 def setup_joystick_ui(control_panel):
     """
@@ -64,8 +63,7 @@ def create_joystick_info_section(control_panel):
     control_panel.controller_type_var = tk.StringVar(value="xbox")
     control_panel.controller_type_radios = {}
 
-    control_panel.controller_type_radios["xbox"] = ttk.Radiobutton(
-        info_frame, text="Xbox",
+    control_panel.controller_type_radios["xbox"] = ttk.Radiobutton(info_frame, text="Xbox",
         variable=control_panel.controller_type_var,
         value="xbox",
         command=lambda: on_controller_type_change(control_panel)
@@ -85,6 +83,7 @@ def on_controller_type_change(control_panel):
     Maneja el cambio de tipo de controlador.
     """
     selected_type = control_panel.controller_type_var.get()
+    
     control_panel.joystick_controller.set_controller_type(selected_type)
     update_button_config_ui(control_panel)
     log_joystick_message(control_panel, f"🎮 Tipo de controlador cambiado a: {selected_type}")
@@ -95,21 +94,24 @@ def update_button_config_ui(control_panel):
     """
     if hasattr(control_panel, 'config_entries'):
         available_buttons = control_panel.joystick_controller.get_available_buttons()
-
+        
         for action, combobox in control_panel.config_entries.items():
-            combobox['values'] = list(available_buttons.values())
             # Intentar mantener el valor actual si es válido para el nuevo tipo
+            if available_buttons == None:
+                combobox.config(values=())
+                combobox.set('Desconectado')
+                continue 
             current_value = combobox.get()
-            if current_value not in available_buttons.values():
+            if current_value:
+                current_action = control_panel.joystick_controller.get_abstract_button_from_action(action)
+            else:
+                current_action = None
+            combobox['values'] = list(available_buttons.values())
+
+            if current_action:
+                combobox.set(available_buttons[current_action.value])
+            elif current_value not in available_buttons.values():
                 combobox.set('')
-        
-
-    
-
-    
-        
-
-       
 
 def create_joystick_controls_section(control_panel):
     """Crea la sección de controles del joystick"""
@@ -120,25 +122,17 @@ def create_joystick_controls_section(control_panel):
     # Configurar grid del frame de controles
     for i in range(4):
         controls_frame.grid_columnconfigure(i, weight=1)
-    
-    # Botón para detectar joysticks
-    btn_detect = ttk.Button(controls_frame, text="🔍 Detectar Joysticks", command=lambda: detect_joysticks_action(control_panel))
-    btn_detect.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-    
+
     # Botón para conectar joystick
-    control_panel.btn_connect = ttk.Button(controls_frame, text="🔌 Conectar", 
-                                          command=lambda: connect_joystick_action(control_panel))
-    control_panel.btn_connect.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-    
+    control_panel.connected_btn = False
+    control_panel.btn_connect = ttk.Button(controls_frame, text="🔌 Conectar", command=lambda: toogle_detect_joysticks_action(control_panel))
+    control_panel.btn_connect.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
     # Botón para iniciar/parar escucha
     control_panel.btn_listen = ttk.Button(controls_frame, text="🎧 Iniciar Escucha", 
                                          command=lambda: toggle_listening_action(control_panel))
     control_panel.btn_listen.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
     
     # Botón para probar botones
-    control_panel.btn_test = ttk.Button(controls_frame, text="🧪 Probar Botones", 
-                                       command=lambda: test_buttons_action(control_panel))
-    control_panel.btn_test.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
 
 def create_joystick_config_section(control_panel):
     """Crea la sección de configuración de botones del joystick con sistema abstracto"""
@@ -164,27 +158,29 @@ def create_joystick_config_section(control_panel):
         'home_subtract_point': "🏠 -1 Local:",
         'away_subtract_point': "🚗 -1 Visit:",
         'manage_timer': "▶️ Iniciar:",
-        'pause_timer': "⏸️ Pausar:",
-        'resume_timer': "▶️ Reanudar:"
+        'change_possession': "⛹🏻‍♂️ Posesión:",
     }
 
     for i, (action, label) in enumerate(action_labels.items(), start=1):
         ttk.Label(control_panel.config_frame, text=label, font=('Arial', 8)).grid(row=0, column=i, sticky="w")
-
         # Crear combobox para cada acción
         available_buttons = control_panel.joystick_controller.get_available_buttons()
+
         control_panel.config_entries[action] = ttk.Combobox(
             control_panel.config_frame,
             state="readonly",
-            values=list(available_buttons.values()),
+            values= () if available_buttons == None else list(available_buttons.values()),
             width=8
         )
         control_panel.config_entries[action].grid(row=1, column=i, padx=2)
 
         # Establecer valor por defecto
-        default_abstract_button = control_panel.action_config[action]
-        default_display_name = control_panel.joystick_controller.button_mapping.get_display_name(default_abstract_button)
-        control_panel.config_entries[action].set(default_display_name)
+        if not available_buttons == None:
+            default_abstract_button = control_panel.action_config[action]
+            default_display_name = control_panel.joystick_controller.get_display_name(default_abstract_button)
+            control_panel.config_entries[action].set(default_display_name)
+        else:
+            control_panel.config_entries[action].set('Desconectado')
 
     # Botones de acción
     btn_apply = ttk.Button(control_panel.config_frame, text="✅ Aplicar",
@@ -194,11 +190,6 @@ def create_joystick_config_section(control_panel):
     btn_reset = ttk.Button(control_panel.config_frame, text="🔄 Restablecer",
                           command=lambda: reset_button_config(control_panel))
     btn_reset.grid(row=3, column=3, columnspan=2, padx=5, pady=10, sticky="ew")
-
-    btn_test_mode = ttk.Button(control_panel.config_frame, text="🧪 Modo Prueba",
-                              command=lambda: toggle_test_mode(control_panel))
-    btn_test_mode.grid(row=3, column=5, columnspan=2, padx=5, pady=10, sticky="ew")
-
 
 
 def create_joystick_log_section(control_panel):
@@ -262,11 +253,12 @@ def update_joystick_info(control_panel):
         # Actualizar el radio button del tipo de controlador detectado
         if info['type'] in ['xbox', 'playstation']:
             control_panel.controller_type_var.set(info['type'])
+            update_button_config_ui(control_panel)
 
         # Actualizar botones
         control_panel.btn_connect.config(text="🔌 Desconectar")
-        control_panel.btn_test.config(state="normal")
         control_panel.btn_listen.config(state="normal")
+
     else:
         control_panel.joystick_info_labels['status'].config(text="❌ Desconectado", foreground="red")
         control_panel.joystick_info_labels['name'].config(text="N/A")
@@ -275,40 +267,36 @@ def update_joystick_info(control_panel):
 
         # Actualizar botones
         control_panel.btn_connect.config(text="🔌 Conectar")
-        control_panel.btn_test.config(state="disabled")
         control_panel.btn_listen.config(state="disabled", text="🎧 Iniciar Escucha")
 
+
 # Funciones de acción para los botones
+def toogle_detect_joysticks_action(control_panel):
+    control_panel.connected_btn = not control_panel.connected_btn 
+    if control_panel.connected_btn:
+        detect_joysticks_action(control_panel)
+    else:
+        disconnect_joystick_action(control_panel)
+    # Actualizar la UI
+    update_joystick_info(control_panel)
+    update_button_config_ui(control_panel)
+
 
 def detect_joysticks_action(control_panel):
-    """Acción para detectar joysticks"""
-    joysticks = control_panel.joystick_controller.detect_joysticks()
-    
-    if joysticks:
-        message = f"🔍 Encontrados {len(joysticks)} joystick(s):\n"
-        for joy in joysticks:
-            message += f"  • {joy['name']} (ID: {joy['id']})\n"
+    """Acción para detectar y refrescar joysticks"""
+    log_joystick_message(control_panel, "🔍 Buscando joysticks conectados...")
+    # Usar el nuevo método de refresco que maneja detección dinámica
+    if control_panel.joystick_controller.refresh_joystick_detection():
+        log_joystick_message(control_panel, "✅ Joystick detectado y conectado automáticamente")
     else:
-        message = "❌ No se encontraron joysticks conectados"
-    
-    log_joystick_message(control_panel, message)
-    messagebox.showinfo("Detección de Joysticks", message)
+        log_joystick_message(control_panel, "❌ No se encontraron joysticks conectados")
 
-def connect_joystick_action(control_panel):
-    """Acción para conectar/desconectar joystick"""
-    if control_panel.joystick_controller.is_connected():
+def disconnect_joystick_action(control_panel):
+     if control_panel.joystick_controller.is_connected():
         # Desconectar
         control_panel.joystick_controller.stop_listening()
         control_panel.joystick_controller.disconnect_joystick()
         log_joystick_message(control_panel, "🔌 Joystick desconectado")
-    else:
-        # Conectar
-        if control_panel.joystick_controller.connect_joystick(0):
-            log_joystick_message(control_panel, "✅ Joystick conectado exitosamente")
-        else:
-            log_joystick_message(control_panel, "❌ Error al conectar joystick")
-    
-    update_joystick_info(control_panel)
 
 def toggle_listening_action(control_panel):
     """Acción para iniciar/parar la escucha del joystick"""
@@ -325,14 +313,6 @@ def toggle_listening_action(control_panel):
         else:
             log_joystick_message(control_panel, "❌ Error al iniciar escucha")
 
-def test_buttons_action(control_panel):
-    """Acción para probar botones del joystick"""
-    def test_in_thread():
-        log_joystick_message(control_panel, "🧪 Modo prueba iniciado - Presiona botones para verlos")
-        # Aquí podrías implementar un modo de prueba temporal
-        # Por ahora solo mostramos el mensaje
-
-    threading.Thread(target=test_in_thread, daemon=True).start()
 
 def apply_button_config(control_panel):
     """Aplica la nueva configuración de botones usando el sistema abstracto"""
@@ -370,12 +350,12 @@ def apply_button_config(control_panel):
         control_panel.action_config = new_action_config
 
         # Actualizar la configuración en el joystick controller
-        control_panel.joystick_controller.set_action_config(new_action_config)
+        message = control_panel.joystick_controller.set_action_config(new_action_config)
 
         # Actualizar el mapeo en el joystick controller
         update_joystick_mapping(control_panel)
 
-        log_joystick_message(control_panel, "✅ Configuración de botones aplicada exitosamente")
+        log_joystick_message(control_panel, f"✅ Configuración de botones aplicada exitosamente: {message}")
         messagebox.showinfo("Configuración", "✅ Configuración de botones aplicada exitosamente")
 
     except ValueError as e:
@@ -398,7 +378,7 @@ def reset_button_config(control_panel):
     for action, abstract_button in control_panel.action_config.items():
         if action in control_panel.config_entries:
             # Obtener el nombre para mostrar del botón abstracto
-            display_name = control_panel.joystick_controller.button_mapping.get_display_name(abstract_button)
+            display_name = control_panel.joystick_controller.get_display_name(abstract_button)
             control_panel.config_entries[action].set(display_name)
 
     # Actualizar la configuración en el joystick controller
@@ -410,63 +390,7 @@ def reset_button_config(control_panel):
     log_joystick_message(control_panel, "🔄 Configuración restablecida a valores por defecto")
     messagebox.showinfo("Configuración", "🔄 Configuración restablecida a valores por defecto")
 
-def toggle_test_mode(control_panel):
-    """Activa/desactiva el modo de prueba para identificar botones"""
-    if not control_panel.joystick_controller.is_connected():
-        messagebox.showwarning("Joystick", "❌ Conecta un joystick primero")
-        return
 
-    # Crear ventana de modo prueba
-    test_window = tk.Toplevel(control_panel.root)
-    test_window.title("🧪 Modo Prueba - Identificar Botones")
-    test_window.geometry("400x400")
-    test_window.resizable(False, False)
-
-    # Hacer la ventana modal
-    test_window.transient(control_panel.root)
-    test_window.grab_set()
-
-    # Contenido de la ventana
-    ttk.Label(test_window, text="🧪 Modo Prueba de Botones",font=('Arial', 14, 'bold')).pack(pady=10)
-
-    ttk.Label(test_window, text="Presiona cualquier botón del joystick para ver su número", font=('Arial', 10)).pack(pady=5)
-
-    # Text widget para mostrar botones presionados
-    test_text = tk.Text(test_window, height=10, width=40, state=tk.DISABLED)
-    test_text.pack(pady=10, padx=20, fill=tk.BOTH, expand=True)
-
-    # Scrollbar para el text widget
-    scrollbar = ttk.Scrollbar(test_window, orient="vertical", command=test_text.yview)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    test_text.configure(yscrollcommand=scrollbar.set)
-
-    # Botón para cerrar
-    ttk.Button(test_window, text="❌ Cerrar", command=test_window.destroy).pack(pady=10)
-
-    # Función para mostrar botones presionados
-    def show_button_press(button_id):
-        test_text.config(state=tk.NORMAL)
-        test_text.insert(tk.END, f"🔘 Botón {button_id} presionado\n")
-        test_text.see(tk.END)
-        test_text.config(state=tk.DISABLED)
-
-    # Temporalmente cambiar el callback del joystick para el modo prueba
-    original_mapping = control_panel.joystick_controller._get_button_mapping()
-
-    # Crear mapeo temporal para modo prueba
-    test_mapping = {}
-    for i in range(16):  # Hasta 16 botones
-        test_mapping[i] = f'test_button_{i}'
-        control_panel.joystick_controller.set_callback(f'test_button_{i}',
-                                                      lambda btn=i: show_button_press(btn))
-
-    # Función para restaurar configuración al cerrar
-    def on_test_close():
-        # Restaurar mapeo original
-        update_joystick_mapping(control_panel)
-        test_window.destroy()
-
-    test_window.protocol("WM_DELETE_WINDOW", on_test_close)
 
 def update_joystick_mapping(control_panel):
     """Actualiza el mapeo de botones en el joystick controller usando el sistema abstracto"""
@@ -476,14 +400,14 @@ def update_joystick_mapping(control_panel):
         control_panel.joystick_controller.set_action_config(control_panel.action_config)
 
     # Obtener información del mapeo actual para logging
-    current_mapping = control_panel.joystick_controller._get_button_mapping()
+    current_mapping = control_panel.joystick_controller.create_button_mapping()
 
     # Formatear mensaje de log
     mapping_info = []
     for physical_btn, action in current_mapping.items():
-        abstract_btn = control_panel.joystick_controller.button_mapping.get_abstract_button(physical_btn)
+        abstract_btn = control_panel.joystick_controller.get_abstract_button(physical_btn)
         if abstract_btn:
-            display_name = control_panel.joystick_controller.button_mapping.get_display_name(abstract_btn)
+            display_name = control_panel.joystick_controller.get_display_name(abstract_btn)
             mapping_info.append(f"{display_name}({physical_btn})→{action}")
 
     log_joystick_message(control_panel, f"🔄 Mapeo actualizado: {', '.join(mapping_info)}")
