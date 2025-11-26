@@ -24,21 +24,32 @@ def setup_timer_buttons(self, parent_frame):
     buttons_inner = ttk.Frame(button_container, style="ControlPanel.Stack.TFrame")
     buttons_inner.pack(anchor="center", pady=10)
 
-    self.button.timer = ttk.Button(buttons_inner, text="Iniciar", style="ControlPanel.Button.TButton", command=lambda: manage_timer(self))
-    self.button.reset_timer = ttk.Button(buttons_inner, text="Reiniciar", style="ControlPanel.Button.TButton", command=lambda: reset_timer(self))
+    # Frame superior para botones (pack)
+    top_frame = ttk.Frame(buttons_inner, style="ControlPanel.Stack.TFrame")
+    top_frame.pack(side="top", fill="x")
+
+    self.button.timer = ttk.Button(top_frame, text="Iniciar", style="ControlPanel.Button.TButton", command=lambda: manage_timer(self))
+    self.button.reset_timer = ttk.Button(top_frame, text="Reiniciar", style="ControlPanel.Button.TButton", command=lambda: reset_timer(self))
 
     self.button.timer.pack(side="top", pady=6)
     self.button.reset_timer.pack(side="top", pady=6)
 
-def ui_for_change_time(self):
-    print(self)
-    ttk.Label(self.frames.match.time, text="Minutos").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-    self.match.entry.minutes_match_time = ttk.Entry(self.frames.match.time)
-    self.match.entry.minutes_match_time.grid(row=1, column=1,sticky="nsew")
-    ttk.Label(self.frames.match.time, text="Segundos").grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
-    self.match.entry.seconds_match_time = ttk.Entry(self.frames.match.time)
-    self.match.entry.seconds_match_time.grid(row=1, column=3, sticky="nsew")
-    ttk.Button(self.frames.match.time, text="Actualizar tiempo", command=lambda: change_time(self)).grid(row=1, column=4,sticky="nsew")
+    # Frame inferior para inputs de tiempo (grid)
+    bottom_frame = ttk.Frame(buttons_inner, style="ControlPanel.Stack.TFrame")
+    bottom_frame.pack(side="top", fill="x", pady=(10, 0))
+    
+    ui_for_change_time(self, bottom_frame)
+
+def ui_for_change_time(self, parent):
+    ttk.Label(parent, text="Minutos").grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+    self.match.entry.minutes_match_time = ttk.Entry(parent, width=5)
+    self.match.entry.minutes_match_time.grid(row=0, column=1, sticky="nsew", padx=2)
+    
+    ttk.Label(parent, text="Segundos").grid(row=0, column=2, padx=5, pady=5, sticky="nsew")
+    self.match.entry.seconds_match_time = ttk.Entry(parent, width=5)
+    self.match.entry.seconds_match_time.grid(row=0, column=3, sticky="nsew", padx=2)
+    
+    ttk.Button(parent, text="Actualizar", command=lambda: change_time(self)).grid(row=0, column=4, sticky="nsew", padx=5)
 
 def start_timer(self):  
         time_left = self.match_state_controller.match_state.seconds_time_left

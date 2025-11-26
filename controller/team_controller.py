@@ -26,7 +26,7 @@ class Team_controller:
 
     def add_player_in_team(self, player):
         self.team.players.append(player)
-
+        
     def show_team_players(self):
         print(self.team.name)
 
