@@ -17,8 +17,8 @@ def upload_logo(self, teamController, team_simple_name_space):
                 file_name = f"{teamController.team.name}_logo.png"
 
                 image = Image.open(path)
-                # Reducido de 300x300 a 100x100 para que el logo sea más compacto en el scoreboard
-                image = image.resize((100, 100), Image.LANCZOS)
+                # Tamaño aumentado a 150x150 para mejor visibilidad en el scoreboard
+                image = image.resize((150, 150), Image.LANCZOS)
                 logo = ImageTk.PhotoImage(image)
 
                 teamController.change_logo(logo)

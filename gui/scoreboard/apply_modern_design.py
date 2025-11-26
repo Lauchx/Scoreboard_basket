@@ -103,8 +103,8 @@ def creates_home_team_modern(scoreboard_instance):
         row=0, column=0, sticky="nsew", padx=(10, 5), pady=10  # Reducido padding
     )
     
-    # Configurar grid
-    teams_labels_grid_configure(scoreboard_instance.home_team.frames)
+    # Configurar grid para equipo local
+    teams_labels_grid_configure(scoreboard_instance.home_team.frames, is_home_team=True)
     
     # Crear componentes UI con estilo moderno
     create_names_labels_modern(
@@ -157,8 +157,8 @@ def creates_away_team_modern(scoreboard_instance):
         row=0, column=2, sticky="nsew", padx=(5, 10), pady=10  # Reducido padding
     )
     
-    # Configurar grid
-    teams_labels_grid_configure(scoreboard_instance.away_team.frames)
+    # Configurar grid para equipo visitante
+    teams_labels_grid_configure(scoreboard_instance.away_team.frames, is_home_team=False)
     
     # Crear componentes UI con estilo moderno
     create_names_labels_modern(

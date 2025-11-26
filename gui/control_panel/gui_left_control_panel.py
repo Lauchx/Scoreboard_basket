@@ -1,6 +1,8 @@
 from tkinter import ttk
 import tkinter as tk
+from tkinter import filedialog, messagebox
 from model.player import Player
+from PIL import Image, ImageTk
 
 def setup_left_panel(self):
     self.left_frame = ttk.Frame(self.root, style="PanelTestLeft.TFrame")
@@ -61,6 +63,30 @@ def setup_team_form(self, parent_frame, team_type):
             team_entry.delete(0, tk.END)
 
     ttk.Button(form_panel, text="Actualizar", style="PlayerForm.TButton", command=update_team_name).grid(row=0, column=2, padx=2, pady=1)
+
+    def upload_logo():
+        """Carga un logo para el equipo"""
+        path = filedialog.askopenfilename(
+            title="Seleccionar logo", 
+            filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
+        if path:
+            try:
+                image = Image.open(path)
+                image = image.resize((300, 300), Image.LANCZOS)
+                logo = ImageTk.PhotoImage(image)
+                team_controller.change_logo(logo)
+                
+                # Actualizar scoreboard si está disponible
+                if hasattr(self, 'main_panel') and self.main_panel is not None:
+                    if hasattr(self.main_panel, 'scoreboard_window'):
+                        self.main_panel.scoreboard_window.update_team_logo_label()
+                
+                messagebox.showinfo("Éxito", "Logo cargado correctamente")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo cargar la imagen: {str(e)}")
+
+    ttk.Button(form_panel, text="Cargar Logo", style="PlayerForm.TButton", command=upload_logo).grid(row=0, column=3, padx=2, pady=1)
 
     # Nombre del jugador
     ttk.Label(form_panel, text="Jugador:", style="PlayerForm.TLabel").grid(row=1, column=0, sticky="w", padx=2, pady=1)
