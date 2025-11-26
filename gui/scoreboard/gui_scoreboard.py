@@ -123,7 +123,7 @@ class Gui_scoreboard:
         # Validar que el cuarto no baje de 1
         new_quarter = self.match_state.quarter + number
         if new_quarter < 1:
-            print(f"⚠️ No se puede disminuir el cuarto por debajo de 1")
+            print(f"[!] No se puede disminuir el cuarto por debajo de 1")
             return  # Ignorar la acción
 
         self.match_state.quarter = new_quarter
@@ -173,12 +173,20 @@ class Gui_scoreboard:
 
     def update_fouls_labels(self):
         """
+<<<<<<< HEAD
         Actualiza la visualización de faltas y BONUS para ambos equipos.
         """
         if USE_MODERN_DESIGN:
             from gui.scoreboard.ui_components.ui_fouls_modern import update_fouls_display_modern
             update_fouls_display_modern(self)
         # TODO: Implementar versión para diseño original si es necesario
+        """
+        Actualiza la visualización de las faltas para ambos equipos.
+        Placeholder para futura implementación de UI de faltas.
+        """
+        # Por ahora es un stub que permite sincronización futura con UI
+        pass
+#>>>>>>> gui-rochii
 
     def update_label_players(self, player, team_contoller):
         if USE_MODERN_DESIGN:

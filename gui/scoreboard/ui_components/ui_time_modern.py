@@ -51,7 +51,7 @@ def create_time_labels_modern(self):
         borderwidth=border_width  # Ancho del borde
     )
 
-    print(f"✅ Reloj creado con fuente Digital-7 Italic (tamaño: {font_size}, borde: {border_width}px)")
+    print(f"[OK] Reloj creado con fuente Digital-7 Italic (tamaño: {font_size}, borde: {border_width}px)")
 
     # {minutes:02}:{seconds:02} -> (:02) agrega dos dígitos si el número es menor a 10
     self.match.labels.time.grid(row=0, column=0, sticky="nsew", pady=(5, 5), padx=2)  # Padding horizontal mínimo

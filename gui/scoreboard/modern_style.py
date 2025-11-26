@@ -136,7 +136,7 @@ class ScoreboardModernStyle:
         try:
             # Verificar que el archivo existe
             if not self.DIGITAL_FONT_PATH.exists():
-                print(f"⚠️ Advertencia: No se encontró la fuente en {self.DIGITAL_FONT_PATH}")
+                print(f"[!] Advertencia: No se encontró la fuente en {self.DIGITAL_FONT_PATH}")
                 return 'Consolas'  # Fallback
 
             font_path_str = str(self.DIGITAL_FONT_PATH.absolute())
@@ -150,13 +150,13 @@ class ScoreboardModernStyle:
 
                 if digital_fonts:
                     # La fuente ya está disponible en el sistema
-                    print(f"✅ Fuente Digital-7 ya disponible en el sistema: {digital_fonts}")
+                    print(f"[OK] Fuente Digital-7 ya disponible en el sistema: {digital_fonts}")
                     return 'Digital-7 Italic'  # Retornar el nombre que usa ui_time_modern.py
                 else:
                     # La fuente no está en la lista, intentar cargarla
-                    print("⚠️ Fuente Digital-7 no encontrada en el sistema, intentando cargarla...")
+                    print("[!] Fuente Digital-7 no encontrada en el sistema, intentando cargarla...")
             except Exception as e:
-                print(f"⚠️ Error al verificar fuentes disponibles: {e}")
+                print(f"[!] Error al verificar fuentes disponibles: {e}")
 
             # Método 2: Cargar con ctypes (Windows) - SIN SendMessageW para evitar permisos
             try:
@@ -178,7 +178,7 @@ class ScoreboardModernStyle:
                 result = AddFontResourceEx(font_path_str, FR_PRIVATE, 0)
 
                 if result > 0:
-                    print(f"✅ Fuente Digital-7 Italic cargada desde {self.DIGITAL_FONT_PATH.name}")
+                    print(f"[OK] Fuente Digital-7 Italic cargada desde {self.DIGITAL_FONT_PATH.name}")
 
                     # NO usar SendMessageW - puede requerir permisos de administrador
                     # La fuente funcionará sin la notificación broadcast
@@ -188,30 +188,30 @@ class ScoreboardModernStyle:
 
                     return 'Digital-7 Italic'
                 else:
-                    print(f"⚠️ AddFontResourceEx retornó {result}, intentando método alternativo...")
+                    print(f"[!] AddFontResourceEx retournó {result}, intentando método alternativo...")
 
             except Exception as e:
-                print(f"⚠️ Error al cargar fuente con ctypes: {e}")
+                print(f"[!] Error al cargar fuente con ctypes: {e}")
                 print(f"   Esto puede ocurrir por permisos. Intentando método alternativo...")
 
             # Método 3: Intentar con pyglet como fallback
             try:
-                from pyglet import font as pyglet_font
+                from pyglet import font as pyglet_font  # type: ignore
                 pyglet_font.add_file(font_path_str)
-                print(f"✅ Fuente Digital-7 Italic cargada con pyglet desde {self.DIGITAL_FONT_PATH.name}")
+                print(f"[OK] Fuente Digital-7 Italic cargada con pyglet desde {self.DIGITAL_FONT_PATH.name}")
                 return 'Digital-7 Italic'
             except ImportError:
-                print(f"⚠️ pyglet no está instalado, saltando este método")
+                print(f"[!] pyglet no está instalado, saltando este método")
             except Exception as e:
-                print(f"⚠️ Error al cargar fuente con pyglet: {e}")
+                print(f"[!] Error al cargar fuente con pyglet: {e}")
 
             # Si todo falla, usar fallback
-            print(f"⚠️ No se pudo cargar la fuente Digital-7, usando Consolas como fallback")
+            print(f"[!] No se pudo cargar la fuente Digital-7, usando Consolas como fallback")
             print(f"   La aplicación funcionará normalmente con la fuente alternativa")
             return 'Consolas'
 
         except Exception as e:
-            print(f"⚠️ Error general al cargar fuente Digital-7 Italic: {e}")
+            print(f"[!] Error general al cargar fuente Digital-7 Italic: {e}")
             print(f"   Usando fuente Consolas como alternativa")
             return 'Consolas'  # Fallback
 
