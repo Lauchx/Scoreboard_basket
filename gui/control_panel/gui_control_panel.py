@@ -12,11 +12,11 @@ from gui.control_panel.ui_components.ui_time import setup_time_panel, setup_time
 from gui.control_panel.ui_components.ui_quarter import setup_quarter_panel
 from gui.control_panel.ui_components.ui_fouls import setup_fouls_panel
 from gui.control_panel.ui_components.ui_action_center import setup_action_panel
-from gui.control_panel.gui_left_control_panel import setup_left_panel
+from gui.control_panel.ui_components.ui_left_panel import setup_left_panel
 from controller.joystick_controller import JoystickController
 from gui.control_panel.ui_components.ui_joystick import setup_joystick_ui, update_joystick_info
 from gui.control_panel.ui_components.ui_color_customization import setup_color_customization_ui
-from gui.control_panel.styles_control_panel_test import apply_styles_control_panel_test
+from gui.control_panel.styles_control_panel import apply_styles_control_panel_test
 from gui.control_panel.ui_components.ui_timeouts import setup_timeout_controls
 
 
@@ -57,10 +57,6 @@ class Gui_control_panel():
         # Configurar controles de timeouts para ambos equipos
         setup_timeout_controls(self, self.home_team, self.home_team_controller, self.frames.match.right_frame)
         setup_timeout_controls(self, self.away_team, self.away_team_controller, self.frames.match.right_frame)
-
-        # setup_joystick_ui(self) - Handled in left panel
-        # setup_color_customization_ui(self) - Handled in left panel
-        #self.joystick_controller.set_ui_cleanup_callback(on_disconnect_callback=update_joystick_info)
 
         # Configurar limpieza al cerrar la ventana
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -132,7 +128,6 @@ def setup_ui(self):
 
     # Fila 2
     setup_fouls_panel(self, self.frames.match.right_frame)
-
 
 def setup_joystick_callbacks(self):
     """
