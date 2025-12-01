@@ -173,28 +173,22 @@ class Gui_scoreboard:
 
     def update_fouls_labels(self):
         """
-<<<<<<< HEAD
         Actualiza la visualización de faltas y BONUS para ambos equipos.
         """
         if USE_MODERN_DESIGN:
             from gui.scoreboard.ui_components.ui_fouls_modern import update_fouls_display_modern
             update_fouls_display_modern(self)
         # TODO: Implementar versión para diseño original si es necesario
-        """
-        Actualiza la visualización de las faltas para ambos equipos.
-        Placeholder para futura implementación de UI de faltas.
-        """
-        # Por ahora es un stub que permite sincronización futura con UI
-        pass
-#>>>>>>> gui-rochii
 
     def update_label_players(self, player, team_contoller):
         if USE_MODERN_DESIGN:
             update_label_players_modern(self, player, team_contoller)
         else:
             team_simple_name_space = _nameSpace_team_for_controller(self, team_contoller.team.name)
-            # Mostrar jugador con número de faltas
-            player_text = f"{player.jersey_number} - {player.name} ({player.foul}F)"
+            # Generar círculos de faltas (5 indicadores)
+            foul_circles = self._get_foul_circles(player.foul)
+            # Formato: num - nombre    ⚪⚪⚪⚪⚪
+            player_text = f"{player.jersey_number} - {player.name}  {foul_circles}"
             team_simple_name_space.labels.players.insert(tk.END, player_text)
             index = team_simple_name_space.labels.players.size() - 1
 
@@ -209,6 +203,13 @@ class Gui_scoreboard:
                 # NEGRO: Jugador inactivo
                 team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})
 
+    def _get_foul_circles(self, foul_count):
+        """Genera la representación visual de faltas con 5 círculos pequeños."""
+        fouls = min(foul_count, 5)
+        on = "●"   # Círculo negro relleno (U+25CF)
+        off = "○"  # Círculo blanco vacío (U+25CB)
+        return (on * fouls) + (off * (5 - fouls))
+
     def refresh_player_list(self, team_controller):
         """
         Refresca la lista completa de jugadores en el scoreboard.
@@ -217,7 +218,6 @@ class Gui_scoreboard:
             # En diseño moderno, update_label_players ya refresca toda la lista
             # Pasamos None como player ya que no se usa en la lógica moderna de refresco
             from gui.scoreboard.apply_modern_design import update_label_players_modern
-            # Creamos un dummy player si es necesario, o modificamos update_label_players_modern para aceptar None
             # Revisando apply_modern_design.py, usa player_obj del loop, el argumento player no se usa excepto compatibilidad
             update_label_players_modern(self, None, team_controller)
         else:
@@ -225,24 +225,9 @@ class Gui_scoreboard:
             team_simple_name_space = _nameSpace_team_for_controller(self, team_controller.team.name)
             if hasattr(team_simple_name_space.labels, 'players'):
                 team_simple_name_space.labels.players.delete(0, tk.END)
-                
+
                 for player in team_controller.team.players:
                     self.update_label_players(player, team_controller)
-
-    def refresh_player_list(self, team_controller):
-        """Update the complete player list for a team"""
-        team_simple_name_space = _nameSpace_team_for_controller(self, team_controller.team.name)
-        # Clear current list
-        team_simple_name_space.labels.players.delete(0, tk.END)
-        # Add all players
-        for player in team_controller.team.players:
-            team_simple_name_space.labels.players.insert(tk.END, f"{player.jersey_number} - {player.name}")
-            index = team_simple_name_space.labels.players.size() - 1
-            if player.is_active:
-                team_simple_name_space.labels.players.itemconfig(index, {'fg': 'green'})
-            else:
-                team_simple_name_space.labels.players.itemconfig(index, {'fg': 'black'})
-        print(f"Lista de jugadores actualizada - Equipo: {team_controller.team.name}")
 
 def simpleNamespace_forUi(self):
         #self.labels = SimpleNamespace(home_team=SimpleNamespace(),away_team=SimpleNamespace(),match=SimpleNamespace())
@@ -298,3 +283,115 @@ def creates_away_team(self):
     #ui_timeouts
     create_timeout_indicators(self.away_team.frames, self.labels.away_team)
 
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MÉTODOS PARA CAMBIO DE FONDO AL TERMINAR EL TIEMPO
+# ═══════════════════════════════════════════════════════════════════════════
+
+def set_background_red(self):
+    """
+    Cambia el fondo del scoreboard a rojo cuando el tiempo llega a 00:00.
+    """
+    try:
+        if USE_MODERN_DESIGN:
+            # Guardar color original si no está guardado
+            if not hasattr(self, '_original_bg_color'):
+                self._original_bg_color = self.modern_style.COLORS['bg_primary']
+
+            # Cambiar fondo a rojo
+            self.root.configure(bg='#FF0000')
+
+            # Cambiar también los frames principales
+            for widget in self.root.winfo_children():
+                try:
+                    widget.configure(bg='#FF0000')
+                except:
+                    pass
+        else:
+            # Diseño original
+            if not hasattr(self, '_original_bg_color'):
+                self._original_bg_color = 'black'
+            self.root.configure(bg='#FF0000')
+
+        print("[OK] Fondo del scoreboard cambiado a ROJO")
+    except Exception as e:
+        print(f"[!] Error al cambiar fondo a rojo: {e}")
+
+
+def restore_background(self):
+    """
+    Restaura el fondo original del scoreboard.
+    """
+    try:
+        if hasattr(self, '_original_bg_color'):
+            if USE_MODERN_DESIGN:
+                original_color = self.modern_style.COLORS['bg_primary']
+                self.root.configure(bg=original_color)
+
+                # Restaurar también los frames principales
+                for widget in self.root.winfo_children():
+                    try:
+                        widget.configure(bg=original_color)
+                    except:
+                        pass
+            else:
+                self.root.configure(bg=self._original_bg_color)
+
+            print("[OK] Fondo del scoreboard restaurado")
+    except Exception as e:
+        print(f"[!] Error al restaurar fondo: {e}")
+
+
+# Agregar métodos a la clase Gui_scoreboard
+Gui_scoreboard.set_background_red = set_background_red
+Gui_scoreboard.restore_background = restore_background
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TOGGLE VISIBILIDAD DE SECCIÓN DE JUGADORES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def toggle_players_section(self, is_home, visible):
+    """
+    Muestra u oculta la sección de jugadores de un equipo en el scoreboard.
+
+    Args:
+        is_home (bool): True para equipo local, False para visitante
+        visible (bool): True para mostrar, False para ocultar
+    """
+    try:
+        # Obtener el namespace del equipo correspondiente
+        team_namespace = self.home_team if is_home else self.away_team
+
+        # Verificar que existe el widget de jugadores
+        if not hasattr(team_namespace.labels, 'players'):
+            print(f"[!] No se encontró el widget de jugadores para {'HOME' if is_home else 'AWAY'}")
+            return
+
+        players_widget = team_namespace.labels.players
+
+        if visible:
+            # Mostrar la sección de jugadores
+            # Restaurar la posición en el grid
+            col = 0 if is_home else 2
+            padding = (0, 15) if is_home else (15, 0)
+            players_widget.grid(
+                row=0,
+                column=col,
+                rowspan=3,
+                sticky="nsew",
+                padx=padding,
+                pady=5
+            )
+            print(f"[OK] Jugadores {'LOCAL' if is_home else 'VISITANTE'} visibles")
+        else:
+            # Ocultar la sección de jugadores (quitar del grid sin destruir)
+            players_widget.grid_remove()
+            print(f"[OK] Jugadores {'LOCAL' if is_home else 'VISITANTE'} ocultos")
+
+    except Exception as e:
+        print(f"[!] Error al toggle jugadores: {e}")
+
+
+# Agregar método toggle_players_section a la clase Gui_scoreboard
+Gui_scoreboard.toggle_players_section = toggle_players_section

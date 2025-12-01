@@ -140,20 +140,42 @@ def delete_player(self, team_simple_name_space, team_controller):
 
 def toggle_player_active(self, team_simple_name_space, team_controller):
     """Toggle active status of selected player"""
+    from tkinter import messagebox
+
+    # Límite máximo de titulares
+    MAX_STARTERS = 5
+
     jersey_number = get_selected_player_number(team_simple_name_space)
     if jersey_number is not None:
+        # Buscar el jugador
+        target_player = None
+        for player in team_controller.team.players:
+            if int(player.jersey_number) == jersey_number:
+                target_player = player
+                break
+
+        if target_player is None:
+            return
+
+        # Validar límite de titulares si se va a activar
+        if not target_player.is_active:  # Va a pasar a activo
+            current_starters = sum(1 for p in team_controller.team.players if p.is_active)
+            if current_starters >= MAX_STARTERS:
+                messagebox.showwarning(
+                    "Límite de titulares",
+                    "Solo pueden haber 5 titulares al mismo tiempo."
+                )
+                return
+
         # Use the controller to toggle the player's active state (ensures model consistency)
         team_controller.toggle_player_active(jersey_number)
 
         # Reflect the change in the UI var (if present)
-        for player in team_controller.team.players:
-            if int(player.jersey_number) == jersey_number:
-                try:
-                    team_simple_name_space.player.is_active_var.set(player.is_active)
-                except Exception:
-                    # If the namespace var isn't available, ignore silently
-                    pass
-                break
+        try:
+            team_simple_name_space.player.is_active_var.set(target_player.is_active)
+        except Exception:
+            # If the namespace var isn't available, ignore silently
+            pass
 
         # Update scoreboard view
         self.parent.scoreboard_window.refresh_player_list(team_controller)

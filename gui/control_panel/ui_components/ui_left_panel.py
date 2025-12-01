@@ -108,31 +108,46 @@ def setup_team_form(self, parent_frame, team_type):
     setattr(self, f"{team_type}_is_active_var", is_active_var)
     
     def toggle_player_active():
+        from tkinter import messagebox
+
+        # Límite máximo de titulares
+        MAX_STARTERS = 5
+
         tree = getattr(self, f"{team_type}_players_tree")
         selected_item = tree.selection()
         if not selected_item:
             return
-        
+
         # Obtener datos del item seleccionado
         item = tree.item(selected_item)
         jersey_number = int(item['values'][0])
-        
+
         # Buscar el jugador en el controller
         player = None
         for p in team_controller.team.players:
             if int(p.jersey_number) == jersey_number:
                 player = p
                 break
-        
+
         if player:
+            # Validar límite de titulares si se va a activar
+            if not player.is_active:  # Va a pasar a activo
+                current_starters = sum(1 for p in team_controller.team.players if p.is_active)
+                if current_starters >= MAX_STARTERS:
+                    messagebox.showwarning(
+                        "Límite de titulares",
+                        "Solo pueden haber 5 titulares al mismo tiempo."
+                    )
+                    return
+
             # Cambiar estado
             player.is_active = not player.is_active
-            
+
             # Actualizar scoreboard si está disponible
             if hasattr(self, 'main_panel') and self.main_panel is not None:
                 if hasattr(self.main_panel, 'scoreboard_window'):
                     self.main_panel.scoreboard_window.update_label_players(player, team_controller)
-            
+
             status_text = "Titular" if player.is_active else "No Titular"
             status_val = '✓' if player.is_active else '○'
 
@@ -156,19 +171,27 @@ def setup_team_form(self, parent_frame, team_type):
         selected_item = tree.selection()
         if not selected_item:
             return
-        
+
         # Obtener datos del item seleccionado
         item = tree.item(selected_item)
         jersey_number = int(item['values'][0])
-        
+
         # Buscar el jugador en el controller
         player = None
         for p in team_controller.team.players:
             if int(p.jersey_number) == jersey_number:
                 player = p
                 break
-        
+
         if player:
+            # Validar que hay faltas de equipo disponibles para asignar
+            if not team_controller.can_assign_player_foul():
+                messagebox.showwarning(
+                    "Faltas no disponibles",
+                    "No hay faltas de equipo disponibles para asignar.\n\nPrimero agregá una falta de equipo."
+                )
+                return
+
             # Agregar falta
             result = team_controller.add_player_foul(player)
             
@@ -305,12 +328,26 @@ def setup_team_form(self, parent_frame, team_type):
     ttk.Button(fouls_buttons_frame, text="➕ Sumar Falta", style="PlayerForm.TButton", command=add_player_foul_action).pack(side="left", fill="x", expand=True, padx=1)
     ttk.Button(fouls_buttons_frame, text="➖ Restar Falta", style="PlayerForm.TButton", command=subtract_player_foul_action).pack(side="left", fill="x", expand=True, padx=1)
 
+    # Constantes de límites
+    MAX_PLAYERS_PER_TEAM = 12
+    MAX_STARTERS = 5
+
     # Funciones para agregar y eliminar jugadores
     def add_player_action():
+        from tkinter import messagebox
+
         player_name = player_entry.get().strip()
         player_jersey = dorsal_combo.get().strip()
         player_is_active = is_active_var.get()
-        
+
+        # Validar límite máximo de jugadores (12)
+        if len(team_controller.team.players) >= MAX_PLAYERS_PER_TEAM:
+            messagebox.showwarning(
+                "Límite de jugadores",
+                "No se pueden cargar más de 12 jugadores por equipo."
+            )
+            return
+
         if not player_name:
             return
 
@@ -318,11 +355,22 @@ def setup_team_form(self, parent_frame, team_type):
             return
 
         jersey_int = int(player_jersey)
-        
+
         # Verificar duplicados
         existing = [int(p.jersey_number) for p in team_controller.team.players]
         if jersey_int in existing:
+            messagebox.showwarning("Dorsal duplicado", f"El número #{jersey_int} ya está en uso en el equipo.")
             return
+
+        # Validar límite de titulares (5) si se marca como titular
+        if player_is_active:
+            current_starters = sum(1 for p in team_controller.team.players if p.is_active)
+            if current_starters >= MAX_STARTERS:
+                messagebox.showwarning(
+                    "Límite de titulares",
+                    "Solo pueden haber 5 titulares al mismo tiempo."
+                )
+                return
 
         player = Player(player_name, jersey_int, player_is_active)
         team_controller.add_player_in_team(player)

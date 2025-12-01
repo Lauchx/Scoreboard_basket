@@ -192,10 +192,31 @@ def creates_away_team_modern(scoreboard_instance):
     )
 
 
+def get_foul_circles(foul_count):
+    """
+    Genera la representación visual de faltas con 5 círculos pequeños.
+
+    Args:
+        foul_count: Número de faltas del jugador (0-5)
+
+    Returns:
+        str: 5 círculos pequeños, encendidos (●) o apagados (○)
+    """
+    # Limitar a 5 faltas máximo
+    fouls = min(foul_count, 5)
+    # Círculos pequeños Unicode (más compactos que emojis)
+    on = "●"   # Círculo negro relleno (U+25CF)
+    off = "○"  # Círculo blanco vacío (U+25CB)
+    return (on * fouls) + (off * (5 - fouls))
+
+
 def update_label_players_modern(scoreboard_instance, player, team_controller):
     """
     Actualiza la lista COMPLETA de jugadores con colores modernos para activos/inactivos/suspendidos.
     NO inserta nuevos jugadores, sino que refresca toda la lista.
+
+    Formato de visualización:
+    - num - nombre    ⚪⚪⚪⚪⚪  (círculos de faltas)
 
     Colores:
     - Verde: Jugador activo en cancha
@@ -220,8 +241,11 @@ def update_label_players_modern(scoreboard_instance, player, team_controller):
 
     # Reconstruir la lista completa con todos los jugadores
     for player_obj in team_controller.team.players:
-        # Insertar jugador con número de faltas
-        player_text = f"{player_obj.jersey_number} - {player_obj.name} ({player_obj.foul}F)"
+        # Generar círculos de faltas (5 indicadores)
+        foul_circles = get_foul_circles(player_obj.foul)
+
+        # Formato: num - nombre    ⚪⚪⚪⚪⚪
+        player_text = f"{player_obj.jersey_number} - {player_obj.name}  {foul_circles}"
         team_simple_name_space.labels.players.insert(tk.END, player_text)
 
         index = team_simple_name_space.labels.players.size() - 1

@@ -1,4 +1,12 @@
 from tkinter import ttk
+import pygame
+from pathlib import Path
+
+# Inicializar pygame mixer para sonidos
+pygame.mixer.init()
+
+# Ruta al archivo de bocina
+BOCINA_PATH = Path(__file__).parent.parent.parent.parent / "assets" / "bocina.mp3"
 
 def setup_time_panel(self, parent_frame):
     """Configura el panel de tiempo (cronómetro)"""
@@ -51,16 +59,49 @@ def ui_for_change_time(self, parent):
     
     ttk.Button(parent, text="Actualizar", command=lambda: change_time(self)).grid(row=0, column=4, sticky="nsew", padx=5)
 
-def start_timer(self):  
-        time_left = self.match_state_controller.match_state.seconds_time_left
-        if time_left > 0 and self.is_active_timer:
-            self.match_state_controller.match_state.seconds_time_left -= 1
-            self.scoreboard_window.update_time_labels()
+def start_timer(self):
+    """
+    Inicia el temporizador del partido.
+
+    Comportamiento:
+    - Cuando hay más de 60 segundos: actualiza cada 1 segundo
+    - Cuando hay 60 segundos o menos: actualiza cada 10ms para mostrar centésimas
+    - Cuando llega a 00:00: reproduce bocina y cambia fondo a rojo
+    """
+    time_left = self.match_state_controller.match_state.seconds_time_left
+
+    # Inicializar milisegundos si no existe
+    if not hasattr(self.match_state_controller.match_state, 'milliseconds_left'):
+        self.match_state_controller.match_state.milliseconds_left = 0
+
+    if (time_left > 0 or self.match_state_controller.match_state.milliseconds_left > 0) and self.is_active_timer:
+
+        if time_left < 60:
+            # Último minuto: actualizar cada 10ms para mostrar centésimas
+            self.match_state_controller.match_state.milliseconds_left -= 10
+
+            if self.match_state_controller.match_state.milliseconds_left < 0:
+                if time_left > 0:
+                    self.match_state_controller.match_state.seconds_time_left -= 1
+                    self.match_state_controller.match_state.milliseconds_left = 990
+                else:
+                    self.match_state_controller.match_state.milliseconds_left = 0
+
+            milliseconds = self.match_state_controller.match_state.milliseconds_left
+            self.scoreboard_window.update_time_labels(milliseconds)
             update_time_label(self)
-            self.is_active_timer = True
-            self.root.after(1000, lambda: start_timer(self))  
+            self.root.after(10, lambda: start_timer(self))
         else:
-           print("END")   
+            # Tiempo normal: actualizar cada 1 segundo
+            self.match_state_controller.match_state.seconds_time_left -= 1
+            self.match_state_controller.match_state.milliseconds_left = 0
+            self.scoreboard_window.update_time_labels(0)
+            update_time_label(self)
+            self.root.after(1000, lambda: start_timer(self))
+    else:
+        # TIEMPO TERMINADO - Reproducir bocina y cambiar fondo a rojo
+        print("🔔 TIEMPO TERMINADO - Reproduciendo bocina")
+        on_time_ended(self)
 
 def pause_resume_timer(self):
     self.is_active_timer = not self.is_active_timer
@@ -84,17 +125,25 @@ def change_time(self):
      else:
          minutes = int(min_text) if min_text.isdigit() else 0
          seconds = int(sec_text) if sec_text.isdigit() else 0
-     self.match_state_controller.match_state.seconds_match_time = (minutes * 60) + seconds 
+     self.match_state_controller.match_state.seconds_match_time = (minutes * 60) + seconds
      self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
-     self.scoreboard_window.update_time_labels()
+     # Resetear milisegundos al cambiar el tiempo
+     self.match_state_controller.match_state.milliseconds_left = 0
+     self.scoreboard_window.update_time_labels(0)
+     # Restaurar fondo original del scoreboard
+     restore_scoreboard_background(self)
 
 def reset_timer(self):
     self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
+    # Resetear milisegundos al reiniciar
+    self.match_state_controller.match_state.milliseconds_left = 0
     if self.is_active_timer:
         pause_resume_timer(self)
         change_text_button_timer(self, 'Iniciar')
-    self.scoreboard_window.update_time_labels()
+    self.scoreboard_window.update_time_labels(0)
     update_time_label(self)
+    # Restaurar fondo original del scoreboard
+    restore_scoreboard_background(self)
 
 def manage_timer(self):
     if (self.is_active_timer is not None):
@@ -117,3 +166,37 @@ def update_time_label(self):
     except Exception:
         pass
 
+
+def on_time_ended(self):
+    """
+    Se ejecuta cuando el tiempo llega a 00:00.
+    Reproduce la bocina y cambia el fondo del scoreboard a rojo.
+    """
+    # Reproducir bocina a volumen máximo
+    try:
+        if BOCINA_PATH.exists():
+            pygame.mixer.music.load(str(BOCINA_PATH))
+            pygame.mixer.music.set_volume(1.0)  # Volumen máximo
+            pygame.mixer.music.play()
+            print(f"[OK] Bocina reproducida desde {BOCINA_PATH}")
+        else:
+            print(f"[!] No se encontró el archivo de bocina en {BOCINA_PATH}")
+    except Exception as e:
+        print(f"[!] Error al reproducir bocina: {e}")
+
+    # Cambiar fondo del scoreboard a rojo
+    try:
+        self.scoreboard_window.set_background_red()
+    except Exception as e:
+        print(f"[!] Error al cambiar fondo a rojo: {e}")
+
+
+def restore_scoreboard_background(self):
+    """
+    Restaura el fondo original del scoreboard.
+    Se llama cuando se reinicia o actualiza el tiempo.
+    """
+    try:
+        self.scoreboard_window.restore_background()
+    except Exception as e:
+        print(f"[!] Error al restaurar fondo: {e}")

@@ -11,7 +11,7 @@ from pathlib import Path
 def create_time_labels_modern(self):
     """
     Crea el label del reloj con fuente digital profesional tipo 7 segmentos.
-    Formato: MM:SS con fuente Digital-7 Italic real.
+    Formato: MM:SS con fuente Digital-7 Mono (monoespaciada para evitar saltos).
     Incluye un borde blanco para destacar visualmente el reloj.
 
     Args:
@@ -26,33 +26,28 @@ def create_time_labels_modern(self):
     font_size = self.modern_style.BASE_SIZES['font_time']
     border_width = self.modern_style.BASE_SIZES['time_border_width']
 
-    # La fuente Digital-7 Italic ya está cargada en Windows por modern_style
-    # Usar el nombre exacto de la familia de fuente que Windows reconoce
+    # Usar fuente MONO (monoespaciada) para que el reloj no "salte"
+    # La fuente Digital-7 Mono tiene todos los dígitos del mismo ancho
+    font_family = 'Digital-7 Mono'
 
-    # Crear label con tk.Label (no ttk) para mejor soporte de fuentes personalizadas
-    # Usar 'Digital-7 Italic' como nombre de familia (así es como Windows la registra)
-    # Agregar borde blanco (highlightthickness) para destacar el reloj
-    # IMPORTANTE: width=5 para mantener ancho fijo (5 caracteres: "MM:SS" o "SS.ms")
+    # Crear label del reloj con fuente monoespaciada
     self.match.labels.time = tk.Label(
         self.frames.match,
         text=f"{minutes:02}:{seconds:02}",
-        font=('Digital-7 Italic', font_size),  # Usar el nombre completo de la fuente
+        font=(font_family, font_size),
         fg=fg_color,
         bg=bg_color,
         anchor='center',
-        width=5,  # ANCHO FIJO: 5 caracteres para evitar que cambie de tamaño
-        padx=10,  # Reducido de 20 a 10 para columna central más compacta
-        pady=12,  # Reducido de 15 a 12
+        padx=15,
+        pady=12,
         # Borde blanco alrededor del reloj
-        highlightbackground='#ffffff',  # Color del borde: blanco
-        highlightcolor='#ffffff',       # Color del borde cuando tiene foco: blanco
-        highlightthickness=border_width,  # Grosor del borde
-        relief='solid',  # Estilo de borde sólido
-        borderwidth=border_width  # Ancho del borde
+        highlightbackground='#ffffff',
+        highlightcolor='#ffffff',
+        highlightthickness=border_width,
+        relief='solid',
+        borderwidth=border_width
     )
+    self.match.labels.time.grid(row=0, column=0, sticky="nsew", pady=(5, 5), padx=2)
 
-    print(f"[OK] Reloj creado con fuente Digital-7 Italic (tamaño: {font_size}, borde: {border_width}px)")
-
-    # {minutes:02}:{seconds:02} -> (:02) agrega dos dígitos si el número es menor a 10
-    self.match.labels.time.grid(row=0, column=0, sticky="nsew", pady=(5, 5), padx=2)  # Padding horizontal mínimo
+    print(f"[OK] Reloj creado con fuente {font_family} (tamaño: {font_size}, monoespaciada)")
 

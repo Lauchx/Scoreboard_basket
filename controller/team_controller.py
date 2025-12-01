@@ -179,7 +179,8 @@ class Team_controller:
     def add_player_foul(self, player):
         """
         Suma una falta a un jugador específico.
-        También suma una falta al contador del equipo.
+        NO suma automáticamente al contador del equipo.
+        Se debe registrar la falta de equipo primero con add_team_foul().
 
         Args:
             player (Player): Jugador al que sumar la falta
@@ -190,8 +191,11 @@ class Team_controller:
         # Sumar falta al jugador
         player_info = player.add_foul()
 
-        # Sumar falta al contador del equipo
-        team_info = self.team.foul_manager.add_team_foul()
+        # Registrar que esta falta fue asignada a un jugador
+        self.team.foul_manager.register_player_foul()
+
+        # Obtener estado actual del equipo (sin modificar)
+        team_info = self.team.foul_manager.get_status_info()
 
         return {
             'player_info': player_info,
@@ -201,7 +205,7 @@ class Team_controller:
     def subtract_player_foul(self, player):
         """
         Resta una falta a un jugador específico.
-        También resta una falta al contador del equipo.
+        NO modifica automáticamente el contador del equipo.
 
         Args:
             player (Player): Jugador al que restar la falta
@@ -212,13 +216,34 @@ class Team_controller:
         # Restar falta al jugador
         player_info = player.subtract_foul()
 
-        # Restar falta al contador del equipo
-        team_info = self.team.foul_manager.subtract_team_foul()
+        # Des-registrar la falta de jugador
+        self.team.foul_manager.unregister_player_foul()
+
+        # Obtener estado actual del equipo (sin modificar)
+        team_info = self.team.foul_manager.get_status_info()
 
         return {
             'player_info': player_info,
             'team_info': team_info
         }
+
+    def can_assign_player_foul(self):
+        """
+        Verifica si se puede asignar una falta a un jugador.
+
+        Returns:
+            bool: True si hay faltas de equipo disponibles para asignar
+        """
+        return self.team.foul_manager.can_assign_player_foul()
+
+    def get_available_fouls_for_players(self):
+        """
+        Retorna el número de faltas de equipo disponibles para asignar a jugadores.
+
+        Returns:
+            int: Número de faltas disponibles
+        """
+        return self.team.foul_manager.get_available_fouls_for_players()
 
     def suspend_player_manually(self, player):
         """

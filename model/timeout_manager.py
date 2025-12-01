@@ -1,10 +1,10 @@
 """
 Gestor de tiempos muertos (timeouts) de básquetbol.
-Implementa las reglas oficiales de timeouts por periodo.
+Implementa las reglas de timeouts por periodo.
 
-Reglas oficiales:
-- Primera mitad (cuartos 1-2): 2 timeouts disponibles
-- Segunda mitad (cuartos 3-4): 3 timeouts disponibles  
+Reglas configuradas:
+- Primera mitad (cuartos 1-2): 3 timeouts disponibles
+- Segunda mitad (cuartos 3-4): 3 timeouts disponibles
 - Overtime (cuarto 5+): 1 timeout adicional por periodo extra
 - Cada timeout dura 1 minuto
 """
@@ -54,18 +54,18 @@ class TimeoutManager:
     def get_max_allowed_for_period(self):
         """
         Retorna el número máximo de timeouts permitidos según el periodo actual.
-        
+
         Returns:
             int: Número máximo de timeouts permitidos
-            
+
         Reglas:
-            - Cuartos 1-2 (primera mitad): 2 timeouts
+            - Cuartos 1-2 (primera mitad): 3 timeouts
             - Cuartos 3-4 (segunda mitad): 3 timeouts
             - Cuarto 5+ (overtime): 1 timeout por periodo extra
         """
         if self.current_quarter <= 2:
-            # Primera mitad: 2 timeouts
-            return 2
+            # Primera mitad: 3 timeouts
+            return 3
         elif self.current_quarter <= 4:
             # Segunda mitad: 3 timeouts
             return 3

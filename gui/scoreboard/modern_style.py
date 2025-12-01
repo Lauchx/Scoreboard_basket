@@ -17,8 +17,9 @@ class ScoreboardModernStyle:
     Inspirado en tableros digitales de NBA/FIBA con efectos tipo display LED.
     """
 
-    # 📁 RUTA A LA FUENTE DIGITAL-7 ITALIC
+    # 📁 RUTAS A LAS FUENTES DIGITAL-7
     DIGITAL_FONT_PATH = Path(__file__).parent.parent.parent / "assets" / "digital_7" / "digital-7 (italic).ttf"
+    DIGITAL_MONO_FONT_PATH = Path(__file__).parent.parent.parent / "assets" / "digital_7" / "digital-7 (mono).ttf"
 
     # 🎨 PALETA DE COLORES PROFESIONAL (NBA/FIBA Style)
     COLORS = {
@@ -75,7 +76,7 @@ class ScoreboardModernStyle:
         'font_score': 80,          # AUMENTADO de 60 a 80 para mayor visibilidad
         'font_time': 100,          # MANTENER GRANDE - No se reduce
         'font_quarter': 24,        # Reducido de 32 a 24 (25% más pequeño)
-        'font_possession_arrow': 120,  # Reducido de 180 a 120 (33% más pequeño)
+        'font_possession_arrow': 50,  # Proporcional a BONUS, visible desde lejos
         'font_possession_text': 20,    # Reducido de 28 a 20 (29% más pequeño)
         'font_label': 16,          # Reducido de 20 a 16 (20% más pequeño)
         'font_players': 13,        # Reducido de 14 a 13 (ligeramente más pequeño)
@@ -127,93 +128,49 @@ class ScoreboardModernStyle:
 
     def _load_digital_font(self):
         """
-        Carga la fuente Digital-7 Italic desde el archivo TTF.
-        Usa múltiples métodos para máxima compatibilidad sin requerir permisos de administrador.
+        Carga las fuentes Digital-7 (Italic y Mono) desde los archivos TTF.
+        La fuente Mono es monoespaciada y evita que el reloj "salte".
 
         Returns:
             str: Nombre de la familia de fuente cargada, o fallback si falla
         """
         try:
-            # Verificar que el archivo existe
-            if not self.DIGITAL_FONT_PATH.exists():
-                print(f"[!] Advertencia: No se encontró la fuente en {self.DIGITAL_FONT_PATH}")
-                return 'Consolas'  # Fallback
+            import ctypes
+            from ctypes import wintypes
 
-            font_path_str = str(self.DIGITAL_FONT_PATH.absolute())
+            # Cargar gdi32.dll
+            gdi32 = ctypes.WinDLL('gdi32', use_last_error=True)
+            AddFontResourceEx = gdi32.AddFontResourceExW
+            AddFontResourceEx.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.LPVOID]
+            AddFontResourceEx.restype = ctypes.c_int
+            FR_PRIVATE = 0x10  # Fuente privada, no se instala permanentemente
 
-            # Método 1: Verificar si la fuente Digital-7 ya está disponible
-            # Verificar en la lista de fuentes del sistema
-            try:
-                available_fonts = tkfont.families()
-                # Buscar variantes de Digital-7 en las fuentes disponibles
-                digital_fonts = [f for f in available_fonts if 'digital' in f.lower() or 'Digital' in f]
+            fonts_loaded = []
 
-                if digital_fonts:
-                    # La fuente ya está disponible en el sistema
-                    print(f"[OK] Fuente Digital-7 ya disponible en el sistema: {digital_fonts}")
-                    return 'Digital-7 Italic'  # Retornar el nombre que usa ui_time_modern.py
-                else:
-                    # La fuente no está en la lista, intentar cargarla
-                    print("[!] Fuente Digital-7 no encontrada en el sistema, intentando cargarla...")
-            except Exception as e:
-                print(f"[!] Error al verificar fuentes disponibles: {e}")
-
-            # Método 2: Cargar con ctypes (Windows) - SIN SendMessageW para evitar permisos
-            try:
-                import ctypes
-                from ctypes import wintypes
-
-                # Cargar gdi32.dll
-                gdi32 = ctypes.WinDLL('gdi32', use_last_error=True)
-
-                # Definir la función AddFontResourceExW
-                AddFontResourceEx = gdi32.AddFontResourceExW
-                AddFontResourceEx.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.LPVOID]
-                AddFontResourceEx.restype = ctypes.c_int
-
-                # FR_PRIVATE = 0x10 (fuente privada, no se instala permanentemente)
-                FR_PRIVATE = 0x10
-
-                # Cargar la fuente
-                result = AddFontResourceEx(font_path_str, FR_PRIVATE, 0)
-
+            # Cargar fuente Italic
+            if self.DIGITAL_FONT_PATH.exists():
+                result = AddFontResourceEx(str(self.DIGITAL_FONT_PATH.absolute()), FR_PRIVATE, 0)
                 if result > 0:
+                    fonts_loaded.append('Digital-7 Italic')
                     print(f"[OK] Fuente Digital-7 Italic cargada desde {self.DIGITAL_FONT_PATH.name}")
 
-                    # NO usar SendMessageW - puede requerir permisos de administrador
-                    # La fuente funcionará sin la notificación broadcast
+            # Cargar fuente Mono (monoespaciada - para el reloj)
+            if self.DIGITAL_MONO_FONT_PATH.exists():
+                result = AddFontResourceEx(str(self.DIGITAL_MONO_FONT_PATH.absolute()), FR_PRIVATE, 0)
+                if result > 0:
+                    fonts_loaded.append('Digital-7 Mono')
+                    print(f"[OK] Fuente Digital-7 Mono cargada desde {self.DIGITAL_MONO_FONT_PATH.name}")
 
-                    # Guardar referencia para poder descargar la fuente al cerrar
-                    self.loaded_font_path = font_path_str
-
-                    return 'Digital-7 Italic'
-                else:
-                    print(f"[!] AddFontResourceEx retournó {result}, intentando método alternativo...")
-
-            except Exception as e:
-                print(f"[!] Error al cargar fuente con ctypes: {e}")
-                print(f"   Esto puede ocurrir por permisos. Intentando método alternativo...")
-
-            # Método 3: Intentar con pyglet como fallback
-            try:
-                from pyglet import font as pyglet_font  # type: ignore
-                pyglet_font.add_file(font_path_str)
-                print(f"[OK] Fuente Digital-7 Italic cargada con pyglet desde {self.DIGITAL_FONT_PATH.name}")
+            if fonts_loaded:
                 return 'Digital-7 Italic'
-            except ImportError:
-                print(f"[!] pyglet no está instalado, saltando este método")
-            except Exception as e:
-                print(f"[!] Error al cargar fuente con pyglet: {e}")
-
-            # Si todo falla, usar fallback
-            print(f"[!] No se pudo cargar la fuente Digital-7, usando Consolas como fallback")
-            print(f"   La aplicación funcionará normalmente con la fuente alternativa")
-            return 'Consolas'
+            else:
+                print(f"[!] No se pudieron cargar las fuentes Digital-7, usando Consolas")
+                return 'Consolas'
 
         except Exception as e:
-            print(f"[!] Error general al cargar fuente Digital-7 Italic: {e}")
+            print(f"[!] Error al cargar fuentes Digital-7: {e}")
             print(f"   Usando fuente Consolas como alternativa")
-            return 'Consolas'  # Fallback
+            return 'Consolas'
 
     def _setup_theme(self):
         """Configura el tema base del scoreboard."""

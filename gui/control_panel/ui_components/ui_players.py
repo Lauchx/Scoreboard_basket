@@ -39,12 +39,25 @@ def checkbutton_players(team_simple_name_space):
 def button_add_player(self, team_controller, team_simple_name_space):
     ttk.Button(team_simple_name_space.frames.team.labelFrame, text=f"Añadir jugador", command=lambda: add_player(self, team_controller, team_simple_name_space)).grid(row=4, column=6)
 
+# Constantes de límites de jugadores
+MAX_PLAYERS_PER_TEAM = 12
+MAX_STARTERS = 5
+
+
 def add_player(self, team_controller, team_simple_name_space):
     # llamaría al metodo del team_contorler que se encarga de agregar el jugador
     # team_controller.add_player()
     player_name = team_simple_name_space.player.name_var.get().strip()
     player_jersey_number = team_simple_name_space.player.jerseyNumber_var.get().strip()
     player_is_active = team_simple_name_space.player.is_active_var.get()
+
+    # Validar límite máximo de jugadores (12)
+    if len(team_controller.team.players) >= MAX_PLAYERS_PER_TEAM:
+        messagebox.showwarning(
+            "Límite de jugadores",
+            "No se pueden cargar más de 12 jugadores por equipo."
+        )
+        return
 
     # Validaciones: dorsal no vacío y numérico
     if not player_jersey_number:
@@ -61,6 +74,16 @@ def add_player(self, team_controller, team_simple_name_space):
     if jersey_int in existing:
         messagebox.showwarning("Dorsal duplicado", f"El número #{jersey_int} ya está en uso en el equipo.")
         return
+
+    # Validar límite de titulares (5) si se marca como titular
+    if player_is_active:
+        current_starters = sum(1 for p in team_controller.team.players if p.is_active)
+        if current_starters >= MAX_STARTERS:
+            messagebox.showwarning(
+                "Límite de titulares",
+                "Solo pueden haber 5 titulares al mismo tiempo."
+            )
+            return
 
     # Crear jugador con dorsal como entero
     player = Player(player_name, jersey_int, player_is_active)
@@ -231,6 +254,7 @@ def populate_players_listbox_ui(team_controller, listbox):
 def add_player_foul_ui(self, team_controller, listbox):
     """
     Añade una falta al jugador seleccionado.
+    Valida que hay faltas de equipo disponibles para asignar.
     """
     selection = listbox.curselection()
     if not selection:
@@ -239,7 +263,15 @@ def add_player_foul_ui(self, team_controller, listbox):
     player_index = selection[0]
     player = team_controller.team.players[player_index]
 
-    # Añadir falta (automáticamente suma al equipo también)
+    # Validar que hay faltas de equipo disponibles para asignar
+    if not team_controller.can_assign_player_foul():
+        messagebox.showwarning(
+            "Faltas no disponibles",
+            "No hay faltas de equipo disponibles para asignar.\n\nPrimero agregá una falta de equipo."
+        )
+        return
+
+    # Añadir falta al jugador (ya no suma automáticamente al equipo)
     result = team_controller.add_player_foul(player)
 
     # Actualizar listbox
@@ -255,15 +287,16 @@ def add_player_foul_ui(self, team_controller, listbox):
     self.scoreboard_window.update_fouls_labels()
 
     print(f"➕ Falta añadida a {player.name}: {player.foul}/5 faltas")
-    if result['player_info'].get('suspended'):
+    if result['player_info'].get('suspended_now'):
         print(f"🚫 {player.name} ha sido SUSPENDIDO (5 faltas)")
-    if result['team_info'].get('bonus_activated'):
-        print(f"🔴 ¡BONUS ACTIVADO! El equipo tiene {result['team_info']['total_fouls']} faltas")
+    team_fouls = team_controller.get_team_fouls()
+    print(f"   Faltas de equipo: {team_fouls}/5")
 
 
 def subtract_player_foul_ui(self, team_controller, listbox):
     """
     Quita una falta al jugador seleccionado.
+    No modifica automáticamente las faltas de equipo.
     """
     selection = listbox.curselection()
     if not selection:
@@ -272,7 +305,7 @@ def subtract_player_foul_ui(self, team_controller, listbox):
     player_index = selection[0]
     player = team_controller.team.players[player_index]
 
-    # Quitar falta (automáticamente resta del equipo también)
+    # Quitar falta al jugador (ya no modifica automáticamente al equipo)
     result = team_controller.subtract_player_foul(player)
 
     # Actualizar listbox
@@ -347,6 +380,16 @@ def set_player_active_ui(self, team_controller, listbox, is_active):
 
     player_index = selection[0]
     player = team_controller.team.players[player_index]
+
+    # Validar límite de titulares (5) si se intenta marcar como titular
+    if is_active and not player.is_active:  # Solo validar si está pasando de inactivo a activo
+        current_starters = sum(1 for p in team_controller.team.players if p.is_active)
+        if current_starters >= MAX_STARTERS:
+            messagebox.showwarning(
+                "Límite de titulares",
+                "Solo pueden haber 5 titulares al mismo tiempo."
+            )
+            return
 
     # Cambiar estado
     player.is_active = is_active
