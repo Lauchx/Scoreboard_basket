@@ -1,10 +1,10 @@
-from tkinter import messagebox
 import pygame
 import threading
 import time
 from model.joystick.joystick_types import AbstractButton, ControllerType
 from model.joystick.button_mapping import ButtonMapping
 from model.joystick.joystick_config import DEFAULT_SCOREBOARD_ACTIONS
+
 
 class JoystickController:
     """
@@ -14,21 +14,23 @@ class JoystickController:
     1. Detectar joysticks conectados
     2. Leer input de botones y ejes
     3. Mapear acciones a funciones del marcador
+    4. Manejar reconexión automática sin reiniciar la app
     """
 
-    def __init__(self, on_disconnect_callback):
-        # Inicializar pygame y el módulo de joystick
-        pygame.init()
-        pygame.joystick.init()
-
+    def __init__(self, on_disconnect_callback=None, on_reconnect_callback=None):
         # Variables de estado
         self.joystick = None
+        self.joystick_count = 0
         self.is_running = False
         self.thread = None
+        self._pygame_initialized = False
+        self._lock = threading.Lock()  # Para thread-safety
+        self._last_hat_state = (0, 0)  # Estado anterior del D-pad para evitar spam
 
         # Callback functions - aquí conectaremos con el marcador
         self.callbacks = {}
         self.on_disconnect_callback = on_disconnect_callback
+        self.on_reconnect_callback = on_reconnect_callback
 
         # Sistema de mapeo abstracto de botones (inyección del modelo)
         self.button_mapping = ButtonMapping()
@@ -36,7 +38,52 @@ class JoystickController:
         # Configuración de acciones con botones abstractos
         self.action_config = DEFAULT_SCOREBOARD_ACTIONS.copy()
 
-        print("JoystickController inicializado con sistema de mapeo abstracto")
+        # Inicializar pygame de forma segura
+        self._safe_pygame_init()
+
+        print("JoystickController inicializado con sistema de mapeo abstracto y reconexión robusta")
+
+    def _safe_pygame_init(self):
+        """Inicializa pygame de forma segura, evitando errores de doble inicialización."""
+        with self._lock:
+            try:
+                if not self._pygame_initialized:
+                    pygame.init()
+                    pygame.joystick.init()
+                    self._pygame_initialized = True
+                    print("[OK] Pygame inicializado correctamente")
+            except pygame.error as e:
+                print(f"[!] Error al inicializar pygame: {e}")
+
+    def _safe_pygame_reinit(self):
+        """Reinicializa pygame de forma segura para reconexión."""
+        with self._lock:
+            try:
+                # Limpiar recursos previos
+                if self.joystick:
+                    try:
+                        self.joystick.quit()
+                    except:
+                        pass
+                    self.joystick = None
+
+                # Reinicializar el módulo de joystick
+                try:
+                    pygame.joystick.quit()
+                except pygame.error:
+                    pass
+
+                # Pequeña pausa para permitir que el sistema libere recursos
+                time.sleep(0.1)
+
+                # Reinicializar
+                pygame.joystick.init()
+                print("[OK] Pygame joystick reinicializado correctamente")
+                return True
+
+            except pygame.error as e:
+                print(f"[!] Error al reinicializar pygame joystick: {e}")
+                return False
 
     def detect_joysticks(self):
         """
@@ -179,25 +226,27 @@ class JoystickController:
         """
         Inicia el hilo que escucha constantemente el input del joystick.
         Esto permite que el joystick funcione sin bloquear la interfaz.
+
+        Returns:
+            tuple: (bool, str) - (éxito, mensaje)
         """
         # Primero intentar conectar automáticamente si no hay joystick conectado
         if not self.is_connected():
-           
             if self.try_auto_connect():
                 print("🎮 Joystick conectado automáticamente")
             else:
-                messagebox.showinfo("❌ No hay joystick conectado para escuchar")
-                return False
+                print("[!] No hay joystick conectado para escuchar")
+                return (False, "No hay joystick conectado para escuchar")
 
         if self.is_running:
-            messagebox.showinfo("⚠️ Ya se está escuchando el joystick")
-            return False
+            print("[!] Ya se está escuchando el joystick")
+            return (False, "Ya se está escuchando el joystick")
 
         self.is_running = True
         self.thread = threading.Thread(target=self._listen_loop, daemon=True)
         self.thread.start()
         print("🎧 Iniciando escucha del joystick...")
-        return True
+        return (True, "Escucha iniciada correctamente")
 
     def stop_listening(self):
         """Para la escucha del joystick"""
@@ -323,31 +372,41 @@ class JoystickController:
             self.button_mapping.current_mapping = self.button_mapping.CONTROLLER_MAPPINGS[ControllerType.XBOX].copy()
 
     def _check_joystick_connected(self):
-        try:
-          if not hasattr(self, 'joystick_count'):
-            self.try_auto_connect()
-          # Verificar si el dispositivo físico sigue existiendo
-          current_count = pygame.joystick.get_count()
-          if current_count < self.joystick_count:
-            # Se desconectó un joystick
-            raise pygame.error("Joystick desconectado")
+        """
+        Verifica si el joystick sigue conectado.
+        Maneja la desconexión de forma segura sin destruir pygame.
 
-          # Intentar acceder al índice actual
-          pygame.joystick.Joystick(self.joystick.get_id())
-          return True
+        Returns:
+            bool: True si el joystick está conectado, False si se desconectó
+        """
+        try:
+            if not hasattr(self, 'joystick_count'):
+                self.try_auto_connect()
+
+            # Verificar si el dispositivo físico sigue existiendo
+            current_count = pygame.joystick.get_count()
+            if current_count < self.joystick_count:
+                # Se desconectó un joystick
+                raise pygame.error("Joystick desconectado")
+
+            # Intentar acceder al índice actual
+            if self.joystick:
+                pygame.joystick.Joystick(self.joystick.get_id())
+            return True
+
         except (pygame.error, AttributeError) as e:
-            messagebox.showinfo(f"❌ Error en el joystick", f"{e}")
-            self.cleanup()
-            self._clean_ui_control_panel()
-            return False               
+            print(f"[!] Joystick desconectado: {e}")
+            self._handle_disconnection()
+            return False
 
     def _listen_loop(self):
         """
         Bucle principal que escucha constantemente el input del joystick.
         Esta función corre en un hilo separado.
         """
-        # Variables para evitar spam de botones
+        # Variables para evitar spam de botones y D-pad
         button_states = {}
+        self._last_hat_state = (0, 0)
 
         while self.is_running:
             try:
@@ -376,9 +435,12 @@ class JoystickController:
                 # Pequeña pausa para no sobrecargar el CPU
                 time.sleep(0.01)  # 100 FPS es más que suficiente
 
+            except pygame.error as e:
+                print(f"[!] Error de pygame en bucle de escucha: {e}")
+                self._handle_disconnection()
+                break
             except Exception as e:
-                messagebox.showinfo(f"❌ Error en bucle de escucha: ", f"{e}")
-                print( f"{e}")
+                print(f"[!] Error inesperado en bucle de escucha: {e}")
                 break
 
     def _handle_button_press(self, button_id):
@@ -418,20 +480,120 @@ class JoystickController:
     def _handle_hat(self):
         """
         Maneja el D-pad (cruceta direccional).
-        Útil para navegación o acciones direccionales.
+        Mapea las direcciones del D-pad a acciones configuradas.
+        Solo actúa cuando se presiona (no cuando se mantiene).
         """
         if self.joystick.get_numhats() > 0:
             hat = self.joystick.get_hat(0)  # Primer D-pad # hat devuelve (x, y) donde cada valor puede ser -1, 0, o 1
 
-            if hat != (0, 0):  # Si se está presionando alguna dirección
-                pass  # Implementaremos después
+            # Solo actuar cuando cambia el estado del D-pad (evitar spam)
+            if hat != self._last_hat_state:
+                if hat != (0, 0):  # Si se está presionando alguna dirección
+                    # Mapear direcciones del D-pad a botones abstractos
+                    dpad_mapping = {
+                        (-1, 0): AbstractButton.DPAD_LEFT,   # Izquierda
+                        (1, 0): AbstractButton.DPAD_RIGHT,   # Derecha
+                        (0, 1): AbstractButton.DPAD_UP,      # Arriba
+                        (0, -1): AbstractButton.DPAD_DOWN,   # Abajo
+                    }
+
+                    abstract_button = dpad_mapping.get(hat)
+                    if abstract_button:
+                        self._handle_dpad_press(abstract_button)
+
+                self._last_hat_state = hat
+
+    def _handle_dpad_press(self, abstract_button):
+        """
+        Maneja cuando se presiona una dirección del D-pad.
+        Busca la acción correspondiente y ejecuta el callback.
+
+        Args:
+            abstract_button (AbstractButton): Botón abstracto del D-pad presionado
+        """
+        print(f"🎮 D-Pad presionado: {abstract_button.value}")
+
+        # Buscar la acción correspondiente a este botón abstracto
+        for action, mapped_button in self.action_config.items():
+            if mapped_button == abstract_button:
+                if action in self.callbacks:
+                    try:
+                        self.callbacks[action]()
+                        print(f"[OK] Acción D-Pad ejecutada: {action}")
+                    except Exception as e:
+                        print(f"❌ Error ejecutando acción D-Pad {action}: {e}")
+                else:
+                    print(f"[!] No hay callback para la acción D-Pad: {action}")
+                return
+
+        print(f"[!] D-Pad {abstract_button.value} no mapeado a ninguna acción")
    
-    def _clean_ui_control_panel(self):
-        print(self.on_disconnect_callback())
-        if self.on_disconnect_callback():
-            self.on_disconnect_callback()
+    def _handle_disconnection(self):
+        """
+        Maneja la desconexión del joystick de forma segura.
+        NO destruye pygame, solo limpia el joystick para permitir reconexión.
+        """
+        print("[!] Manejando desconexión del joystick...")
+
+        # Detener la escucha
+        self.is_running = False
+
+        # Limpiar el joystick sin destruir pygame
+        with self._lock:
+            if self.joystick:
+                try:
+                    self.joystick.quit()
+                except:
+                    pass
+                self.joystick = None
+            self.joystick_count = 0
+
+        # Notificar a la UI de forma segura
+        self._safe_ui_callback()
+
+        print("[OK] Joystick desconectado de forma segura. Puede reconectar.")
+
+    def _safe_ui_callback(self):
+        """
+        Ejecuta el callback de desconexión de forma segura.
+        Maneja errores si la UI no está disponible.
+        """
+        try:
+            if self.on_disconnect_callback and callable(self.on_disconnect_callback):
+                self.on_disconnect_callback()
+        except Exception as e:
+            print(f"[!] Error al notificar UI de desconexión: {e}")
+
+    def attempt_reconnection(self):
+        """
+        Intenta reconectar el joystick después de una desconexión.
+        Puede ser llamado desde la UI o automáticamente.
+
+        Returns:
+            bool: True si se reconectó exitosamente, False si no
+        """
+        print("[*] Intentando reconectar joystick...")
+
+        # Reinicializar el módulo de joystick
+        if not self._safe_pygame_reinit():
+            print("[!] No se pudo reinicializar pygame joystick")
+            return False
+
+        # Intentar conectar automáticamente
+        if self.try_auto_connect():
+            print("[OK] Joystick reconectado exitosamente")
+
+            # Notificar reconexión a la UI
+            if self.on_reconnect_callback and callable(self.on_reconnect_callback):
+                try:
+                    self.on_reconnect_callback()
+                except Exception as e:
+                    print(f"[!] Error al notificar UI de reconexión: {e}")
+
+            return True
         else:
-            messagebox.showinfo(f"❌ Error", "No se pudo actualizar el panel de control. Asegurese de tener conectado el joystick")
+            print("[!] No se encontró joystick para reconectar")
+            return False
 
     def cleanup(self):
         """
@@ -440,8 +602,23 @@ class JoystickController:
         """
         self.stop_listening()
         self.disconnect_joystick()
-        pygame.joystick.quit()
-        pygame.quit()
+
+        with self._lock:
+            try:
+                pygame.joystick.quit()
+                pygame.quit()
+                self._pygame_initialized = False
+            except pygame.error as e:
+                print(f"[!] Error al limpiar pygame: {e}")
+
+    def safe_cleanup(self):
+        """
+        Limpieza segura que NO destruye pygame.
+        Útil para desconexión temporal sin cerrar la app.
+        """
+        self.stop_listening()
+        self.disconnect_joystick()
+
 
 # Función de utilidad para crear y probar el controlador
 

@@ -13,5 +13,8 @@ DEFAULT_SCOREBOARD_ACTIONS = {
     'away_subtract_point': AbstractButton.ACTION_TOP,
     'manage_timer': AbstractButton.START,
     'change_possession': AbstractButton.SELECT,
-    'None': AbstractButton.ACTION_BOTTOM,
+    'home_add_team_foul': AbstractButton.DPAD_LEFT,
+    'away_add_team_foul': AbstractButton.DPAD_RIGHT,
+    'home_subtract_team_foul': AbstractButton.DPAD_UP,
+    'away_subtract_team_foul': AbstractButton.DPAD_DOWN,
 }

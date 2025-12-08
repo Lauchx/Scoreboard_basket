@@ -127,11 +127,17 @@ def create_joystick_controls_section(control_panel):
     control_panel.connected_btn = False
     control_panel.btn_connect = ttk.Button(controls_frame, text="🔌 Conectar", command=lambda: toogle_detect_joysticks_action(control_panel))
     control_panel.btn_connect.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+    # Botón para reconectar joystick (útil después de desconexión)
+    control_panel.btn_reconnect = ttk.Button(controls_frame, text="🔄 Reconectar",
+                                             command=lambda: reconnect_joystick_action(control_panel))
+    control_panel.btn_reconnect.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
     # Botón para iniciar/parar escucha
-    control_panel.btn_listen = ttk.Button(controls_frame, text="🎧 Iniciar Escucha", 
+    control_panel.btn_listen = ttk.Button(controls_frame, text="🎧 Iniciar Escucha",
                                          command=lambda: toggle_listening_action(control_panel))
     control_panel.btn_listen.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
-    
+
     # Botón para probar botones
 
 def create_joystick_config_section(control_panel):
@@ -140,8 +146,8 @@ def create_joystick_config_section(control_panel):
     control_panel.config_frame = ttk.LabelFrame(control_panel.frames.joystick, text="⚙️ Configuración de Botones", padding=10)
     control_panel.config_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
 
-    # Configurar grid del frame de configuración
-    for i in range(8):
+    # Configurar grid del frame de configuración (11 columnas: 1 inicial + 10 acciones)
+    for i in range(11):
         control_panel.config_frame.grid_columnconfigure(i, weight=1)
 
     # Inicializar configuración de acciones con botones abstractos
@@ -153,12 +159,16 @@ def create_joystick_config_section(control_panel):
 
     # Fila 1: Labels de acciones
     action_labels = {
-        'home_add_point': "🏠 +1 Local:",
-        'away_add_point': "🚗 +1 Visit:",
-        'home_subtract_point': "🏠 -1 Local:",
-        'away_subtract_point': "🚗 -1 Visit:",
-        'manage_timer': "▶️ Iniciar:",
-        'change_possession': "⛹🏻‍♂️ Posesión:",
+        'home_add_point': "🏠 +1 Pts:",
+        'away_add_point': "🚗 +1 Pts:",
+        'home_subtract_point': "🏠 -1 Pts:",
+        'away_subtract_point': "🚗 -1 Pts:",
+        'manage_timer': "▶️ Timer:",
+        'change_possession': "⛹🏻‍♂️ Poses:",
+        'home_add_team_foul': "🏠 +Falta:",
+        'away_add_team_foul': "🚗 +Falta:",
+        'home_subtract_team_foul': "🏠 -Falta:",
+        'away_subtract_team_foul': "🚗 -Falta:",
     }
 
     for i, (action, label) in enumerate(action_labels.items(), start=1):
@@ -291,6 +301,20 @@ def detect_joysticks_action(control_panel):
     else:
         log_joystick_message(control_panel, "❌ No se encontraron joysticks conectados")
 
+def reconnect_joystick_action(control_panel):
+    """Acción para reconectar el joystick después de una desconexión"""
+    log_joystick_message(control_panel, "🔄 Intentando reconectar joystick...")
+
+    if control_panel.joystick_controller.attempt_reconnection():
+        log_joystick_message(control_panel, "✅ Joystick reconectado exitosamente")
+        update_joystick_info(control_panel)
+        update_button_config_ui(control_panel)
+        control_panel.connected_btn = True
+        messagebox.showinfo("Joystick", "✅ Joystick reconectado exitosamente")
+    else:
+        log_joystick_message(control_panel, "❌ No se pudo reconectar el joystick")
+        messagebox.showwarning("Joystick", "No se encontró joystick para reconectar.\nAsegúrese de que el joystick esté conectado.")
+
 def disconnect_joystick_action(control_panel):
      if control_panel.joystick_controller.is_connected():
         # Desconectar
@@ -307,11 +331,15 @@ def toggle_listening_action(control_panel):
         log_joystick_message(control_panel, "🛑 Escucha del joystick detenida")
     else:
         # Iniciar escucha
-        if control_panel.joystick_controller.start_listening():
+        result = control_panel.joystick_controller.start_listening()
+        success, message = result if isinstance(result, tuple) else (result, "")
+
+        if success:
             control_panel.btn_listen.config(text="🛑 Parar Escucha")
             log_joystick_message(control_panel, "🎧 Escucha del joystick iniciada")
         else:
-            log_joystick_message(control_panel, "❌ Error al iniciar escucha")
+            log_joystick_message(control_panel, f"❌ {message}")
+            messagebox.showwarning("Joystick", message)
 
 
 def apply_button_config(control_panel):

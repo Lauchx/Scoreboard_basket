@@ -53,6 +53,10 @@ class ButtonMapping:
                 AbstractButton.ACTION_TOP: "Y",
                 AbstractButton.START: "Start",
                 AbstractButton.SELECT: "Select",
+                AbstractButton.DPAD_UP: "D-Pad ↑",
+                AbstractButton.DPAD_DOWN: "D-Pad ↓",
+                AbstractButton.DPAD_LEFT: "D-Pad ←",
+                AbstractButton.DPAD_RIGHT: "D-Pad →",
             },
             ControllerType.PLAYSTATION: {
                 AbstractButton.LEFT_BUMPER: "L1",
@@ -63,6 +67,10 @@ class ButtonMapping:
                 AbstractButton.ACTION_TOP: "△",
                 AbstractButton.START: "Start",
                 AbstractButton.SELECT: "Share",
+                AbstractButton.DPAD_UP: "D-Pad ↑",
+                AbstractButton.DPAD_DOWN: "D-Pad ↓",
+                AbstractButton.DPAD_LEFT: "D-Pad ←",
+                AbstractButton.DPAD_RIGHT: "D-Pad →",
             }
         }
 

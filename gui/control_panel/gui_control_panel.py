@@ -7,10 +7,10 @@ from types import SimpleNamespace
 from model.team import Team
 from gui.control_panel.ui_components.ui_teams import ui_teams
 from gui.control_panel.ui_components.ui_logo import buttons_logo
-from gui.control_panel.ui_components.ui_possession import toggle_possession
+from gui.control_panel.ui_components.ui_action_center import change_possession
 from gui.control_panel.ui_components.ui_time import setup_time_panel, setup_timer_buttons, manage_timer
 from gui.control_panel.ui_components.ui_quarter import setup_quarter_panel
-from gui.control_panel.ui_components.ui_fouls import setup_fouls_panel
+from gui.control_panel.ui_components.ui_fouls import setup_fouls_panel, add_team_foul, subtract_team_foul
 from gui.control_panel.ui_components.ui_action_center import setup_action_panel
 from gui.control_panel.ui_components.ui_left_panel import setup_left_panel
 from controller.joystick_controller import JoystickController
@@ -144,7 +144,13 @@ def setup_joystick_callbacks(self):
 
     # Callbacks para control de tiempo
     self.joystick_controller.set_callback('manage_timer', lambda: manage_timer(self))
-    self.joystick_controller.set_callback('change_possession', lambda: toggle_possession(self))
+    self.joystick_controller.set_callback('change_possession', lambda: change_possession(self))
+
+    # Callbacks para faltas de equipo
+    self.joystick_controller.set_callback('home_add_team_foul', lambda: add_team_foul(self, self.home_team_controller, self.home_team.fouls.label))
+    self.joystick_controller.set_callback('away_add_team_foul', lambda: add_team_foul(self, self.away_team_controller, self.away_team.fouls.label))
+    self.joystick_controller.set_callback('home_subtract_team_foul', lambda: subtract_team_foul(self, self.home_team_controller, self.home_team.fouls.label))
+    self.joystick_controller.set_callback('away_subtract_team_foul', lambda: subtract_team_foul(self, self.away_team_controller, self.away_team.fouls.label))
 
 
 if __name__ == "__main__":
