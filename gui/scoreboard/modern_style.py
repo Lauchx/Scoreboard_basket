@@ -279,31 +279,39 @@ class ScoreboardModernStyle:
         """Configura el sistema responsive para redimensionamiento."""
         # Bind para detectar cambios de tamaño
         self.root.bind('<Configure>', self._on_window_resize)
-        
-        # Tamaño mínimo recomendado
-        self.root.minsize(1000, 600)
-    
+
+        # Tamaño mínimo muy reducido para permitir modo compacto
+        self.root.minsize(400, 250)
+
+        # Guardar referencia al scoreboard (se asignará después)
+        self.scoreboard_instance = None
+
+    def set_scoreboard_instance(self, scoreboard):
+        """Guarda referencia al scoreboard para actualizar widgets dinámicamente."""
+        self.scoreboard_instance = scoreboard
+
     def _on_window_resize(self, event):
         """
         Callback para manejar el redimensionamiento de la ventana.
-        Escala los elementos proporcionalmente.
+        Escala TODOS los elementos proporcionalmente.
         """
         # Solo procesar eventos de la ventana principal
         if event.widget != self.root:
             return
-        
+
         # Calcular factor de escala basado en el ancho
         base_width = 1200  # Ancho de referencia
         current_width = event.width
         new_scale = current_width / base_width
-        
-        # Limitar el rango de escala
-        new_scale = max(0.6, min(new_scale, 2.0))
-        
-        # Solo actualizar si hay cambio significativo
-        if abs(new_scale - self.scale_factor) > 0.05:
+
+        # Permitir escala muy pequeña (hasta 30%) para modo compacto
+        new_scale = max(0.30, min(new_scale, 2.0))
+
+        # Solo actualizar si hay cambio significativo (reducido threshold)
+        if abs(new_scale - self.scale_factor) > 0.02:
             self.scale_factor = new_scale
             self._update_scaled_styles()
+            self._update_dynamic_widgets()
     
     def _update_scaled_styles(self):
         """Actualiza los tamaños de fuente según el factor de escala."""
@@ -341,7 +349,96 @@ class ScoreboardModernStyle:
         self.style.configure("Info.TLabel",
                            font=(self.FONTS['display'][0],
                                 int(self.BASE_SIZES['font_label'] * scale)))
-    
+
+        # Estilos adicionales para faltas y bonus
+        self.style.configure("Fouls.TLabel",
+                           font=(self.FONTS['display'][0],
+                                int(self.BASE_SIZES.get('font_fouls', 28) * scale), 'bold'))
+
+        self.style.configure("Bonus.TLabel",
+                           font=(self.FONTS['condensed'][0],
+                                int(self.BASE_SIZES.get('font_bonus', 24) * scale), 'bold'))
+
+    def _update_dynamic_widgets(self):
+        """
+        Actualiza widgets dinámicos que usan tk.Label (no ttk) como el reloj, puntajes, faltas.
+        Estos requieren actualización directa de la propiedad font.
+
+        PRIORIDAD DE ESCALADO (mínimos más altos = más visibles al achicar):
+        - ALTA: Tiempo, Puntajes, Nombres de equipos
+        - BAJA: Faltas, Cuarto (se achican más)
+        """
+        if self.scoreboard_instance is None:
+            return
+
+        scale = self.scale_factor
+        sb = self.scoreboard_instance
+
+        try:
+            # ═══════════════════════════════════════════════════════════
+            # RELOJ (tk.Label con Digital-7 Mono) - PRIORIDAD ALTA
+            # Mínimo 40px para mantener buena legibilidad
+            # ═══════════════════════════════════════════════════════════
+            if hasattr(sb, 'match') and hasattr(sb.match, 'labels') and hasattr(sb.match.labels, 'time'):
+                time_label = sb.match.labels.time
+                font_size = int(self.BASE_SIZES['font_time'] * scale)
+                font_size = max(40, font_size)  # Mínimo ALTO para prioridad
+                time_label.config(font=('Digital-7 Mono', font_size))
+
+            # ═══════════════════════════════════════════════════════════
+            # PUNTAJES DE EQUIPOS (tk.Label) - PRIORIDAD ALTA
+            # Mínimo 32px para puntajes, 14px para nombres
+            # ═══════════════════════════════════════════════════════════
+            for team_attr in ['home_team', 'away_team']:
+                team_ns = getattr(sb, team_attr, None)
+                if team_ns and hasattr(team_ns, 'labels'):
+                    labels = team_ns.labels
+
+                    # Actualizar puntaje - PRIORIDAD ALTA
+                    if hasattr(labels, 'points') and isinstance(labels.points, tk.Label):
+                        font_size = int(self.BASE_SIZES['font_score'] * scale)
+                        font_size = max(32, font_size)  # Mínimo ALTO
+                        labels.points.config(font=(self.FONTS['score'][0], font_size, 'bold'))
+
+                    # Actualizar nombre del equipo - PRIORIDAD ALTA
+                    if hasattr(labels, 'name') and isinstance(labels.name, tk.Label):
+                        font_size = int(self.BASE_SIZES['font_team_name'] * scale)
+                        font_size = max(14, font_size)  # Mínimo ALTO
+                        labels.name.config(font=('Arial Narrow', font_size, 'bold'))
+
+            # ═══════════════════════════════════════════════════════════
+            # FALTAS (tk.Label) - PRIORIDAD BAJA
+            # Mínimo 10px para contadores
+            # ═══════════════════════════════════════════════════════════
+            if hasattr(sb.match.labels, 'fouls'):
+                fouls = sb.match.labels.fouls
+                font_size_counter = int(70 * scale)  # 70 es el tamaño base de faltas
+                font_size_counter = max(10, font_size_counter)  # Mínimo BAJO
+
+                for team in ['home', 'away']:
+                    team_fouls = getattr(fouls, team, None)
+                    if team_fouls and hasattr(team_fouls, 'counter') and isinstance(team_fouls.counter, tk.Label):
+                        team_fouls.counter.config(font=(self.FONTS['display'][0], font_size_counter, 'bold'))
+
+            # ═══════════════════════════════════════════════════════════
+            # CUARTO (tk.Label) - PRIORIDAD BAJA
+            # Mínimo 8px para número, 6px para texto
+            # ═══════════════════════════════════════════════════════════
+            # Número del cuarto
+            if hasattr(sb.match.labels, 'quarter_number') and isinstance(sb.match.labels.quarter_number, tk.Label):
+                font_size = int(self.BASE_SIZES['font_quarter'] * scale * 2)
+                font_size = max(8, font_size)  # Mínimo BAJO
+                sb.match.labels.quarter_number.config(font=(self.FONTS['display'][0], font_size, 'bold'))
+
+            # Texto "cuarto"
+            if hasattr(sb.match.labels, 'quarter_text') and isinstance(sb.match.labels.quarter_text, tk.Label):
+                font_size = int(self.BASE_SIZES['font_label'] * scale)
+                font_size = max(6, font_size)  # Mínimo MUY BAJO
+                sb.match.labels.quarter_text.config(font=(self.FONTS['display'][0], font_size))
+
+        except Exception as e:
+            print(f"[!] Error actualizando widgets dinámicos: {e}")
+
     def get_player_listbox_config(self):
         """
         Retorna la configuración de estilo para el Listbox de jugadores.

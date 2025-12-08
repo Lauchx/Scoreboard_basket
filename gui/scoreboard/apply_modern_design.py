@@ -35,38 +35,42 @@ from gui.scoreboard.ui_components.ui_timeouts_modern import create_timeout_indic
 def apply_modern_design(scoreboard_instance):
     """
     Aplica el diseño moderno completo al scoreboard.
-    
+
     Esta función reemplaza las funciones de creación de UI originales
     por sus versiones modernas, sin alterar la lógica del scoreboard.
-    
+
     Args:
         scoreboard_instance: Instancia de Gui_scoreboard
     """
     # Crear e inicializar el sistema de estilos modernos
     modern_style = ScoreboardModernStyle(scoreboard_instance.root)
-    
+
     # Guardar referencia al estilo para uso posterior
     scoreboard_instance.modern_style = modern_style
-    
+
+    # Conectar el scoreboard con el sistema de estilos para actualizaciones dinámicas
+    modern_style.set_scoreboard_instance(scoreboard_instance)
+
     # Configurar fondo de la ventana principal
     scoreboard_instance.root.configure(bg=modern_style.COLORS['bg_primary'])
-    
+
     return modern_style
 
 
 def setup_ui_modern(scoreboard_instance):
     """
     Configura el UI con diseño moderno (reemplaza setup_ui original).
+    COMPLETAMENTE RESPONSIVE - todos los elementos se escalan con la ventana.
 
     Args:
         scoreboard_instance: Instancia de Gui_scoreboard
     """
     # Configurar grid de la ventana principal (responsive)
-    # Columnas de equipos (0 y 2) tienen más peso para mostrar jugadores
-    # Columna central (1) tiene ancho fijo para evitar que el reloj "salte"
-    scoreboard_instance.root.grid_columnconfigure(0, weight=3)  # Equipo local - MÁS ESPACIO
-    scoreboard_instance.root.grid_columnconfigure(1, weight=0, minsize=280)  # Centro - ANCHO FIJO (280px)
-    scoreboard_instance.root.grid_columnconfigure(2, weight=3)  # Equipo visitante - MÁS ESPACIO
+    # Columnas de equipos (0 y 2) tienen peso para jugadores
+    # Columna central (1) tiene peso menor pero flexible
+    scoreboard_instance.root.grid_columnconfigure(0, weight=3)  # Equipo local
+    scoreboard_instance.root.grid_columnconfigure(1, weight=2)  # Centro - FLEXIBLE (sin minsize fijo)
+    scoreboard_instance.root.grid_columnconfigure(2, weight=3)  # Equipo visitante
 
     scoreboard_instance.root.grid_rowconfigure(0, weight=1)
     scoreboard_instance.root.grid_rowconfigure(1, weight=0)

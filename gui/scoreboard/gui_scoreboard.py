@@ -351,9 +351,19 @@ Gui_scoreboard.restore_background = restore_background
 # TOGGLE VISIBILIDAD DE SECCIÓN DE JUGADORES
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Configuración de tamaños de ventana para toggle de jugadores
+WINDOW_SIZES = {
+    'full_width': 1200,           # Ancho con ambos jugadores visibles
+    'one_hidden_width': 900,      # Ancho con un panel de jugadores oculto
+    'both_hidden_width': 600,     # Ancho con ambos paneles de jugadores ocultos
+    'height': 700,                # Alto constante
+}
+
+
 def toggle_players_section(self, is_home, visible):
     """
     Muestra u oculta la sección de jugadores de un equipo en el scoreboard.
+    Ajusta automáticamente el ancho de la ventana y colapsa las columnas vacías.
 
     Args:
         is_home (bool): True para equipo local, False para visitante
@@ -369,11 +379,10 @@ def toggle_players_section(self, is_home, visible):
             return
 
         players_widget = team_namespace.labels.players
+        col = 0 if is_home else 2
 
         if visible:
             # Mostrar la sección de jugadores
-            # Restaurar la posición en el grid
-            col = 0 if is_home else 2
             padding = (0, 15) if is_home else (15, 0)
             players_widget.grid(
                 row=0,
@@ -383,15 +392,59 @@ def toggle_players_section(self, is_home, visible):
                 padx=padding,
                 pady=5
             )
+            # Restaurar peso de la columna para que ocupe espacio
+            self.root.grid_columnconfigure(col, weight=3)
             print(f"[OK] Jugadores {'LOCAL' if is_home else 'VISITANTE'} visibles")
         else:
             # Ocultar la sección de jugadores (quitar del grid sin destruir)
             players_widget.grid_remove()
+            # Colapsar la columna para que no ocupe espacio
+            self.root.grid_columnconfigure(col, weight=0, minsize=0)
             print(f"[OK] Jugadores {'LOCAL' if is_home else 'VISITANTE'} ocultos")
+
+        # Ajustar tamaño de ventana según jugadores visibles
+        _adjust_window_size(self)
 
     except Exception as e:
         print(f"[!] Error al toggle jugadores: {e}")
 
 
-# Agregar método toggle_players_section a la clase Gui_scoreboard
+def _adjust_window_size(self):
+    """
+    Ajusta el tamaño de la ventana según cuántos paneles de jugadores están visibles.
+    Mantiene la ventana completamente responsive (se puede achicar manualmente).
+    """
+    try:
+        # Verificar estado de visibilidad de ambos paneles
+        home_visible = True
+        away_visible = True
+
+        if hasattr(self.home_team.labels, 'players'):
+            home_visible = self.home_team.labels.players.winfo_ismapped()
+        if hasattr(self.away_team.labels, 'players'):
+            away_visible = self.away_team.labels.players.winfo_ismapped()
+
+        # Determinar ancho según visibilidad
+        if home_visible and away_visible:
+            new_width = WINDOW_SIZES['full_width']
+        elif home_visible or away_visible:
+            new_width = WINDOW_SIZES['one_hidden_width']
+        else:
+            new_width = WINDOW_SIZES['both_hidden_width']
+
+        height = WINDOW_SIZES['height']
+
+        # Aplicar nuevo tamaño
+        self.root.geometry(f"{new_width}x{height}")
+
+        # Mínimo MUY pequeño para permitir responsive total
+        self.root.minsize(400, 250)
+
+        print(f"[OK] Ventana ajustada a {new_width}x{height}")
+
+    except Exception as e:
+        print(f"[!] Error al ajustar ventana: {e}")
+
+
+# Agregar métodos a la clase Gui_scoreboard
 Gui_scoreboard.toggle_players_section = toggle_players_section

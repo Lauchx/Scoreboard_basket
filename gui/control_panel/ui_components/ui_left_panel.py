@@ -48,14 +48,28 @@ def setup_team_form(self, parent_frame, team_type):
     form_panel = ttk.Frame(parent_frame, padding=3)
     form_panel.pack(fill="x", padx=2, pady=2)
 
-    # Nombre del equipo
+    # Nombre del equipo (máximo 12 caracteres)
+    MAX_TEAM_NAME_LENGTH = 12
+
     ttk.Label(form_panel, text="Equipo:", style="PlayerForm.TLabel").grid(row=0, column=0, sticky="w", padx=2, pady=1)
-    team_entry = ttk.Entry(form_panel, width=15, style="PlayerForm.TEntry")
+
+    # Variable con validación de límite de caracteres
+    team_name_var = tk.StringVar()
+
+    def validate_team_name_length(*args):
+        """Limita el nombre del equipo a MAX_TEAM_NAME_LENGTH caracteres."""
+        current = team_name_var.get()
+        if len(current) > MAX_TEAM_NAME_LENGTH:
+            team_name_var.set(current[:MAX_TEAM_NAME_LENGTH])
+
+    team_name_var.trace_add('write', validate_team_name_length)
+
+    team_entry = ttk.Entry(form_panel, width=15, style="PlayerForm.TEntry", textvariable=team_name_var)
     team_entry.grid(row=0, column=1, sticky="ew", padx=2, pady=1)
     setattr(self, f"{team_type}_team_name_entry", team_entry)
 
     def update_team_name():
-        team_name = team_entry.get()
+        team_name = team_entry.get()[:MAX_TEAM_NAME_LENGTH]  # Asegurar truncamiento
         if team_name.strip():
             team_controller.change_name(team_name)
             # Actualizar marcador si está disponible
@@ -69,13 +83,14 @@ def setup_team_form(self, parent_frame, team_type):
     def upload_logo():
         """Carga un logo para el equipo"""
         path = filedialog.askopenfilename(
-            title="Seleccionar logo", 
+            title="Seleccionar logo",
             filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg;*.gif")]
         )
         if path:
             try:
                 image = Image.open(path)
-                image = image.resize((300, 300), Image.LANCZOS)
+                # Tamaño pequeño (80x80) para que quede proporcional al nombre del equipo
+                image = image.resize((80, 80), Image.LANCZOS)
                 logo = ImageTk.PhotoImage(image)
                 team_controller.change_logo(logo)
                 

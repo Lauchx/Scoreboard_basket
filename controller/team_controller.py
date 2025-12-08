@@ -19,7 +19,9 @@ class Team_controller:
             self.team.fouls -= 1
 
     def change_name(self, name):
-        self.team.name = name
+        # Limitar nombre a 12 caracteres máximo
+        MAX_TEAM_NAME_LENGTH = 12
+        self.team.name = name[:MAX_TEAM_NAME_LENGTH] if len(name) > MAX_TEAM_NAME_LENGTH else name
 
     def change_logo(self, logo):
         self.team.logo = logo
