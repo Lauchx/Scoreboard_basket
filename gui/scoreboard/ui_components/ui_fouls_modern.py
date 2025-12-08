@@ -90,6 +90,8 @@ def create_fouls_grid_modern(self, modern_style):
     # Guardar referencias
     self.match.labels.fouls.home.bonus_canvas = home_bonus_canvas
     self.match.labels.fouls.home.bonus_led = home_bonus_led
+    self.match.labels.fouls.home.bonus_label = home_bonus_label  # Para cambio de color de texto BONUS
+    self.match.labels.fouls.frame = fouls_frame  # Para cambio de color de fondo
 
     # Texto "Faltas" HOME
     font_size_text = int(sizes['font_label'] * modern_style.scale_factor * 0.6)
@@ -102,6 +104,7 @@ def create_fouls_grid_modern(self, modern_style):
         anchor='center'
     )
     home_fouls_text.grid(row=1, column=0, sticky="nsew", padx=2, pady=2)
+    self.match.labels.fouls.home.fouls_text = home_fouls_text  # Para cambio de color de fondo
 
     # Contador de faltas HOME (número grande pero menor que el reloj)
     # Reloj = font_time (100), Faltas = 70% del reloj = 70
@@ -158,6 +161,7 @@ def create_fouls_grid_modern(self, modern_style):
     # Guardar referencias
     self.match.labels.fouls.away.bonus_canvas = away_bonus_canvas
     self.match.labels.fouls.away.bonus_led = away_bonus_led
+    self.match.labels.fouls.away.bonus_label = away_bonus_label  # Para cambio de color de texto BONUS
 
     # Texto "Faltas" AWAY
     away_fouls_text = tk.Label(
@@ -169,6 +173,7 @@ def create_fouls_grid_modern(self, modern_style):
         anchor='center'
     )
     away_fouls_text.grid(row=1, column=1, sticky="nsew", padx=2, pady=2)
+    self.match.labels.fouls.away.fouls_text = away_fouls_text  # Para cambio de color de fondo
 
     # Contador de faltas AWAY (número MUY grande - mismo tamaño que HOME)
     away_fouls_counter = tk.Label(

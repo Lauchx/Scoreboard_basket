@@ -199,6 +199,14 @@ def setup_team_form(self, parent_frame, team_type):
                 break
 
         if player:
+            # Validar que el jugador no tenga ya 5 faltas (suspendido)
+            if player.foul >= 5:
+                messagebox.showwarning(
+                    "Jugador Suspendido",
+                    f"El jugador #{player.jersey_number} ({player.name}) ya tiene 5 faltas.\n\n⛔ No puede recibir más faltas porque está suspendido."
+                )
+                return
+
             # Validar que hay faltas de equipo disponibles para asignar
             if not team_controller.can_assign_player_foul():
                 messagebox.showwarning(
@@ -476,26 +484,34 @@ def setup_team_form(self, parent_frame, team_type):
 def setup_tab_ajustes(self):
     """Configura la pestaña de ajustes con personalización de colores"""
     # Crear un canvas con scrollbar para permitir scroll vertical
-    canvas = tk.Canvas(self.tab_ajustes, bg="white", highlightthickness=0)
+    # Usar color de fondo gris claro (#f0f0f0) para evitar zona blanca
+    canvas = tk.Canvas(self.tab_ajustes, bg="#f0f0f0", highlightthickness=0)
     scrollbar = ttk.Scrollbar(self.tab_ajustes, orient="vertical", command=canvas.yview)
-    
+
     # Frame scrolleable dentro del canvas
     scrollable_frame = ttk.Frame(canvas)
-    scrollable_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-    )
-    
-    # Insertar el frame dentro del canvas
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+    # Hacer que el frame scrolleable ocupe todo el ancho disponible
+    def configure_scroll_region(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        # Ajustar ancho del frame al ancho del canvas
+        canvas.itemconfig(canvas_window, width=event.width)
+
+    scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    # Insertar el frame dentro del canvas y guardar referencia
+    canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
-    
+
+    # Ajustar ancho del frame al redimensionar canvas
+    canvas.bind("<Configure>", configure_scroll_region)
+
     # Permitir scroll con rueda del ratón
     def _on_mousewheel(event):
         canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-    
+
     canvas.bind_all("<MouseWheel>", _on_mousewheel)
-    
+
     # Pack canvas y scrollbar
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")

@@ -64,6 +64,7 @@ def create_quarter_labels_modern(self, modern_style):
 
     # Guardar referencia al frame para actualizaciones
     self.match.labels.quarter = self.match.labels.quarter_number  # Para compatibilidad con update
+    self.match.labels.quarter_frame = quarter_frame  # Para cambio de color de fondo
 
 
 def create_possession_labels_modern(self):

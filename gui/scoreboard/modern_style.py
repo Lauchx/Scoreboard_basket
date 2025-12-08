@@ -49,6 +49,7 @@ class ScoreboardModernStyle:
         'text_primary': '#ffffff',      # Blanco puro (textos principales)
         'text_secondary': '#b8c5d6',    # Gris azulado claro (textos secundarios)
         'text_dim': '#6b7a8f',          # Gris medio (textos apagados)
+        'text_bonus': '#ffffff',        # Blanco para texto BONUS (configurable)
 
         # Números y displays
         'display_time': '#00d9ff',      # Cian para el reloj

@@ -369,13 +369,19 @@ def update_tk_widgets_colors(scoreboard, color_key, new_color):
         # Fondos de secciones específicas
         'bg_quarter': [
             ('match.labels.quarter_number', 'bg'),
-            ('match.labels.quarter_text', 'bg')
+            ('match.labels.quarter_text', 'bg'),
+            ('match.labels.quarter_frame', 'bg')
         ],
         'bg_fouls_bonus': [
             ('match.labels.fouls.home.counter', 'bg'),
             ('match.labels.fouls.away.counter', 'bg'),
             ('match.labels.fouls.home.bonus_canvas', 'bg'),
-            ('match.labels.fouls.away.bonus_canvas', 'bg')
+            ('match.labels.fouls.away.bonus_canvas', 'bg'),
+            ('match.labels.fouls.home.bonus_label', 'bg'),
+            ('match.labels.fouls.away.bonus_label', 'bg'),
+            ('match.labels.fouls.home.fouls_text', 'bg'),
+            ('match.labels.fouls.away.fouls_text', 'bg'),
+            ('match.labels.fouls.frame', 'bg')
         ],
         'bg_score': [
             ('labels.home_team.points', 'bg'),
@@ -392,6 +398,11 @@ def update_tk_widgets_colors(scoreboard, color_key, new_color):
         'bg_players': [
             ('home_team.labels.players', 'bg'),
             ('away_team.labels.players', 'bg')
+        ],
+        # Color del texto BONUS
+        'text_bonus': [
+            ('match.labels.fouls.home.bonus_label', 'fg'),
+            ('match.labels.fouls.away.bonus_label', 'fg')
         ],
     }
 
@@ -539,6 +550,12 @@ def reset_colors_to_default(control_panel):
             'bg_center': '#0d1117',
             'bg_team_home': '#1a0f0f',
             'bg_team_away': '#0f1a1a',
+            'bg_quarter': '#0d1117',
+            'bg_fouls_bonus': '#0d1117',
+            'bg_score': '#1a1f3a',
+            'bg_team_name': '#1a1a2e',
+            'bg_logo': '#1a1f3a',
+            'bg_players': '#1a1f3a',
             'accent_neon': '#00ff41',
             'accent_cyan': '#00d9ff',
             'accent_red': '#ff0844',
@@ -547,9 +564,12 @@ def reset_colors_to_default(control_panel):
             'text_primary': '#ffffff',
             'text_secondary': '#b8c5d6',
             'text_dim': '#6b7a8f',
+            'text_bonus': '#ffffff',
             'display_time': '#00d9ff',
             'display_score': '#ffffff',
             'display_glow': '#0088cc',
+            'display_fouls': '#ff6b35',
+            'display_quarter': '#ff6b35',
             'border_light': '#2d3748',
             'border_bright': '#4a5568',
             'shadow': '#000000',
@@ -623,58 +643,93 @@ def setup_color_customization_ui_left(control_panel, parent_frame):
     )
     instructions.pack(pady=(0, 8), padx=10, anchor="w")
     
-    # === FONDOS ===
-    ttk.Label(parent_frame, text="FONDOS", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
-    
+    # === FONDOS PRINCIPALES ===
+    ttk.Label(parent_frame, text="FONDOS PRINCIPALES", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Fondo Principal:", "bg_primary",
                                 "Color de fondo principal del tablero")
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Fondo Panel Central:", "bg_center",
                                 "Color del panel central (tiempo, posesión)")
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Fondo Equipo Local:", "bg_team_home",
                                 "Color de fondo del equipo local")
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Fondo Equipo Visitante:", "bg_team_away",
                                 "Color de fondo del equipo visitante")
-    
+
+    # === FONDOS DE SECCIONES ===
+    ttk.Label(parent_frame, text="FONDOS DE SECCIONES", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Cuarto:", "bg_quarter",
+                                "Color de fondo del sector de cuarto")
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Faltas/BONUS:", "bg_fouls_bonus",
+                                "Color de fondo del sector de faltas y BONUS")
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Puntajes:", "bg_score",
+                                "Color de fondo del sector de puntajes")
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Nombres:", "bg_team_name",
+                                "Color de fondo del sector de nombres")
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Logos:", "bg_logo",
+                                "Color de fondo del sector de logos")
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Fondo Jugadores:", "bg_players",
+                                "Color de fondo del sector de jugadores")
+
     # === TEXTOS Y NÚMEROS ===
     ttk.Label(parent_frame, text="TEXTOS Y NÚMEROS", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Nombres de Equipos:", "text_primary",
                                 "Color de los nombres de los equipos")
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Puntajes:", "display_score",
                                 "Color de los puntajes")
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Reloj/Tiempo:", "display_time",
                                 "Color del reloj del partido")
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
-                                "Cuarto:", "accent_orange",
-                                "Color del indicador de cuarto")
-    
+                                "Número Cuarto:", "display_quarter",
+                                "Color del número del cuarto")
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Número Faltas:", "display_fouls",
+                                "Color de los números de faltas de equipo")
+
+    create_color_picker_vertical(control_panel, parent_frame,
+                                "Texto BONUS:", "text_bonus",
+                                "Color de la palabra BONUS")
+
     # === JUGADORES ===
     ttk.Label(parent_frame, text="JUGADORES", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Jugadores Activos:", "accent_neon",
                                 "Color de los jugadores en cancha")
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Jugadores Inactivos:", "text_dim",
                                 "Color de los jugadores en el banco")
-    
+
     # === POSESIÓN ===
     ttk.Label(parent_frame, text="POSESIÓN", font=('Arial', 9, 'bold')).pack(anchor="w", padx=10, pady=(8, 3))
-    
+
     create_color_picker_vertical(control_panel, parent_frame,
                                 "Flecha de Posesión:", "accent_neon",
                                 "Color de la flecha de posesión")
