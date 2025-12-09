@@ -14,7 +14,7 @@
 - [📸 Capturas y Diseño](#-capturas-y-diseño)
 - [🚀 Instalación y Requisitos](#-instalación-y-requisitos)
 - [🎮 Control con Joystick](#-control-con-joystick)
-- [⚙️ Configuración y Personalización](#-configuración-y-personalización)
+- [⚙️ Configuración y Personalización](#config)
 - [📂 Estructura del Proyecto](#-estructura-del-proyecto)
 - [🛠 Tecnologías Utilizadas](#-tecnologías-utilizadas)
 - [📄 Licencia](#-licencia)
@@ -49,6 +49,7 @@
     * Faltas de equipo acumulables con lógica de Bonus.
 
 ---
+
 ## 📸 Capturas y Diseño
 
 <div align="center">
@@ -66,6 +67,7 @@
 
 
 ---
+
 ## 🚀 Instalación y Requisitos
 
 ### Prerrequisitos
@@ -102,6 +104,7 @@
     ```
 
 ---
+
 ## 🎮 Control con Joystick
 
 El sistema integra `pygame` para permitir el control remoto del marcador mediante un gamepad. Soporta reconexión en caliente y detección automática.
@@ -123,7 +126,8 @@ La  predeterminada está diseñada para mandos estilo Xbox/PlayStation:
 > 💡 **Nota:** Puedes ver el estado de conexión y probar los botones en la pestaña "Ajustes" -> "Configuración de Joystick" del panel de control.
 
 ---
-## ⚙️ Configuración y Personalización
+
+##<a name="config"></a> ⚙️ Configuración y Personalización
 
 Desde el **Panel de Control**, puedes acceder a pestañas dedicadas para adaptar el sistema a las necesidades de cada partido:
 
@@ -171,13 +175,14 @@ Scoreboard_basket/
 ├── requirements.txt        # Lista de dependencias
 └── styles.py               # Estilos globales de Tkinter
 ```
+---
 ## 🛠 Tecnologías Utilizadas
 
 * **Python:** Lenguaje principal.
 * **Tkinter:** Framework para la interfaz gráfica de usuario.
 * **Pygame:** Manejo de entrada de joystick y reproducción de sonido (bocina).
 * **Pillow (PIL):** Procesamiento y redimensionado de imágenes para logotipos.
-
+---
 ## 📄 Licencia
 
 Este proyecto se distribuye bajo la licencia **Apache 2.0**. Consulta el archivo `LICENSE` para más detalles.
