@@ -5,7 +5,7 @@
 ![Language Count](https://img.shields.io/github/languages/count/Lauchx/Scoreboard_basket?style=flat&color=0080ff)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
-**Scoreboard Basket** es una aplicación de escritorio profesional desarrollada en Python para la gestión y visualización de tableros de baloncesto en tiempo real. Diseñada con una arquitectura MVC, ofrece un panel de control completo para el operador y una ventana de marcador público con estética moderna tipo NBA/FIBA.
+**Scoreboard Basket** es una aplicación de escritorio profesional desarrollada en Python para la gestión y visualización de tableros de baloncesto en tiempo real. Diseñada con una arquitectura MVC, ofrece un panel de control completo para el operador y una ventana de marcador público con estética moderna tipo FIBA.
 
 ---
 
@@ -44,16 +44,13 @@
     * Alta/Baja de jugadores con número de dorsal.
     * Marcado de titulares vs suplentes.
     * Conteo de faltas individuales con indicador de suspensión automática a la 5ta falta.
-* **Reglas FIBA/NBA:**
+* **Reglas FIBA:**
     * Gestión de cuartos (1-4 y Overtime).
     * Lógica de Timeouts por mitades (reset inteligente en el entretiempo).
     * Faltas de equipo acumulables con lógica de Bonus.
 
 ---
 ## 📸 Capturas y Diseño
-
-
-
 
 <div align="center">
   <img width="1373" height="760" alt="image" src="https://github.com/user-attachments/assets/f120ac97-b906-451b-a5fe-6f8bcc824ed7" />
