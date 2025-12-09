@@ -50,7 +50,26 @@
     * Faltas de equipo acumulables con lógica de Bonus.
 
 ---
+## 📸 Capturas y Diseño
 
+
+
+
+<div align="center">
+  <img width="1373" height="760" alt="image" src="https://github.com/user-attachments/assets/f120ac97-b906-451b-a5fe-6f8bcc824ed7" />
+  <p>
+    <em>Foto de muestra, pantalla principal de la consola de control.</em>
+  </p>
+</div>
+<div align="center">
+  <img width="1242" height="700" alt="image" src="https://github.com/user-attachments/assets/8ad2e267-2ae6-40d0-ab98-12aafe5d2d00" />
+  <p>
+    <em>Tablero de basket con colores predeterminados.</em>
+  </p>
+</div>
+
+
+---
 ## 🚀 Instalación y Requisitos
 
 ### Prerrequisitos
@@ -87,7 +106,6 @@
     ```
 
 ---
-
 ## 🎮 Control con Joystick
 
 El sistema integra `pygame` para permitir el control remoto del marcador mediante un gamepad. Soporta reconexión en caliente y detección automática.
@@ -112,12 +130,32 @@ La configuración predeterminada está diseñada para mandos estilo Xbox/PlaySta
 
 ## ⚙️ Configuración y Personalización
 
-Desde el **Panel de Control**, puedes acceder a pestañas para gestionar todos los aspectos del partido:
+Desde el **Panel de Control**, puedes acceder a pestañas dedicadas para adaptar el sistema a las necesidades de cada partido:
 
-1.  **Pestaña Equipos:** Añade jugadores, define titulares y carga los logos de los equipos.
-2.  **Pestaña Ajustes:**
-    * **Personalización de Colores:** Modifica los colores del tablero (fondos, textos, luces neón) en tiempo real para adaptarlo a la iluminación del estadio.
-    * **Joystick:** Verifica la conexión y el tipo de mando conectado.
+### 1. Gestión de Equipos (Pestaña Equipos)
+Permite la configuración completa de los equipos **Local** y **Visitante**:
+* **Nombre del Equipo:** Campo de texto editable para actualizar el nombre en tiempo real.
+* **Logotipo:** Botón "Cargar Logo" para subir imágenes (se redimensionan automáticamente).
+* **Plantilla de Jugadores:**
+    * **Alta:** Ingresa nombre y número de dorsal.
+    * **Estado:** Marca jugadores como "Titular" (se muestran en verde/resaltados) o suplentes.
+    * **Baja:** Elimina jugadores de la lista.
+
+### 2. Personalización Visual (Pestaña Ajustes)
+Adapta la estética del tablero a los colores del club o la iluminación del estadio en tiempo real:
+* **Fondos:** Personaliza el color de fondo principal, paneles de equipo y área central.
+* **Textos y Números:** Ajusta el color del reloj, los puntajes y los nombres de los equipos.
+* **Indicadores:** Define colores específicos para:
+    * Jugadores activos (por defecto verde neón).
+    * Jugadores inactivos (banca).
+    * Flecha de posesión.
+* **Restaurar:** Botón para volver a los colores por defecto del tema "Moderno".
+
+### 3. Configuración de Entrada (Joystick)
+Dentro de la pestaña de ajustes, encontrarás la sección de **Configuración de Joystick**:
+* **Estado:** Verifica si el mando está conectado o desconectado.
+* **Tipo de Mando:** Alterna manualmente entre esquemas de **Xbox** o **PlayStation** si la detección automática falla.
+* **Mapeo de Botones:** (En desarrollo) Visualiza la asignación actual de botones para las acciones principales (Puntos, Reloj, Faltas).
 
 ---
 
