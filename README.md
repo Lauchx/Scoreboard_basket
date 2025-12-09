@@ -1,5 +1,4 @@
 # 🏀 Scoreboard Basket
-
 ![Last Commit](https://img.shields.io/github/last-commit/Lauchx/Scoreboard_basket?style=flat&logo=git&logoColor=white&color=0080ff)
 ![Top Language](https://img.shields.io/github/languages/top/Lauchx/Scoreboard_basket?style=flat&color=0080ff)
 ![Language Count](https://img.shields.io/github/languages/count/Lauchx/Scoreboard_basket?style=flat&color=0080ff)
@@ -108,7 +107,7 @@
 El sistema integra `pygame` para permitir el control remoto del marcador mediante un gamepad. Soporta reconexión en caliente y detección automática.
 
 ### Mapeo de Botones por Defecto
-La configuración predeterminada está diseñada para mandos estilo Xbox/PlayStation:
+La  predeterminada está diseñada para mandos estilo Xbox/PlayStation:
 
 | Acción | Botón Xbox | Botón PlayStation |
 | :--- | :---: | :---: |
@@ -124,7 +123,6 @@ La configuración predeterminada está diseñada para mandos estilo Xbox/PlaySta
 > 💡 **Nota:** Puedes ver el estado de conexión y probar los botones en la pestaña "Ajustes" -> "Configuración de Joystick" del panel de control.
 
 ---
-
 ## ⚙️ Configuración y Personalización
 
 Desde el **Panel de Control**, puedes acceder a pestañas dedicadas para adaptar el sistema a las necesidades de cada partido:
