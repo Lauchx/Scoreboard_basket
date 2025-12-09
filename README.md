@@ -14,7 +14,7 @@
 - [📸 Capturas y Diseño](#-capturas-y-diseño)
 - [🚀 Instalación y Requisitos](#-instalación-y-requisitos)
 - [🎮 Control con Joystick](#-control-con-joystick)
-- [⚙️ Configuración y Personalización](#config)
+- [⚙️ Configuración y Personalización](#-configuración-y-personalización)
 - [📂 Estructura del Proyecto](#-estructura-del-proyecto)
 - [🛠 Tecnologías Utilizadas](#-tecnologías-utilizadas)
 - [📄 Licencia](#-licencia)
@@ -127,7 +127,7 @@ La  predeterminada está diseñada para mandos estilo Xbox/PlayStation:
 
 ---
 
-##<a name="config"></a> ⚙️ Configuración y Personalización
+## ⚙️ Configuración y Personalización
 
 Desde el **Panel de Control**, puedes acceder a pestañas dedicadas para adaptar el sistema a las necesidades de cada partido:
 
