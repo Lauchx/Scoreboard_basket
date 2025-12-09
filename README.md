@@ -14,7 +14,7 @@
 - [📸 Capturas y Diseño](#-capturas-y-diseño)
 - [🚀 Instalación y Requisitos](#-instalación-y-requisitos)
 - [🎮 Control con Joystick](#-control-con-joystick)
-- [⚙️ Configuración y Personalización](#-configuración-y-personalización)
+- [⚙️ Configuración y Personalización](#%EF%B8%8F-configuración-y-personalización)
 - [📂 Estructura del Proyecto](#-estructura-del-proyecto)
 - [🛠 Tecnologías Utilizadas](#-tecnologías-utilizadas)
 - [📄 Licencia](#-licencia)
