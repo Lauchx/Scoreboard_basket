@@ -10,8 +10,12 @@ def setup_left_panel(self):
     self.left_frame = ttk.Frame(self.root, style="PanelTestLeft.TFrame")
     self.left_frame.grid(row=0, column=0, sticky="nsew")
 
+    # Configurar grid interno para que el notebook pueda achicarse
+    self.left_frame.grid_rowconfigure(0, weight=1)
+    self.left_frame.grid_columnconfigure(0, weight=1)
+
     self.notebook = ttk.Notebook(self.left_frame)
-    self.notebook.pack(fill="both", expand=True, padx=2, pady=2)
+    self.notebook.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
 
     # Pestaña de Equipos (con notebook interno)
     self.tab_equipos = ttk.Frame(self.notebook)

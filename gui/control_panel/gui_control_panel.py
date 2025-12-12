@@ -98,10 +98,12 @@ def initialize_gui_scoreboard(self):
 def setup_ui(self):
     self.is_active_timer = None
     
-    # Configuración del grid raíz (1/6 izquierda, 5/6 derecha)
+    # Configuración del grid raíz (panel izquierdo achicable, panel derecho principal)
+    # El panel derecho tiene más peso (5) que el izquierdo (1), así que al achicar
+    # el panel izquierdo se achica proporcionalmente más
     self.root.grid_rowconfigure(0, weight=1)
-    self.root.grid_columnconfigure(0, weight=1)
-    self.root.grid_columnconfigure(1, weight=7)
+    self.root.grid_columnconfigure(0, weight=1, minsize=120)  # Panel izquierdo - poco peso, achicable
+    self.root.grid_columnconfigure(1, weight=5)  # Panel derecho - mucho más peso, prioridad
 
     # Panel Izquierdo (Jugadores y Equipos)
     setup_left_panel(self)

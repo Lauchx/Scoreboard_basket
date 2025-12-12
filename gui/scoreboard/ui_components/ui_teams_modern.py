@@ -126,20 +126,20 @@ def teams_labels_grid_configure(team_frame, is_home_team=True):
     """
     if is_home_team:
         # Para equipo LOCAL:
-        # Columna 0: Jugadores (flexible)
-        # Columna 1: Info equipo - nombre, logo, puntos (rígida)
+        # Columna 0: Jugadores (flexible, más peso)
+        # Columna 1: Info equipo - nombre, logo, puntos (semi-flexible, puede achicarse 20%)
         # Columna 2: Vacía (sin uso)
-        team_frame.grid_columnconfigure(0, weight=3)  # Columna jugadores LOCAL - FLEXIBLE
-        team_frame.grid_columnconfigure(1, weight=1)  # Columna info equipo - RÍGIDA
+        team_frame.grid_columnconfigure(0, weight=4)  # Columna jugadores LOCAL - MÁS FLEXIBLE
+        team_frame.grid_columnconfigure(1, weight=1, minsize=80)  # Columna info equipo - ACHICABLE (mínimo 80px)
         team_frame.grid_columnconfigure(2, weight=0)  # Columna vacía - SIN USO
     else:
         # Para equipo VISITANTE:
         # Columna 0: Vacía (sin uso)
-        # Columna 1: Info equipo - nombre, logo, puntos (rígida)
-        # Columna 2: Jugadores (flexible)
+        # Columna 1: Info equipo - nombre, logo, puntos (semi-flexible, puede achicarse 20%)
+        # Columna 2: Jugadores (flexible, más peso)
         team_frame.grid_columnconfigure(0, weight=0)  # Columna vacía - SIN USO
-        team_frame.grid_columnconfigure(1, weight=1)  # Columna info equipo - RÍGIDA
-        team_frame.grid_columnconfigure(2, weight=3)  # Columna jugadores VISITANTE - FLEXIBLE
+        team_frame.grid_columnconfigure(1, weight=1, minsize=80)  # Columna info equipo - ACHICABLE (mínimo 80px)
+        team_frame.grid_columnconfigure(2, weight=4)  # Columna jugadores VISITANTE - MÁS FLEXIBLE
 
     # Configurar filas con pesos para responsive
     for row in range(3):

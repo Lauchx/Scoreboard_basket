@@ -27,8 +27,8 @@ class ScoreboardModernStyle:
         'bg_primary': '#0A0E27',        # Azul oscuro casi negro (fondo principal)
         'bg_secondary': '#1a1f3a',      # Azul oscuro (paneles)
         'bg_center': '#0d1117',         # Negro azulado (panel central)
-        'bg_team_home': '#1a0f0f',      # Rojo muy oscuro (equipo local)
-        'bg_team_away': '#0f1a1a',      # Verde azulado oscuro (visitante)
+        'bg_team_home': '#1a1a2e',      # Azul oscuro (equipo local) - mismo que visitante
+        'bg_team_away': '#1a1a2e',      # Azul oscuro (visitante) - mismo que local
 
         # Fondos de secciones específicas (configurables)
         'bg_quarter': '#0d1117',        # Fondo del sector de cuarto
@@ -72,10 +72,11 @@ class ScoreboardModernStyle:
     
     # 📏 TAMAÑOS BASE (se escalan proporcionalmente)
     # Reducidos para dar más espacio horizontal a las columnas de jugadores
+    # Columnas de info de equipo reducidas 5% adicional para permitir achicar ventana
     BASE_SIZES = {
-        'font_team_name': 24,      # Reducido de 32 a 24 (25% más pequeño) para columna más compacta
-        'font_score': 80,          # AUMENTADO de 60 a 80 para mayor visibilidad
-        'font_time': 100,          # MANTENER GRANDE - No se reduce
+        'font_team_name': 22,      # Reducido de 24 a 22 (5% más pequeño) para columna más compacta
+        'font_score': 76,          # Reducido de 80 a 76 (5% más pequeño)
+        'font_time': 100,          # MANTENER GRANDE - No se reduce (privilegiar tiempo)
         'font_quarter': 24,        # Reducido de 32 a 24 (25% más pequeño)
         'font_possession_arrow': 50,  # Proporcional a BONUS, visible desde lejos
         'font_possession_text': 20,    # Reducido de 28 a 20 (29% más pequeño)
@@ -83,7 +84,7 @@ class ScoreboardModernStyle:
         'font_players': 13,        # Reducido de 14 a 13 (ligeramente más pequeño)
 
         'padding_main': 15,        # Reducido de 25 a 15 (40% menos padding)
-        'padding_team': 10,        # Reducido de 20 a 10 (50% menos padding)
+        'padding_team': 8,         # Reducido de 10 a 8 (20% menos padding)
         'padding_center': 10,      # Reducido de 15 a 10 (33% menos padding)
         'border_width': 2,         # Reducido de 3 a 2 (más delgado)
         'time_border_width': 2,    # Borde para el reloj (mantener)
@@ -282,7 +283,7 @@ class ScoreboardModernStyle:
         self.root.bind('<Configure>', self._on_window_resize)
 
         # Tamaño mínimo muy reducido para permitir modo compacto
-        self.root.minsize(400, 250)
+        self.root.minsize(350, 220)
 
         # Guardar referencia al scoreboard (se asignará después)
         self.scoreboard_instance = None

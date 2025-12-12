@@ -74,8 +74,14 @@ def start_timer(self):
     if not hasattr(self.match_state_controller.match_state, 'milliseconds_left'):
         self.match_state_controller.match_state.milliseconds_left = 0
 
-    if (time_left > 0 or self.match_state_controller.match_state.milliseconds_left > 0) and self.is_active_timer:
+    # Solo continuar si el timer está activo
+    if not self.is_active_timer:
+        return  # Timer pausado, no hacer nada
 
+    # Verificar si hay tiempo restante
+    has_time_left = time_left > 0 or self.match_state_controller.match_state.milliseconds_left > 0
+
+    if has_time_left:
         if time_left < 60:
             # Último minuto: actualizar cada 10ms para mostrar centésimas
             self.match_state_controller.match_state.milliseconds_left -= 10
@@ -99,9 +105,10 @@ def start_timer(self):
             update_time_label(self)
             self.root.after(1000, lambda: start_timer(self))
     else:
-        # TIEMPO TERMINADO - Reproducir bocina y cambiar fondo a rojo
-        print("🔔 TIEMPO TERMINADO - Reproduciendo bocina")
-        on_time_ended(self)
+        # TIEMPO LLEGÓ A 00.00 - Solo activar si no se ha triggereado previamente
+        if not getattr(self, '_time_ended_triggered', False):
+            print("🔔 TIEMPO TERMINADO - Reproduciendo bocina")
+            on_time_ended(self)
 
 def pause_resume_timer(self):
     self.is_active_timer = not self.is_active_timer
@@ -130,8 +137,8 @@ def change_time(self):
      # Resetear milisegundos al cambiar el tiempo
      self.match_state_controller.match_state.milliseconds_left = 0
      self.scoreboard_window.update_time_labels(0)
-     # Restaurar fondo original del scoreboard
-     restore_scoreboard_background(self)
+     # Resetear bandera de tiempo terminado para permitir nuevo trigger
+     self._time_ended_triggered = False
 
 def reset_timer(self):
     self.match_state_controller.match_state.seconds_time_left = self.match_state_controller.match_state.seconds_match_time
@@ -142,8 +149,8 @@ def reset_timer(self):
         change_text_button_timer(self, 'Iniciar')
     self.scoreboard_window.update_time_labels(0)
     update_time_label(self)
-    # Restaurar fondo original del scoreboard
-    restore_scoreboard_background(self)
+    # Resetear bandera de tiempo terminado para permitir nuevo trigger
+    self._time_ended_triggered = False
 
 def manage_timer(self):
     if (self.is_active_timer is not None):
@@ -170,8 +177,11 @@ def update_time_label(self):
 def on_time_ended(self):
     """
     Se ejecuta cuando el tiempo llega a 00:00.
-    Reproduce la bocina y cambia el fondo del scoreboard a rojo.
+    Reproduce la bocina y cambia el fondo del scoreboard a rojo por 3 segundos.
     """
+    # Marcar que el tiempo terminó (para evitar re-trigger del rojo)
+    self._time_ended_triggered = True
+
     # Reproducir bocina a volumen máximo
     try:
         if BOCINA_PATH.exists():
@@ -187,6 +197,8 @@ def on_time_ended(self):
     # Cambiar fondo del scoreboard a rojo
     try:
         self.scoreboard_window.set_background_red()
+        # Restaurar el fondo automáticamente después de 3 segundos
+        self.root.after(3000, lambda: restore_scoreboard_background(self))
     except Exception as e:
         print(f"[!] Error al cambiar fondo a rojo: {e}")
 
