@@ -5,6 +5,12 @@ from gui.control_panel.gui_control_panel import Gui_control_panel
 
 from styles import apply_general_styles
 
+import sys
+import builtins
+
+if getattr(sys, 'frozen', False):
+    builtins.print = lambda *args, **kwargs: None
+
 def main():
     main_window = tk.Tk()
     apply_general_styles()

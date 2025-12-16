@@ -169,6 +169,7 @@ def create_joystick_config_section(control_panel):
         'away_add_team_foul': "🚗 +Falta:",
         'home_subtract_team_foul': "🏠 -Falta:",
         'away_subtract_team_foul': "🚗 -Falta:",
+        'triggerBuzzer': '🔊 Bocina',
     }
 
     for i, (action, label) in enumerate(action_labels.items(), start=1):

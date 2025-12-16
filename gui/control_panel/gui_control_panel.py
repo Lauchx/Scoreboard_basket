@@ -8,7 +8,7 @@ from model.team import Team
 from gui.control_panel.ui_components.ui_teams import ui_teams
 from gui.control_panel.ui_components.ui_logo import buttons_logo
 from gui.control_panel.ui_components.ui_action_center import change_possession
-from gui.control_panel.ui_components.ui_time import setup_time_panel, setup_timer_buttons, manage_timer
+from gui.control_panel.ui_components.ui_time import setup_time_panel, setup_timer_buttons, manage_timer, on_time_ended
 from gui.control_panel.ui_components.ui_quarter import setup_quarter_panel
 from gui.control_panel.ui_components.ui_fouls import setup_fouls_panel, add_team_foul, subtract_team_foul
 from gui.control_panel.ui_components.ui_action_center import setup_action_panel
@@ -153,6 +153,11 @@ def setup_joystick_callbacks(self):
     self.joystick_controller.set_callback('away_add_team_foul', lambda: add_team_foul(self, self.away_team_controller, self.away_team.fouls.label))
     self.joystick_controller.set_callback('home_subtract_team_foul', lambda: subtract_team_foul(self, self.home_team_controller, self.home_team.fouls.label))
     self.joystick_controller.set_callback('away_subtract_team_foul', lambda: subtract_team_foul(self, self.away_team_controller, self.away_team.fouls.label))
+    self.joystick_controller.set_callback('triggerBuzzer', lambda:triggerBuzzer(self))
+
+def triggerBuzzer(self):
+    on_time_ended(self)
+    manage_timer(self)
 
 
 if __name__ == "__main__":

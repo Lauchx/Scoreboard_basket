@@ -17,4 +17,5 @@ DEFAULT_SCOREBOARD_ACTIONS = {
     'away_add_team_foul': AbstractButton.DPAD_RIGHT,
     'home_subtract_team_foul': AbstractButton.DPAD_UP,
     'away_subtract_team_foul': AbstractButton.DPAD_DOWN,
+    'triggerBuzzer': AbstractButton.ACTION_RIGHT,
 }

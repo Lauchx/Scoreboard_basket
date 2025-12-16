@@ -107,7 +107,6 @@ def start_timer(self):
     else:
         # TIEMPO LLEGÓ A 00.00 - Solo activar si no se ha triggereado previamente
         if not getattr(self, '_time_ended_triggered', False):
-            print("🔔 TIEMPO TERMINADO - Reproduciendo bocina")
             on_time_ended(self)
 
 def pause_resume_timer(self):
